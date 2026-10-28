@@ -19,7 +19,10 @@ connectToDataBase()
 
 
 app.use(
-  cors()
+  cors({
+    origin: '*',
+    credentials: true,
+  })
 );
 app.use(express.json())
 
