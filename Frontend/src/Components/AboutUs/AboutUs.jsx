@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import styles from "./AboutUs.module.css";
+import styles from "./Aboutus.module.css";
 import Navbar from "../Navbar/Navbar";
 import AboutHero from "./AboutHero";
 
