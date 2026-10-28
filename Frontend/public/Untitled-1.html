@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#fbb62a" />
+  <title>You are offline | Pack&amp;Go</title>
+
+  <!-- Everything is inline on purpose: this page must work with no internet at all -->
+  <style>
+    :root {
+      --green: #1b7a4b;
+      --green-dark: #0f3d2a;
+      --green-deep: #0a2b1e;
+      --orange: #ff7a1a;
+      --text: #17261e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--green-dark);
+      color: #fff;
+      font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    }
+
+    /* ---------- Scene ---------- */
+    .scene {
+      position: relative;
+      flex: 1 1 52vh;
+      min-height: 320px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fbb62a 0%, #ff9d2e 55%, #ff7a1a 100%);
+    }
+
+    .scene svg {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: max(125%, 1100px);
+      height: auto;
+    }
+
+    .sun {
+      transform-origin: 560px 150px;
+      animation: glow 4s ease-in-out infinite;
+    }
+
+    .cloud {
+      position: absolute;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+      animation: drift linear infinite;
+    }
+    .cloud::before {
+      content: "";
+      position: absolute;
+      left: 22%;
+      top: -14px;
+      width: 44%;
+      height: 28px;
+      border-radius: 999px;
+      background: inherit;
+    }
+    .cloud.one { top: 14%; width: 110px; animation-duration: 60s; }
+    .cloud.two { top: 28%; width: 76px; animation-duration: 85s; animation-delay: -30s; }
+
+    .road-line {
+      stroke-dasharray: 8 14;
+      animation: dash 1.2s linear infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes drift {
+      from { left: -140px; }
+      to { left: 105%; }
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -22; }
+    }
+
+    /* ---------- Panel ---------- */
+    .panel {
+      position: relative;
+      margin-top: -1px;
+      padding: 28px 24px 56px;
+      background: var(--green-dark);
+      text-align: center;
+    }
+
+    .panel h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 7vw, 3rem);
+      line-height: 1.05;
+      font-weight: 800;
+    }
+
+    .panel p {
+      margin: 0 auto 28px;
+      max-width: 460px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #cfe3d6;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 999px;
+      border: 2px solid var(--orange);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn.primary { background: var(--orange); color: var(--text); }
+    .btn.primary:hover { background: #ffa04d; }
+    .btn.ghost { background: transparent; color: #fff; }
+    .btn.ghost:hover { background: rgba(255, 255, 255, 0.1); }
+    .btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+    .status {
+      margin-top: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--green-deep);
+      color: #cfe3d6;
+      font-size: 0.92rem;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sun, .cloud, .road-line, .dot { animation: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- The picture: sun, mountains and a road that leads to a "no signal" sign -->
+  <div class="scene" aria-hidden="true">
+    <div class="cloud one"></div>
+    <div class="cloud two"></div>
+
+    <svg viewBox="-400 0 1600 420">
+      <defs>
+        <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#ff8a1f" />
+          <stop offset="1" stop-color="#ff6a00" />
+        </radialGradient>
+        <symbol id="tree" viewBox="0 0 28 44">
+          <path d="M14 0 L26 22 H18 L28 38 H0 L10 22 H2 Z" />
+        </symbol>
+      </defs>
+
+      <!-- sun -->
+      <circle class="sun" cx="560" cy="150" r="92" fill="url(#sunGrad)" />
+
+      <!-- far mountains -->
+      <polygon points="-400,420 -400,230 -250,190 -120,255 0,262 120,170 222,252 330,118 470,262 560,192 680,252 800,200 950,245 1080,185 1200,240 1200,420" fill="#1b7a4b" />
+      <!-- snow caps -->
+      <polygon points="330,118 292,165 315,156 332,177 350,155 376,166" fill="#fff" />
+      <polygon points="120,170 73,206 100,197 120,215 140,198 165,206" fill="#fff" />
+      <polygon points="560,192 530,222 548,215 562,230 578,214 596,222" fill="#fff" />
+
+      <!-- front hills -->
+      <path d="M-400 420 V320 Q-200 300 0 330 Q150 280 300 322 T600 312 T800 296 Q1000 270 1200 310 V420 Z" fill="#0f3d2a" />
+
+      <!-- the road -->
+      <path d="M350 420 C350 385 540 390 485 350 C445 322 365 330 415 300 L425 300 C385 330 470 325 510 352 C575 395 420 392 460 420 Z" fill="#ff7a1a" />
+      <path class="road-line" d="M405 420 C405 392 505 385 478 352 C450 326 400 322 420 302" fill="none" stroke="#fff3df" stroke-width="3" stroke-linecap="round" />
+
+      <!-- trees -->
+      <g fill="#0a2b1e">
+        <use href="#tree" x="20" y="300" width="34" height="54" />
+        <use href="#tree" x="62" y="318" width="26" height="42" />
+        <use href="#tree" x="640" y="300" width="36" height="56" />
+        <use href="#tree" x="684" y="322" width="26" height="42" />
+        <use href="#tree" x="730" y="296" width="38" height="60" />
+        <use href="#tree" x="290" y="338" width="22" height="36" />
+        <use href="#tree" x="-250" y="298" width="36" height="58" />
+        <use href="#tree" x="-196" y="322" width="26" height="42" />
+        <use href="#tree" x="880" y="306" width="34" height="54" />
+        <use href="#tree" x="940" y="292" width="40" height="62" />
+      </g>
+
+      <!-- foreground hill (same color as the panel below, so they blend) -->
+      <path d="M-400 420 V396 Q100 362 420 398 T1200 390 V420 Z" fill="#0f3d2a" />
+
+      <!-- the sign post -->
+      <rect x="188" y="318" width="8" height="102" fill="#0a2b1e" />
+      <g transform="rotate(-6 192 322)">
+        <rect x="130" y="286" width="124" height="46" rx="10" fill="#fff" />
+        <text x="192" y="315" text-anchor="middle" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="17" font-weight="700" fill="#0f3d2a">No signal</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- The message -->
+  <main class="panel">
+    <h1>You are off the map</h1>
+    <p>
+      Looks like your connection took a wrong turn. Check your Wi-Fi or mobile
+      data, and we will get you back on the road.
+    </p>
+
+    <div class="actions">
+      <button class="btn primary" id="retry">Try again</button>
+      <a class="btn ghost" href="/">Back to home</a>
+    </div>
+
+    <div class="status" role="status" aria-live="polite">
+      <span class="dot"></span>
+      <span id="statusText">Waiting for a connection</span>
+    </div>
+  </main>
+
+  <script>
+    var statusText = document.getElementById("statusText");
+
+    // Try again button
+    document.getElementById("retry").addEventListener("click", function () {
+      if (navigator.onLine) {
+        location.reload();
+      } else {
+        statusText.textContent = "Still offline. Check your Wi-Fi or mobile data.";
+      }
+    });
+
+    // Reload by itself as soon as the connection comes back
+    window.addEventListener("online", function () {
+      statusText.textContent = "Back online. Loading...";
+      location.reload();
+    });
+  </script>
+</body>
+</html>

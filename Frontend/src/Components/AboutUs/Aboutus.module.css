@@ -1,0 +1,327 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap");
+
+.page {
+  --green: #1b7a4b;
+  --green-dark: #0f3d2a;
+  --orange: #ff7a1a;
+  --bg: #f5f7f2;
+  --text: #17261e;
+  --muted: #46564c;
+  margin-top: 0px;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Figtree", sans-serif;
+}
+
+.page h1,
+.page h2,
+.page h3 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  margin: 0;
+}
+
+/* Keeps content centered and not too wide */
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+}
+
+.sectionTitle {
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  color: var(--green-dark);
+  margin-bottom: 32px !important;
+}
+
+.section {
+  padding: 88px 0;
+}
+
+/* ---------- Button ---------- */
+.btn {
+  display: inline-block;
+  padding: 14px 28px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #e8660a;
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgba(27, 122, 75, 0.45);
+  outline-offset: 2px;
+}
+
+/* ---------- 1. Hero ---------- */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 140px 20px 80px; /* top space for the floating navbar */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 56px;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.heroText {
+  flex: 1 1 440px;
+  max-width: 560px;
+}
+
+.heroText h1 {
+  font-weight: 800;
+  font-size: clamp(2.6rem, 5vw, 3.75rem);
+  line-height: 1;
+  color: var(--green-dark);
+  margin-bottom: 24px;
+}
+
+.heroText p {
+  margin: 0 0 32px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.heroCards {
+  flex: 1 1 380px;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.heroCard {
+  padding: 26px 28px;
+}
+
+.heroCard h2 {
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+
+.heroCard p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Each hero card has its own colors and rounded corners */
+.heroWhite {
+  background: #fff;
+  border: 1.5px solid #d9e0d6;
+  border-radius: 28px 28px 28px 8px;
+  color: var(--muted);
+}
+
+.heroGreen {
+  background: var(--green-dark);
+  color: #cfe3d6;
+  border-radius: 28px 8px 28px 28px;
+}
+
+.heroGreen h2 {
+  color: #fff;
+}
+
+.heroOrange {
+
+  color: var(--text);
+  border-radius: 28px 28px 8px 28px;
+}
+
+/* ---------- 2. Story ---------- */
+.story {
+  background: #fff;
+  padding: 88px 0;
+}
+
+.story .inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 48px;
+}
+
+.story .sectionTitle {
+  flex: 1 1 300px;
+  max-width: 420px;
+}
+
+.storyText {
+  flex: 2 1 460px;
+  max-width: 680px;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #2f4338;
+}
+
+.storyText p {
+  margin: 0 0 20px;
+}
+
+/* ---------- 3 and 4. Cards (reasons and values) ---------- */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  flex: 1 1 300px;
+  padding: 28px;
+  border-radius: 28px;
+  background: #fff;
+  border: 1.5px solid #d9e0d6;
+}
+
+.card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.card p {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Different corner on every card so they do not look like a boring grid */
+.cards .card:nth-child(3n + 1) {
+  border-radius: 28px 28px 28px 8px;
+}
+
+.cards .card:nth-child(3n + 2) {
+  border-radius: 28px 8px 28px 28px;
+}
+
+.values {
+  background: var(--green-dark);
+  padding: 88px 0;
+}
+
+.values .sectionTitle {
+  color: #fff;
+}
+
+.values .card {
+  background: #16573b;
+  border: none;
+}
+
+.values .card h3 {
+  color: #fff;
+}
+
+.values .card p {
+  color: #cfe3d6;
+}
+
+/* ---------- 5. Numbers ---------- */
+.numbers {
+  padding: 64px 0;
+}
+
+.numbersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.numbersRow > div {
+  flex: 1 1 200px;
+}
+
+.numbersRow strong {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 3.5rem;
+  line-height: 1.7;
+}
+
+.numbersRow p {
+  margin: 60px 0 0;
+  font-size: 1.1rem;
+}
+
+/* ---------- 6. Team ---------- */
+.mission {
+  margin: -16px 0 32px;
+  max-width: 620px;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #4e715e;
+}
+
+.team {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.person {
+  flex: 1 1 240px;
+  max-width: 340px;
+  padding: 28px;
+  border-radius: 28px;
+  background: #fff;
+  border: 1.5px solid #d9e0d6;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.person h3 {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+}
+
+.person p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* ---------- 7. Call to action ---------- */
+.cta {
+  background: #e4f2ea;
+  padding: 88px 0;
+}
+
+.cta h2 {
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+}
+
+.cta p {
+  margin: 0 0 28px;
+  max-width: 560px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #5b9a77;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding-top: 110px;
+  }
+  .section,
+  .story,
+  .values,
+  .cta {
+    padding: 64px 0;
+  }
+}

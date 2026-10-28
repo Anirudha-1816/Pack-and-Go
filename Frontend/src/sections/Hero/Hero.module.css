@@ -1,0 +1,220 @@
+/* ---------- Main box: full screen, goes behind the floating navbar ---------- */
+.hero {
+  /* navbar space: 0.75rem top margin + 5rem height + 2px border */
+  --nav-height: calc(0.75rem + 5rem + 2px);
+  --nav-space: 10px;
+
+  margin-top: calc(var(--nav-height) * -1); /* pulls the hero up behind the navbar */
+  min-height: 120vh;
+  box-sizing: border-box;
+  padding: var(--nav-space) 0 40px;
+  display: flex;
+  align-items: center;
+  background-color: #e6f2ec;
+  background-image: radial-gradient(#b7d4c6 1.2px, transparent 1.2px); /* faint dots */
+  background-size: 26px 26px;
+  color: #064e3b;
+  overflow: hidden;
+}
+
+/* Text on the left, map on the right */
+.content {
+  width: min(1400px, 92%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 40px;
+}
+
+/* ---------- Text ---------- */
+.title {
+  margin: 0;
+  font-size: clamp(44px, 6.5vw, 92px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -1.5px;
+}
+
+.go {
+  color: #f97316;
+}
+
+.desc {
+  max-width: 460px;
+  margin: 20px 0 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #4b635b;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.primary,
+.ghost {
+  padding: 14px 28px;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.primary {
+  color: #fff;
+  background: #f97316;
+  border: none;
+}
+
+.primary:hover {
+  background: #ea6a0c;
+}
+
+.ghost {
+  color: #064e3b;
+  background: transparent;
+  border: 1px solid #064e3b;
+}
+
+.ghost:hover {
+  background: rgba(6, 78, 59, 0.08);
+}
+
+/* ---------- Live booking tag ---------- */
+.feed {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding: 10px 22px 10px 10px;
+  background: #fff;
+  border: 1px solid #c5ddd2;
+  border-radius: 40px;
+  box-shadow: 0 6px 18px rgba(0, 60, 40, 0.08);
+  animation: slideIn 0.5s ease;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  background: #f97316;
+  border-radius: 50%;
+}
+
+.feedText {
+  margin: 0;
+  font-size: 15px;
+}
+
+.feedTime {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #6b7f78;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: blink 1.4s infinite;
+}
+
+/* ---------- Route map ---------- */
+.map {
+  width: 100%;
+  max-height: 70vh;
+}
+
+.dotted {
+  fill: none;
+  stroke: #9cc7b6;
+  stroke-width: 3;
+  stroke-dasharray: 2 10;
+  stroke-linecap: round;
+}
+
+/* pathLength="1" lets us draw the line with a simple 0 to 1 animation */
+.line {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation: draw 3.5s ease-out forwards;
+}
+
+.pin {
+  fill: #064e3b;
+}
+
+.ring {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 2;
+}
+
+.label {
+  font-size: 18px;
+  font-weight: 600;
+  fill: #064e3b;
+}
+
+.bus {
+  fill: #fff;
+  stroke: #064e3b;
+  stroke-width: 3;
+}
+
+/* ---------- Animations ---------- */
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ---------- Mobile: text on top, map under it ---------- */
+@media (max-width: 800px) {
+  .hero {
+    --nav-space: 100px;
+    align-items: flex-start;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .desc {
+    font-size: 16px;
+  }
+
+  .feed {
+    margin-top: 24px;
+  }
+
+  .map {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}

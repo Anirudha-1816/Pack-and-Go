@@ -1,0 +1,184 @@
+.page {
+  --green: #00483a;
+  --coral: #f97316;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 1.25rem;
+  max-width: 80rem;
+  align-items: center;
+  margin: 10rem auto 0;
+  padding: 0 1rem;
+  height: 90vh;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+/* ---------- Left: intro ---------- */
+.intro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 2.5rem 2rem;
+  height: 60vh;
+  border-radius: 2rem;
+  color: #fff;
+  background: linear-gradient(135deg, #00483a, #0a3d5c);
+}
+
+/* faint mountains, same as the footer */
+.intro::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 9rem;
+  background: rgba(255, 255, 255, 0.06);
+  clip-path: polygon(0 100%, 0 60%, 15% 25%, 28% 55%, 42% 15%, 58% 60%, 72% 30%, 88% 62%, 100% 35%, 100% 100%);
+  pointer-events: none;
+}
+
+.intro > * { position: relative; z-index: 1; }
+
+.kicker {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffb783;
+}
+
+.title {
+  margin: 0 0 1rem;
+  font-family: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
+  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.title span { color: var(--coral); }
+
+.text {
+  max-width: 26rem;
+  margin: 0;
+  line-height: 1.65;
+  opacity: 0.85;
+}
+
+.info {
+  display: grid;
+  gap: 0.9rem;
+  margin: auto 0 0;
+  padding: 2.5rem 0 4rem;
+  list-style: none;
+}
+
+.info li { display: flex; align-items: center; gap: 0.9rem; }
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.info small { display: block; font-size: 0.75rem; opacity: 0.7; }
+.info strong { font-size: 1rem; }
+
+/* ---------- Right: form ---------- */
+.form {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  padding: 2rem;
+  background: #fff;
+  height: 100%;
+  border: 1px solid #e5ebe8;
+  border-radius: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 40, 30, 0.1);
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #d5dedb;
+  border-radius: 1rem;
+  background: #fff;
+  color: #0f172a;
+  font: 500 1rem "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.field textarea { resize: vertical; min-height: 8rem; }
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0, 72, 58, 0.15);
+}
+
+.bad input,
+.bad textarea { border-color: #dc2626; }
+
+.field small { color: #dc2626; font-size: 0.85rem; font-weight: 500; }
+
+.count { justify-self: end; font-size: 0.78rem; font-style: normal; font-weight: 500; color: #6b7a75; }
+
+.button {
+  padding: 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font: 700 1rem "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.15s;
+}
+
+.button:hover { background: #00372c; transform: translateY(-2px); }
+.phoneInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.countryCode {
+  padding: 12px 14px;
+  background: #f3f3f3;
+  border-right: 1px solid #ccc;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.phoneInput input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  padding: 12px;
+  background: transparent;
+}
+
+/* ---------- Breakpoints ---------- */
+@media (max-width: 900px) {
+  .page { grid-template-columns: 1fr; }
+  .intro { padding: 2rem 1.5rem; }
+  .info { padding-bottom: 3.5rem; }
+  .form { padding: 1.5rem; }
+}

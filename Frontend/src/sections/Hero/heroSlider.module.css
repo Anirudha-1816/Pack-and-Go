@@ -1,0 +1,335 @@
+/* ---------- Main hero box (full screen on any device) ---------- */
+
+
+.hero {
+  /* navbar space: 0.75rem top margin + 5rem height + 2px border */
+  --nav-height: calc(0.75rem + 5rem + 2px);
+  --nav-space: 120px;
+
+  margin-top: calc(var(--nav-height) * -1); /* pulls the hero up behind the navbar */
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 600px;
+  overflow: hidden;
+  color: #fff;
+  background: #0b2a22;
+}
+
+/* ---------- Background images (stacked, crossfade) ---------- */
+.bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.bgActive {
+  opacity: 1;
+}
+
+/* Dark layer: darker on the left where the text is */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(4, 40, 30, 0.88) 0%,
+    rgba(4, 40, 30, 0.45) 55%,
+    rgba(4, 40, 30, 0.1) 100%
+  );
+}
+
+/* ---------- Layout: text on the left, cards on the right ---------- */
+.content {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  width: min(1600px, 92%);
+  height: 100%;
+  margin: 0 auto;
+  padding: var(--nav-space) 0 90px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+/* ---------- Text ---------- */
+.text {
+  max-width: 560px;
+  animation: fadeUp 0.6s ease;
+}
+
+.tag {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #ffe2c2;
+  background: rgba(249, 115, 22, 0.22);
+  border: 1px solid #f97316;
+  border-radius: 20px;
+}
+
+.title {
+  margin: 14px 0 0;
+  font-size: clamp(44px, 7vw, 96px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.desc {
+  margin: 16px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #d6ece3;
+}
+
+.info {
+  display: flex;
+  gap: 32px;
+  margin-top: 22px;
+}
+
+.info strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.info span {
+  font-size: 13px;
+  color: #a9d3c3;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.primary,
+.ghost {
+  padding: 14px 28px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.primary {
+  background: #f97316;
+  border: none;
+}
+
+.ghost {
+  background: transparent;
+  border: 1px solid #fff;
+}
+
+.primary:hover {
+  background: #ea6a0c;
+}
+
+.ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ---------- Small cards on the right ---------- */
+.cards {
+  display: flex;
+  gap: 16px;
+  animation: slideIn 0.6s ease;
+}
+
+.card {
+  position: relative;
+  flex-shrink: 0;
+  width: clamp(110px, 11vw, 170px);
+  aspect-ratio: 3 / 4;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.cardInfo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 30px 12px 12px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+}
+
+.cardName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cardPrice {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #ffe2c2;
+}
+
+/* ---------- Counter and arrows ---------- */
+.controls {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  width: min(1600px, 92%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.arrows {
+  display: flex;
+  gap: 10px;
+}
+
+.arrow {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.arrow:hover {
+  background: #f97316;
+  border-color: #f97316;
+}
+
+/* ---------- Progress bar (also controls the 3 second timing) ---------- */
+.barTrack {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.bar {
+  height: 100%;
+  background: #f97316;
+  animation: fill 3s linear forwards;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Mobile: text at the bottom, 3 tiny cards under it ---------- */
+@media (max-width: 768px) {
+  .hero {
+    --nav-space: 110px;
+  }
+
+  /* Dark at the bottom, so the photo shows at the top */
+  .overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(4, 40, 30, 0.3) 0%,
+      rgba(4, 40, 30, 0.92) 100%
+    );
+  }
+
+  .content {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 22px;
+    padding-bottom: 84px;
+  }
+
+  .desc {
+    font-size: 14px;
+  }
+
+  .info {
+    gap: 22px;
+  }
+
+  .info strong {
+    font-size: 18px;
+  }
+
+  .buttons {
+    margin-top: 20px;
+  }
+
+  .primary,
+  .ghost {
+    padding: 12px 22px;
+  }
+
+  .cards {
+    gap: 10px;
+  }
+
+  .card {
+    width: 84px;
+    border-radius: 14px;
+  }
+
+  .card:nth-child(n + 4) {
+    display: none; /* only 3 cards on phones */
+  }
+
+  .cardPrice {
+    display: none;
+  }
+
+  .controls {
+    bottom: 22px;
+  }
+}
+
+.pauseIndicator {
+  position: absolute;
+  z-index: 5;
+  top: 100px;
+  right: 24px;
+  padding: 8px 12px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 8px;
+  font-size: 12px;
+  pointer-events: none;
+}
+

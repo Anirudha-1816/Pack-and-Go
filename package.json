@@ -1,0 +1,15 @@
+
+{
+  "scripts": {
+    "dev": "concurrently -n FRONTEND,BACKEND \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\"",
+    "launch": "npm run dev",
+    "frontend": "npm run dev --prefix Frontend",
+    "server": "npm run dev --prefix Backend",
+    "craft": "npm run build --prefix Frontend",
+    "stage": "npm run preview --prefix Frontend",
+    "reveal": "concurrently -n FRONTEND,BACKEND \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\""
+  },
+  "dependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

@@ -1,0 +1,123 @@
+.page {
+  --green: #00483a;
+  --coral: #f97316;
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 8rem);
+  padding: 2rem 1rem;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2.25rem 2rem;
+  background: #ffffff;
+  border: 2px solid #e5ebe8;
+  border-radius: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 40, 30, 0.1);
+}
+
+.title {
+  margin: 0 0 0.4rem;
+  font-family: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--green);
+}
+
+.sub { margin: 0 0 1.5rem; color: #4b5563; }
+
+.form { display: grid; gap: 1rem; }
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #d5dedb;
+  border-radius: 1rem;
+  background: #fff;
+  color: #0f172a;
+  font: 500 1rem "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0, 72, 58, 0.15);
+}
+
+.bad input,
+.bad select { border-color: #dc2626; }
+
+.field small,
+.termsErr { color: #dc2626; font-size: 0.85rem; font-weight: 500; }
+
+.pw { position: relative; }
+.pw input { padding-right: 4.5rem; }
+
+.pw button {
+  position: absolute;
+  top: 50%;
+  right: 0.7rem;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  color: var(--green);
+  font: 700 0.85rem "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.terms {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.terms a { color: var(--green); font-weight: 600; }
+
+.error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.button {
+  padding: 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font: 700 1rem "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.button:hover { background: #00372c; }
+.button:disabled { opacity: 0.6; cursor: wait; }
+
+.switch { margin: 1.25rem 0 0; text-align: center; color: #4b5563; }
+
+.switch button {
+  border: 0;
+  background: none;
+  color: var(--coral);
+  font: 700 1rem "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+}

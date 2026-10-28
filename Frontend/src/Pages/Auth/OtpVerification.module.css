@@ -1,0 +1,69 @@
+.email {
+  color: var(--green);
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.boxes {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.box {
+  width: 3rem;
+  height: 3.5rem;
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
+  border: 1.5px solid #d5dedb;
+  border-radius: 1rem;
+  background: #fff;
+  color: #0f172a;
+  font: 700 1.4rem "Plus Jakarta Sans", system-ui, sans-serif;
+  caret-color: var(--green);
+}
+
+.box:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0, 72, 58, 0.15);
+}
+
+.box:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.devHint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--coral);
+  font: 700 0.9rem "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.link:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+@media (max-width: 400px) {
+  .boxes { gap: 0.4rem; }
+  .box { width: 2.6rem; height: 3.2rem; font-size: 1.2rem; }
+}
