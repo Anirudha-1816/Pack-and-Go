@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
-import styles from "./MyTripsFloat.module.css";
+import styles from "./Mytripsfloat.module.css";
 
 // ---------- Settings ----------
 

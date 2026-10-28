@@ -7,7 +7,7 @@ import Footer from "../Components/Footer/Footer";
 
 import NetworkStatus from "../Utils/NetworkStatus";
 import ProtectedRoutes from "./ProtectedRoute";
-import Hero from "../sections/Hero/HeroSection";
+import Hero from "../sections/Hero/heroSection.jsx";
 import HeroSlider from "../sections/Hero/HeroSlider";
 import Destinations from "../sections/Destinations/Destinations";
 import AboutHero from "../Components/AboutUs/AboutHero";
