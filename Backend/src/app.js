@@ -16,11 +16,15 @@ const app = express()
 configDotenv.config()
 connectToDataBase()
 
-
+const allowedOrigins = [
+  "https://pack-and-go-eight.vercel.app",
+  "https://pack-and-k839aye2k-singhanirudha1816-2385s-projects.vercel.app",
+  'https://pack-and-rde2ta65j-singhanirudha1816-2385s-projects.vercel.app/'
+];
 
 app.use(
   cors({
-    origin: '*',
+    origin: allowedOrigins,
     credentials: true,
   })
 );
