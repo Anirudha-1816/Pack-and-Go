@@ -97,31 +97,21 @@ export default function AuthPage({ signup = true }) {
       }
 
       // Existing login flow.
-      const response = await apiUsers.post("/login", {
-        email: body.email.trim().toLowerCase(),
-        password: body.password,
-      });
+const response = await apiUsers.post("/login", {
+  email: body.email.trim().toLowerCase(),
+  password: body.password,
+});
 
-      toast.success(response.data.message || "Login successful!");
+const user = await fetchUser();
 
-      // Fetch the authenticated user's details.
-      await fetchUser();
+if (!user) {
+  toast.error("Login worked, but your session could not be verified. Please try again.");
+  return;
+}
 
-      const user = useAuthStore.getState().user;
+toast.success(response.data.message || "Login successful!");
 
-      if (!user) {
-        toast.error(
-          "Login successful, but user details could not be loaded. Please try again."
-        );
-        return;
-      }
-
-      // Role-based navigation.
-      if (user.role === "admin") {
-        navigate("/admin-dashboard", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
+navigate(user.role === "admin" ? "/admin-dashboard" : "/", { replace: true });
     } catch (error) {
       console.error(
         "Authentication error:",

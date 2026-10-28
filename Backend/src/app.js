@@ -22,6 +22,8 @@ const allowedOrigins = [
   'https://pack-and-rde2ta65j-singhanirudha1816-2385s-projects.vercel.app/'
 ];
 
+
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: allowedOrigins,
