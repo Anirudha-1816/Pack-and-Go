@@ -57,12 +57,12 @@ export const pwaConfig = () =>
 
       runtimeCaching: [
         {
-          urlPattern: ({ url }) =>
-            url.origin === `${import.meta.env.VITE_API_URL}` &&
-            [
-              '/components/nav',
-              '/components/get-trips',
-            ].includes(url.pathname),
+         urlPattern: ({ url }) =>
+  url.origin === "https://pack-and-go-pd7d.onrender.com" &&   // Have to change it must it is only for debugging 
+  [
+    "/components/nav",
+    "/components/get-trips",
+  ].includes(url.pathname),
 
           handler: 'NetworkFirst',
 
