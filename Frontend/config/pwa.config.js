@@ -58,7 +58,7 @@ export const pwaConfig = () =>
       runtimeCaching: [
         {
           urlPattern: ({ url }) =>
-            url.origin === '${import.meta.env.VITE_API_URL}' &&
+            url.origin === `${import.meta.env.VITE_API_URL}` &&
             [
               '/components/nav',
               '/components/get-trips',
