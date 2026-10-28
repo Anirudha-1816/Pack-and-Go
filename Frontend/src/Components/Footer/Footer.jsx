@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 import styles from "./Footer.module.css";
 
-const TRIPS_API = "http://localhost:8080/components/get-trips";
+const TRIPS_API = `${import.meta.env.VITE_API_URL}/components/get-trips`;
 
 // ---------- Content (edit the text here) ----------
 

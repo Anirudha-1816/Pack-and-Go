@@ -11,7 +11,7 @@ import useAuthStore from "../../Stores/authStore";
 import OtpVerification from "./OtpVerification";
 import Navbar from "../../Components/Navbar/Navbar";
 
-const OTP_API = "http://localhost:8080/otp";
+const OTP_API = `${import.meta.env.VITE_API_URL}/otp`;
 
 const emailRe =
   /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;

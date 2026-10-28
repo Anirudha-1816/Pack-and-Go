@@ -5,11 +5,10 @@ import Navbar from "../Navbar/Navbar";
 import styles from "./Dashboard.module.css";
 // ---------- Settings ----------
 
-const BOOKINGS_API = "http://localhost:8080/booking/get";
+const BOOKINGS_API = `${import.meta.env.VITE_API_URL}/booking/get`;
 
 // These two are my guesses. Change them to your real routes.
-const LOGOUT_API = "http://localhost:8080/users/logout";
-// const FEEDBACK_API = "http://localhost:8080/feedback/create";
+const LOGOUT_API =`${import.meta.env.VITE_API_URL}/users/logout`;
 
 const LOGIN_PAGE = "/auth";
 

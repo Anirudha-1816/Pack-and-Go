@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "./HeroSlider.module.css";
 
-const API_URL = "http://localhost:8080/components/get-trips";
+const API_URL = `${import.meta.env.VITE_API_URL}/components/get-trips`;
 
 // Turns one Trip from the database into the shape this slider uses
 const toSlide = (trip) => ({

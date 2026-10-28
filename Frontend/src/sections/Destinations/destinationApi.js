@@ -2,7 +2,6 @@
 // Hardcoded for now. Put your photos/videos in  public/destinations/
 //
 // To use your API later, replace the body of getDestinations with:
-//   const res = await axios.get("http://localhost:8080/api/destinations");
 //   return res.data;
 //
 // Your API should return a list shaped like this:

@@ -78,7 +78,7 @@ export default function OtpVerification({ email, onVerified,  onChangeEmail }) {
 
   try {
     const response = await axios.post(
-      "http://localhost:8080/otp/verify",
+      `${import.meta.env.VITE_API_URL}/otp/verify`,
       { email, otp }
     );
 

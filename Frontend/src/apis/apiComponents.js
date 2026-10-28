@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiComponents = axios.create({
-    baseURL : 'http://localhost:8080/components',
+    baseURL : '${import.meta.env.VITE_API_URL}/components',
     withCredentials:true
 }) 
 

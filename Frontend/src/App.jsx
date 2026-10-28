@@ -17,7 +17,7 @@ export default function App() {
     const fetchBookings = async () => {
 
          try {
-      const response = await axios.get('http://localhost:8080/booking/get',{
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/booking/get`,{
         withCredentials : true
       })
 

@@ -5,7 +5,7 @@ import styles from "./MyTripsFloat.module.css";
 
 // ---------- Settings ----------
 
-const BOOKINGS_API = "http://localhost:8080/booking/get";
+const BOOKINGS_API = `${import.meta.env.VITE_API_URL}/booking/get`;
 const DASHBOARD_PAGE = "/user-dashboard";
 
 // Pages where the button should not show (it is pointless on the dashboard itself)

@@ -4,7 +4,7 @@ import axios from "axios";
 import styles from "./Packages.module.css";
 import Navbar from "../Navbar/Navbar";
 
-const API_URL = "http://localhost:8080/components/get-trips";
+const API_URL = `${import.meta.env.VITE_API_URL}/components/get-trips`;
 
 // If your Trip model uses different field names, change them ONLY here.
 function formatTrip(t) {

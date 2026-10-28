@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import styles from "./TripDetails.module.css";
 // import Navbar from '../Navbar/Navbar'
 
-const API_URL = "http://localhost:8080/trip/get";
+const API_URL = `${import.meta.env.VITE_API_URL}/trip/get`;
 
 // Used in the "Includes" pop-up to show what is included and what is not
 const ALL_MEALS = ["Breakfast", "Lunch", "Dinner", "Snacks", "Tea / Coffee"];
