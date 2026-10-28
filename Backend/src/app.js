@@ -28,14 +28,10 @@ app.use(cors({
 app.use(express.json())
 
 
+app.use(express.json())
 app.use(cookieParser())
 
-// app.use((req, res, next) => {
-//   console.log("Incoming request:", req.method, req.originalUrl);
-//   next();
-// });   //Debugging purpose only
- 
-// app.use('/otp', verificationRoutes);
+
 
 app.use('/users',userRouter)
 app.use('/components',componentRouter)
