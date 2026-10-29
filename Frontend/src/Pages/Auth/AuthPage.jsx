@@ -39,13 +39,13 @@ function Field({ label, error, children }) {
 }
 
 export default function AuthPage({ signup = true }) {
+  const fetchUser = useAuthStore((state) => state.fetchUser);
   const [isSignup, setIsSignup] = useState(signup);
   const [show, setShow] = useState(false);
   const [pendingSignup, setPendingSignup] = useState(null);
   const [showOtp, setShowOtp] = useState(false);
 
   const navigate = useNavigate();
-  const fetchUser = useAuthStore((state) => state.fetchUser);
 
   const {
     register,
@@ -102,8 +102,8 @@ const response = await apiUsers.post("/login", {
   password: body.password,
 });
 
-const user = await fetchUser();
 
+const user = await fetchUser();
 if (!user) {
   toast.error("Login worked, but your session could not be verified. Please try again.");
   return;
