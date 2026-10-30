@@ -11,6 +11,8 @@ import ProtectedRoutes from "./Routes/ProtectedRoutes.jsx";
 import NotFoundPage from "./utils/NotFound/NotFoundPage.jsx";
 
 import useAuthStore from "./store/authStore";
+import ManagePackages from "./components/x/ManagePackages.jsx";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const fetchUser = useAuthStore((state) => state.fetchUser);
@@ -20,17 +22,25 @@ const App = () => {
   }, [fetchUser]);
 
   return (
+    <>
+    <Toaster position="top-right" />
     <Routes>
+
+      {/* <Route path="/check" element={<UpComingTrips />} />   check route */}
+
+
       <Route path="/" element={<AdminLogin />} />
 
       <Route element={<ProtectedRoutes />}>
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin-managePackages" element={<AddPackage />} />
+        <Route path="/admin/add-package" element={<AddPackage />} />
+      <Route path="/admin-managePackages" element={<ManagePackages />} />
         <Route path="/admin/bookings" element={<AdminBookings />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </>
   );
 };
 
