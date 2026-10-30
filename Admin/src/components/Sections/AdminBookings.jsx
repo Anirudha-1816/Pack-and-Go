@@ -1,6 +1,5 @@
 import { useState } from "react";
-import styles from "./AdminBookings.module.css";
-
+import styles from './AdminBookings.module.css'
 // ---------- Hardcoded sample bookings (fake data) ----------
 // Later: load this list from your API instead.
 const sampleBookings = [
@@ -25,7 +24,7 @@ const money = (amount) => `₹${amount.toLocaleString("en-IN")}`;
 const formatDate = (date) =>
   new Date(date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-export default function AdminBookings() {
+ function AdminBookings() {
   const [bookings, setBookings] = useState(sampleBookings);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -271,3 +270,5 @@ export default function AdminBookings() {
     </div>
   );
 }
+
+export default AdminBookings

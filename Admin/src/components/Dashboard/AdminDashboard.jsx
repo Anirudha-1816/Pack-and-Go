@@ -51,7 +51,7 @@ export default function AdminDashboard() {
     try{
 
       await logoutUser() 
-      navigate("/admin-login");
+      navigate("/");
     }
     catch(err){
       console.log(err)

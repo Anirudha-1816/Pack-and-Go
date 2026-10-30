@@ -18,18 +18,11 @@ const NotFoundPage = lazy(() => import("../Utils/notFound/NotFound"));
 const Contact = lazy(() => import("../Pages/Contacts/Contact"));
 const AboutUs = lazy(() => import("../Components/AboutUs/AboutUs"));
 
-const AddPackage = lazy(() =>
-  import("../Components/AdminDashboard/Components/AddPackage")
-);
+
 const TripDetails = lazy(() =>
   import("../Components/trips/TripDetails")
 );
-const AdminDashboard = lazy(() =>
-  import("../Components/AdminDashboard/AdminDashboard")
-);
-const AdminBookings = lazy(() =>
-  import("../Components/AdminDashboard/Components/AdminBookings")
-);
+
 const Packages = lazy(() =>
   import("../Components/Packages/Packages_1")
 );
@@ -83,12 +76,7 @@ export default function AppRoutes() {
           <Route path="user-dashboard" element={<Dashboard />} />
         </Route>
 
-        {/* Admin-only Routes */}
-        <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/managePackages" element={<AddPackage />} />
-          <Route path="/admin/bookings" element={<AdminBookings />} />
-        </Route>
+        
 
         {/* 404 Route */}
         <Route path="*" element={<NotFoundPage />} />

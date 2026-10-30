@@ -3,34 +3,83 @@ import { create } from "zustand";
 import apiUsers from "../api/getadmin";
 
 const useAuthStore = create((set) => ({
-   user: null,
+  user: null,
   isAuthenticated: false,
-  isLoading: true, // Wait for the initial session check
+  isLoading: true,
 
-  // Get the current logged-in user
-fetchUser: async () => {
-  set({ isLoading: true });
-  try {
-    const { data } = await apiUsers.get("/get-current-user");
-    set({ user: data.data, isAuthenticated: Boolean(data.data) });
-    return data.data;
-  } catch (err) {
-    set({ user: null, isAuthenticated: false });
-    console.error("fetchUser failed:", err.response?.status, err.response?.data || err.message);
-    return null;
-  } finally {
-    set({ isLoading: false });
-  }
-},
+  // Get currently logged-in admin
+  fetchUser: async () => {
+    set({ isLoading: true });
 
-  // Logout the user
+    try {
+      const { data } = await apiUsers.get("/get-current-user");
+
+      const currentUser = data?.data;
+
+      if (currentUser?.role === "admin") {
+        set({
+          user: currentUser,
+          isAuthenticated: true,
+        });
+
+        return currentUser;
+      }
+
+      // User is logged in but is not an admin
+      set({
+        user: null,
+        isAuthenticated: false,
+      });
+
+      return null;
+    } catch (error) {
+      console.error(
+        "Authentication failed:",
+        error.response?.data || error.message
+      );
+
+      set({
+        user: null,
+        isAuthenticated: false,
+      });
+
+      return null;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  // Update authentication immediately after successful admin login
+  setUser: (user) => {
+    if (user?.role === "admin") {
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } else {
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
+  },
+
+  // Logout
   logout: async () => {
     try {
       await apiUsers.post("/logout");
+    } catch (error) {
+      console.error(
+        "Logout failed:",
+        error.response?.data || error.message
+      );
     } finally {
       set({
         user: null,
         isAuthenticated: false,
+        isLoading: false,
       });
     }
   },

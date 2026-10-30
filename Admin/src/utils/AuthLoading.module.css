@@ -1,0 +1,63 @@
+
+.loader {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #f8fafc;
+  font-family: inherit;
+}
+
+.content {
+  text-align: center;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 1.5rem;
+  border-radius: 14px;
+  background: #e8f4ff;
+  color: #168fe0;
+  font-size: 1.5rem;
+}
+
+.content h2 {
+  margin: 0 0 0.5rem;
+  color: #163653;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.content p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  margin: 1.5rem auto 0;
+  border: 3px solid #dbeafe;
+  border-top-color: #168fe0;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}

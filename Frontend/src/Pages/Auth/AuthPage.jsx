@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,7 +13,7 @@ import Navbar from "../../Components/Navbar/Navbar";
 const OTP_API = `${import.meta.env.VITE_API_URL}/otp`;
 
 const emailRe =
-  /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+  /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
 
 const fakeDomains = [
   "mailinator.com",
@@ -40,10 +39,13 @@ function Field({ label, error, children }) {
 
 export default function AuthPage({ signup = true }) {
   const fetchUser = useAuthStore((state) => state.fetchUser);
+  const logout = useAuthStore((state) => state.logout);
+
   const [isSignup, setIsSignup] = useState(signup);
   const [show, setShow] = useState(false);
   const [pendingSignup, setPendingSignup] = useState(null);
   const [showOtp, setShowOtp] = useState(false);
+  const [authMessage, setAuthMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -65,21 +67,24 @@ export default function AuthPage({ signup = true }) {
     setShow(false);
     setPendingSignup(null);
     setShowOtp(false);
+    setAuthMessage("");
     reset();
   };
 
   // Handle signup OTP request or user login.
   const onSubmit = async ({ confirmPassword, terms, ...body }) => {
+    setAuthMessage("");
+
     try {
       if (isSignup) {
         const email = body.email.trim().toLowerCase();
 
-        // Request OTP before showing the verification screen.
+        // Request OTP.
         const response = await axios.post(`${OTP_API}/create`, {
           email,
         });
 
-        // Keep signup details until OTP verification is complete.
+        // Keep signup details until OTP verification.
         setPendingSignup({
           ...body,
           email,
@@ -96,31 +101,44 @@ export default function AuthPage({ signup = true }) {
         return;
       }
 
-      // Existing login flow.
-const response = await apiUsers.post("/login", {
-  email: body.email.trim().toLowerCase(),
-  password: body.password,
-});
+      // Normal user login.
+      const response = await apiUsers.post("/login", {
+        email: body.email.trim().toLowerCase(),
+        password: body.password,
+      });
 
+      // Verify the logged-in user's session.
+      const user = await fetchUser();
 
-const user = await fetchUser();
-if (!user) {
-  toast.error("Login worked, but your session could not be verified. Please try again.");
-  return;
-}
+      if (!user) {
+        setAuthMessage(
+          "Unable to verify your session. Please try again."
+        );
+        return;
+      }
 
-toast.success(response.data.message || "Login successful!");
+      // Prevent admin accounts from using the user application.
+      if (user.role === "admin") {
+        await logout();
 
-navigate(user.role === "admin" ? "/admin-dashboard" : "/", { replace: true });
+        setAuthMessage(
+          "Only user accounts can log in here. Please use the admin portal."
+        );
+        return;
+      }
+
+      toast.success(response.data.message || "Login successful!");
+
+      navigate("/", { replace: true });
     } catch (error) {
       console.error(
         "Authentication error:",
         error.response?.data || error.message
       );
 
-      toast.error(
+      setAuthMessage(
         error.response?.data?.message ||
-          "Something went wrong. Please try again."
+          "Invalid email or password. Please try again."
       );
     }
   };
@@ -128,16 +146,17 @@ navigate(user.role === "admin" ? "/admin-dashboard" : "/", { replace: true });
   // Return to signup and restore entered details.
   const handleBackToSignup = () => {
     setShowOtp(false);
+    setAuthMessage("");
 
     if (pendingSignup) {
       reset(pendingSignup);
     }
   };
 
-  // Called by OtpVerification after the backend verifies the OTP.
+  // Called after backend verifies OTP.
   const handleOtpVerified = async ({ email, verificationToken }) => {
     if (!pendingSignup) {
-      toast.error("Signup details are missing. Please try again.");
+      setAuthMessage("Signup details are missing. Please try again.");
       setShowOtp(false);
       return;
     }
@@ -145,7 +164,7 @@ navigate(user.role === "admin" ? "/admin-dashboard" : "/", { replace: true });
     try {
       const { terms, ...body } = pendingSignup;
 
-      // Backend validates the verification token before account creation.
+      // Create account after OTP verification.
       await apiUsers.post(
         "/create",
         {
@@ -168,6 +187,7 @@ navigate(user.role === "admin" ? "/admin-dashboard" : "/", { replace: true });
       setPendingSignup(null);
       setIsSignup(false);
       setShow(false);
+      setAuthMessage("");
       reset();
     } catch (error) {
       console.error(
@@ -175,205 +195,217 @@ navigate(user.role === "admin" ? "/admin-dashboard" : "/", { replace: true });
         error.response?.data || error.message
       );
 
-      toast.error(
+      setAuthMessage(
         error.response?.data?.message ||
           "Could not create your account. Please try again."
       );
-
-      // Keep the OTP screen and signup details for retrying.
     }
   };
 
-  // Render OTP verification separately from the signup form.
+  // Render OTP verification.
   if (showOtp && pendingSignup) {
     return (
-      <>
       <main className={styles.page}>
         <div className={styles.card}>
           <OtpVerification
             email={pendingSignup.email}
             onVerified={handleOtpVerified}
             onChangeEmail={handleBackToSignup}
-            />
+          />
         </div>
       </main>
-            </>
     );
   }
 
   return (
     <>
-    <Navbar/>
-    <main className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>
-          {isSignup ? "Create your account" : "Welcome back"}
-        </h1>
+      <Navbar />
 
-        <form
-          className={styles.form}
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-        >
-          {/* Full name */}
-          {isSignup && (
-            <Field label="Full name" error={errors.fullName}>
+      <main className={styles.page}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>
+            {isSignup ? "Create your account" : "Welcome back"}
+          </h1>
+
+          {/* Error notification */}
+          {authMessage && (
+            <div
+              className={styles.authError}
+              role="alert"
+              aria-live="polite"
+            >
+              {authMessage}
+            </div>
+          )}
+
+          <form
+            className={styles.form}
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+          >
+            {/* Full name */}
+            {isSignup && (
+              <Field label="Full name" error={errors.fullName}>
+                <input
+                  autoComplete="name"
+                  placeholder="Your full name"
+                  {...register("fullName", {
+                    required: "Enter your full name",
+                    pattern: {
+                      value: /^\p{L}[\p{L}\s.'-]+$/u,
+                      message: "Use letters only",
+                    },
+                  })}
+                />
+              </Field>
+            )}
+
+            {/* Email */}
+            <Field label="Email" error={errors.email}>
               <input
-                autoComplete="name"
-                placeholder="Your full name"
-                {...register("fullName", {
-                  required: "Enter your full name",
+                type="email"
+                autoComplete="email"
+                placeholder="Email address"
+                {...register("email", {
+                  required: "Enter your email",
                   pattern: {
-                    value: /^\p{L}[\p{L}\s.'-]+$/u,
-                    message: "Use letters only",
+                    value: emailRe,
+                    message: "Enter a valid email address",
+                  },
+                  validate: (value) => {
+                    const email = value.trim().toLowerCase();
+                    const domain = email.split("@")[1];
+
+                    return (
+                      (!email.includes("..") &&
+                        !fakeDomains.includes(domain)) ||
+                      "Please use a valid email address"
+                    );
                   },
                 })}
               />
             </Field>
-          )}
 
-          {/* Email */}
-          <Field label="Email" error={errors.email}>
-            <input
-              type="email"
-              autoComplete="email"
-              placeholder="Email address"
-              {...register("email", {
-                required: "Enter your email",
-                pattern: {
-                  value: emailRe,
-                  message: "Enter a valid email address",
-                },
-                validate: (value) => {
-                  const email = value.trim().toLowerCase();
-                  const domain = email.split("@")[1];
-
-                  return (
-                    (!email.includes("..") &&
-                      !fakeDomains.includes(domain)) ||
-                    "Please use a valid email address"
-                  );
-                },
-              })}
-            />
-          </Field>
-
-          {/* Password */}
-          <Field label="Password" error={errors.password}>
-            <div className={styles.pw}>
-              <input
-                type={show ? "text" : "password"}
-                autoComplete={
-                  isSignup ? "new-password" : "current-password"
-                }
-                placeholder="Password"
-                {...register(
-                  "password",
-                  isSignup
-                    ? {
-                      required: "Enter a password",
-                      pattern: {
-                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-                        message:
-                        "Min 8 characters with upper, lower and a number",
-                      },
-                    }
-                    : {
-                        required: "Enter your password",
-                      }
-                    )}
-              />
-
-              <button
-                type="button"
-                onClick={() => setShow((current) => !current)}
-              >
-                {show ? "Hide" : "Show"}
-              </button>
-            </div>
-          </Field>
-
-          {/* Signup-only fields */}
-          {isSignup && (
-            <>
-              {/* Confirm password */}
-              <Field
-                label="Confirm password"
-                error={errors.confirmPassword}
-                >
+            {/* Password */}
+            <Field label="Password" error={errors.password}>
+              <div className={styles.pw}>
                 <input
                   type={show ? "text" : "password"}
-                  placeholder="Enter password"
-                  autoComplete="new-password"
-                  {...register("confirmPassword", {
-                    required: "Confirm your password",
-                    validate: (value) =>
-                      value === watch("password") ||
-                      "Passwords do not match",
-                    })}
+                  autoComplete={
+                    isSignup ? "new-password" : "current-password"
+                  }
+                  placeholder="Password"
+                  {...register(
+                    "password",
+                    isSignup
+                      ? {
+                          required: "Enter a password",
+                          pattern: {
+                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+                            message:
+                              "Min 8 characters with upper, lower and a number",
+                          },
+                        }
+                      : {
+                          required: "Enter your password",
+                        }
+                  )}
                 />
-              </Field>
 
-              {/* Gender */}
-              <Field label="Gender" error={errors.gender}>
-                <select
-                  {...register("gender", {
-                    required: "Select your gender",
-                  })}
+                <button
+                  type="button"
+                  onClick={() => setShow((current) => !current)}
+                >
+                  {show ? "Hide" : "Show"}
+                </button>
+              </div>
+            </Field>
+
+            {/* Signup-only fields */}
+            {isSignup && (
+              <>
+                {/* Confirm password */}
+                <Field
+                  label="Confirm password"
+                  error={errors.confirmPassword}
+                >
+                  <input
+                    type={show ? "text" : "password"}
+                    placeholder="Enter password"
+                    autoComplete="new-password"
+                    {...register("confirmPassword", {
+                      required: "Confirm your password",
+                      validate: (value) =>
+                        value === watch("password") ||
+                        "Passwords do not match",
+                    })}
+                  />
+                </Field>
+
+                {/* Gender */}
+                <Field label="Gender" error={errors.gender}>
+                  <select
+                    {...register("gender", {
+                      required: "Select your gender",
+                    })}
                   >
-                  <option value="" disabled>
-                    Select your gender
-                  </option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </Field>
+                    <option value="" disabled>
+                      Select your gender
+                    </option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </Field>
 
-              {/* Terms */}
-              <label className={styles.terms}>
-                <input
-                  type="checkbox"
-                  {...register("terms", {
-                    required: "Please accept the terms",
-                  })}
+                {/* Terms */}
+                <label className={styles.terms}>
+                  <input
+                    type="checkbox"
+                    {...register("terms", {
+                      required: "Please accept the terms",
+                    })}
                   />
 
-                <span>
-                  I agree to the <Link to="/terms">Terms</Link> and{" "}
-                  <Link to="/privacy">Privacy Policy</Link>
-                </span>
-              </label>
+                  <span>
+                    I agree to the <Link to="/terms">Terms</Link> and{" "}
+                    <Link to="/privacy">Privacy Policy</Link>
+                  </span>
+                </label>
 
-              {errors.terms && (
-                <small className={styles.termsErr} role="alert">
-                  {errors.terms.message}
-                </small>
-              )}
-            </>
-          )}
+                {errors.terms && (
+                  <small className={styles.termsErr} role="alert">
+                    {errors.terms.message}
+                  </small>
+                )}
+              </>
+            )}
 
-          {/* Submit */}
-          <button className={styles.button} disabled={isSubmitting}>
-            {isSubmitting
-              ? "Please wait..."
-              : isSignup
-              ? "Create account"
-                : "Log in"}
-          </button>
-        </form>
+            {/* Submit */}
+            <button
+              className={styles.button}
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Please wait..."
+                : isSignup
+                  ? "Create account"
+                  : "Log in"}
+            </button>
+          </form>
 
-        {/* Switch between signup and login */}
-        <p className={styles.switch}>
-          {isSignup
-            ? "Already have an account?"
-            : "New to Pack&Go?"}{" "}
-          <button type="button" onClick={switchMode}>
-            {isSignup ? "Log in" : "Sign up"}
-          </button>
-        </p>
-      </div>
-    </main>
-            </>
+          {/* Switch between signup and login */}
+          <p className={styles.switch}>
+            {isSignup
+              ? "Already have an account?"
+              : "New to Pack&Go?"}{" "}
+
+            <button type="button" onClick={switchMode}>
+              {isSignup ? "Log in" : "Sign up"}
+            </button>
+          </p>
+        </div>
+      </main>
+    </>
   );
 }
