@@ -79,7 +79,7 @@ const useAuthStore = create((set) => ({
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: true,
+        isLoading: false,
       });
     }
   },
