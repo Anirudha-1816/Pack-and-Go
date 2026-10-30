@@ -1,6 +1,7 @@
 // emailTemplates.js
 const SITE_URL = process.env.SITE_URL || "http://localhost:5173";
 
+
 // Stops user input from breaking (or injecting into) the email HTML
 const esc = (s = "") =>
   String(s)

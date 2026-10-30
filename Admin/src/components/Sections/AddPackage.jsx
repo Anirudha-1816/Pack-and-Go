@@ -159,7 +159,7 @@ export default function AddPackage() {
     
 
     try {
-  const res = await axios.post(`http://localhost:8080/trip/create`, formData ,
+  const res = await axios.post(`${import.meta.env.VITE_API_URL}/trip/create`, formData ,
     {withCredentials : true}
   ); 
   toast.success(res.data.message);
