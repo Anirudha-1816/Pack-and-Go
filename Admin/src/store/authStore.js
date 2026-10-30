@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import apiUsers from "../api/getadmin";
 
@@ -25,7 +24,6 @@ const useAuthStore = create((set) => ({
         return currentUser;
       }
 
-      // User is logged in but is not an admin
       set({
         user: null,
         isAuthenticated: false,
@@ -33,15 +31,15 @@ const useAuthStore = create((set) => ({
 
       return null;
     } catch (error) {
-      console.error(
-        "Authentication failed:",
-        error.response?.data || error.message
-      );
-
       set({
         user: null,
         isAuthenticated: false,
       });
+
+      console.error(
+        "Authentication failed:",
+        error.response?.data || error.message
+      );
 
       return null;
     } finally {
@@ -49,7 +47,7 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // Update authentication immediately after successful admin login
+  // Set admin after successful login
   setUser: (user) => {
     if (user?.role === "admin") {
       set({
@@ -69,7 +67,11 @@ const useAuthStore = create((set) => ({
   // Logout
   logout: async () => {
     try {
-      await apiUsers.post("/logout",{},{withCredentials:true});
+      await apiUsers.post(
+        "/logout",
+        {},
+        { withCredentials: true }
+      );
     } catch (error) {
       console.error(
         "Logout failed:",
