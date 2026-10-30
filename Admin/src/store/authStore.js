@@ -69,7 +69,7 @@ const useAuthStore = create((set) => ({
   // Logout
   logout: async () => {
     try {
-      await apiUsers.post("/logout");
+      await apiUsers.post("/logout",{},{withCredentials:true});
     } catch (error) {
       console.error(
         "Logout failed:",
@@ -79,7 +79,7 @@ const useAuthStore = create((set) => ({
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: false,
+        isLoading: true,
       });
     }
   },
