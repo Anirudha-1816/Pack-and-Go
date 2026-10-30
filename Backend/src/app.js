@@ -10,6 +10,7 @@ import contactRouter from './routes/contactRoutes.js'
 import verificationRoutes from './routes/verifications/optVerificationRoute.js'
 import tripRouter from './routes/trips/trips.js'
 import bookingRouter from './routes/components/bookings/bookingsRoutes.js'
+import adminRouter from './routes/admin/adminRoutes.js'
 
 
 const app = express()
@@ -21,7 +22,9 @@ const allowedOrigins = [
   "https://pack-and-k839aye2k-singhanirudha1816-2385s-projects.vercel.app",
   'https://pack-and-rde2ta65j-singhanirudha1816-2385s-projects.vercel.app/',
   'http://localhost:5173',
-  'http://localhost:4173'
+  'http://localhost:4173',
+  'http://localhost:5174',
+  'http://localhost:5175',
 ];
 
 
@@ -46,6 +49,8 @@ app.use('/contacts',contactRouter)
 app.use('/otp',verificationRoutes)
 app.use('/trip',tripRouter)
 app.use('/booking',bookingRouter)
+app.use('/admin',adminRouter)
+
 app.use(errorMiddleWare)
 
 export default app

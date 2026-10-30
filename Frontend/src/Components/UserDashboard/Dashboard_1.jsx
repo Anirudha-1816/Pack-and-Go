@@ -10,7 +10,7 @@ const BOOKINGS_API = `${import.meta.env.VITE_API_URL}/booking/get`;
 // These two are my guesses. Change them to your real routes.
 const LOGOUT_API =`${import.meta.env.VITE_API_URL}/users/logout`;
 
-const LOGIN_PAGE = "/auth";
+const LOGIN_PAGE = "/login";
 
 // Feedback upload limits
 // const MAX_FILES = 6;

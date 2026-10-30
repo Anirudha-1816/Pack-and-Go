@@ -1,0 +1,447 @@
+/* ---------- Page ---------- */
+.page {
+  --green: #00483a;
+  --green-tint: #e6f0ed;
+  --coral: #f97316;
+  --border: #d9e4df;
+
+  width: min(1400px, 92%);
+  margin: 2rem auto 4rem;
+  color: var(--green);
+}
+
+.title {
+  margin: 0 0 24px;
+  text-align: center;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+}
+
+/* Big rounded box around everything (like your sketch) */
+.box {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+}
+
+/* Left side wider, right side form */
+.layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Small image on the left, meals / stays / travel on the right */
+.lower {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Cards ---------- */
+.card {
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+}
+
+.cardTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+}
+
+/* ---------- Form fields ---------- */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--green);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+.textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.error {
+  font-size: 12px;
+  color: #c62828;
+}
+
+/* ---------- Pills (checkbox and radio buttons) ---------- */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Hide the real checkbox / radio, we style the text next to it instead */
+.pill input {
+  position: absolute;
+  opacity: 0;
+}
+
+.pill span {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pill:hover span {
+  background: var(--green-tint);
+}
+
+.pill input:checked + span {
+  color: #fff;
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.pill input:focus-visible + span {
+  outline: 3px solid var(--coral);
+  outline-offset: 2px;
+}
+
+/* ---------- Image pickers ---------- */
+.picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  background: var(--green-tint);
+  border: 2px dashed #9cc7b6;
+  border-radius: 1.25rem;
+  cursor: pointer;
+}
+
+.picker:hover {
+  border-color: var(--coral);
+}
+
+.bannerShape {
+  aspect-ratio: 16 / 8;
+}
+
+.thumbShape {
+  aspect-ratio: 3 / 4;
+}
+
+.placeholder {
+  padding: 12px;
+  text-align: center;
+}
+
+.plus {
+  font-size: 36px;
+  line-height: 1;
+  color: var(--coral);
+}
+
+.placeholder p {
+  margin: 6px 0 2px;
+  font-weight: 700;
+}
+
+.placeholder small {
+  color: #6b7f78;
+}
+
+.previewImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.change {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 20px;
+}
+
+/* ---------- Submit button ---------- */
+.submit {
+  padding: 14px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--coral);
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #ea6a0c;
+}
+
+/* ---------- Tablet and mobile ---------- */
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .box {
+    padding: 14px;
+    border-radius: 1.5rem;
+  }
+
+  .lower {
+    grid-template-columns: 1fr;
+  }
+
+  .thumbShape {
+    aspect-ratio: 16 / 9;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+/* ---------- NEW: small image column (image + roadmap card) ---------- */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- NEW: roadmap card ---------- */
+.summary {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b635b;
+}
+
+.roadmapBtn {
+  width: 100%;
+  padding: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--green);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.roadmapBtn:hover {
+  background: #00372c;
+}
+
+/* ---------- NEW: pop-up ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100; /* above your navbar (z-index 50) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 30, 22, 0.6);
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, 100%);
+  max-height: 88vh;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 1.5rem;
+}
+
+.modalHead {
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 22px;
+}
+
+.modalSub {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7f78;
+}
+
+/* The list of places scrolls if it gets long */
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 24px;
+  overflow-y: auto;
+}
+
+.stop {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.stopTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dayBadge {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--green);
+  border-radius: 999px;
+}
+
+.remove {
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  color: var(--green);
+  background: var(--green-tint);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: #fff;
+  background: #c62828;
+}
+
+.stopRow {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 10px;
+}
+
+.addPlace {
+  padding: 12px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--green);
+  background: var(--green-tint);
+  border: 1px dashed #9cc7b6;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.addPlace:hover {
+  border-color: var(--coral);
+}
+
+.modalFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.total {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.done {
+  padding: 12px 32px;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--coral);
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.done:hover {
+  background: #ea6a0c;
+}
+
+@media (max-width: 560px) {
+  .stopRow {
+    grid-template-columns: 1fr 100px;
+  }
+}

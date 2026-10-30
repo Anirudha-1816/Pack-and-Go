@@ -23,7 +23,7 @@ export default function ProtectedRoutes({ allowedRoles }) {
   if (!isAuthenticated || !user) {
     return (
       <Navigate
-        to="/auth"
+        to="/login"
         replace
         state={{ from: location }}
       />

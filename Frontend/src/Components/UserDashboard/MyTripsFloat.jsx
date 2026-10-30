@@ -61,7 +61,7 @@ export default function MyTripsFloat() {
     <Link
       to={DASHBOARD_PAGE}
       className={styles.float}
-      aria-label={activeCount > 0 ? `My trips, ${activeCount} active` : "My trips"}
+      aria-label={activeCount > 0 ? `Dashboard, ${activeCount} active` : "Dashboard"}
     >
       <span className={running ? `${styles.icon} ${styles.live}` : styles.icon}>
         {/* Suitcase icon */}

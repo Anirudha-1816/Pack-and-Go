@@ -72,7 +72,7 @@ export default function AppRoutes() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<AuthPage />} />
         <Route path="/trip/:id" element={<TripDetails />} />
         <Route path="know-us" element={<AboutUs />} />
 

@@ -1,4 +1,3 @@
-
 {
   "scripts": {
     "dev": "concurrently -n FRONTEND,BACKEND \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\"",
@@ -10,6 +9,8 @@
     "reveal": "concurrently -n FRONTEND,BACKEND \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\""
   },
   "dependencies": {
-    "concurrently": "^10.0.6"
+    "axios": "^1.21.0",
+    "concurrently": "^10.0.6",
+    "react-router-dom": "^7.18.5"
   }
 }

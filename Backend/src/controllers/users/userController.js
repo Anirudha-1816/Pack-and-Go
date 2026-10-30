@@ -84,7 +84,6 @@ if (!body || typeof body !== "object" || terms !== true) {
   }
 };
 
-
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body ?? {};
@@ -146,7 +145,6 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
-
 export const logoutUser = async (req, res, next) => {
 
   try {
@@ -189,3 +187,5 @@ export const getCurrentUser =  async (req,res,next) => {
     
   }
 }
+
+
