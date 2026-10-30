@@ -6,6 +6,7 @@ import {
 } from "react-icons/fa";
 import styles from "./AdminDashboard.module.css";
 import useAuthStore from "../../store/authStore";
+import baseApi from "../../api/baseApi";
 const admin = { email: "admin@packandgo.com" };
 
 const nav = [
@@ -49,6 +50,10 @@ export default function AdminDashboard() {
   const logout = async() => {
 
     try{
+
+      const response = await baseApi.post(`/users/logout`,{},{withCredentials : true})
+
+      console.log(response.data)
 
       await logoutUser() 
       navigate("/");
