@@ -25,6 +25,7 @@ const allowedOrigins = [
   'http://localhost:4173',
   'http://localhost:5174',
   'http://localhost:5175',
+  'https://pack-and-go-admin.vercel.app'
 ];
 
 
