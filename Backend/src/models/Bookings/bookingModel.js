@@ -23,10 +23,15 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Number of travelers is required"],
       min: [1, "At least one traveler is required"],
+      validate: Number.isInteger,
     },
 
+    pricing: {
+      pricePerPerson: { type: Number, required: true, min: 0 },
+      subtotal: { type: Number, required: true, min: 0 },
+      currency: { type: String, required: true, enum: ["INR"], default: "INR" },
+    },
 
-    // Final booking amount
     totalPrice: {
       type: Number,
       required: [true, "Total price is required"],
@@ -40,18 +45,26 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
 
-    // (actual payment integration can be added later)
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "failed", "refunded"],
       default: "pending",
     },
 
-    // Payment reference from a payment provider, when available
     paymentReference: {
       type: String,
       trim: true,
       default: null,
+    },
+
+    razorpayOrderId: {
+      type: String,
+      default: undefined,
+    },
+
+    activePaymentKey: {
+      type: String,
+      default: undefined,
     },
 
   },
@@ -62,6 +75,7 @@ const bookingSchema = new mongoose.Schema(
 
 // fetch a user's bookings, newest first
 bookingSchema.index({ user: 1, createdAt: -1 });
+bookingSchema.index({ activePaymentKey: 1 }, { unique: true, sparse: true });
 
 
 

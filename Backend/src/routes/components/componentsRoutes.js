@@ -6,7 +6,6 @@ import { createButton,
           getContentBlocks,
             getNav,
             getTrips,
-            createBooking,
             createCity,
             getCity
                 
@@ -15,9 +14,6 @@ import { createButton,
 const componentRouter = express.Router()
 
 componentRouter.get('/get-trips',getTrips)
-
-componentRouter.post('/create-booking',createBooking)
-
 
 componentRouter.route('/nav').get(getNav).post(createNav)
 componentRouter.route('/city').get(getCity).post(createCity)

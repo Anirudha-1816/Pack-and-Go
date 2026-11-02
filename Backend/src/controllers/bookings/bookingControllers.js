@@ -20,7 +20,7 @@ export const getMyBookings = async (req, res,next) => {
       .populate({
         path: "trip",
         select:
-          "tripIdentifier from to date duration banner thumbnail pickupTime pickupLocation dropTime dropLocation pricePerHead priceGroup2 priceGroup4 tripType",
+          "tripIdentifier from to date duration banner thumbnail pickupTime pickupLocation dropTime dropLocation pricePerHead tripType",
       })
       .sort({ createdAt: -1 })
       .lean();

@@ -41,6 +41,24 @@ const otpLimiter = new RateLimiterMemory({
   blockDuration: 300, // Block for 5 minutes
 });
 
+const paymentLimiter = new RateLimiterMemory({ points: 10, duration: 60 });
+
+export const paymentRateLimiter = async (req, res, next) => {
+  try {
+    await paymentLimiter.consume(req.user?.userId || req.ip);
+    next();
+  } catch (err) {
+    if (typeof err?.msBeforeNext === "number") {
+      return res.status(statusCode.TOO_MANY_REQUESTS).json({
+        success: false,
+        message: "Too many payment requests. Please try again later.",
+      });
+    }
+
+    next(err);
+  }
+};
+
 export const otpRateLimiter = async (req, res, next) => {
   try {
     const key = req.ip;

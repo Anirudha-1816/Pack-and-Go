@@ -69,8 +69,6 @@ const tripSchema = new mongoose.Schema(
 
     // ----- Pricing in rupees -----
     pricePerHead: { type: Number, required: true, min: 1 },
-    priceGroup2: { type: Number, required: true, min: 1 }, // per person, group of 2
-    priceGroup4: { type: Number, required: true, min: 1 }, // per person, group of 4
 
     tripType: { type: String, required: true, enum: TRIP_TYPES },
 

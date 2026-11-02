@@ -11,6 +11,8 @@ import verificationRoutes from './routes/verifications/optVerificationRoute.js'
 import tripRouter from './routes/trips/trips.js'
 import bookingRouter from './routes/components/bookings/bookingsRoutes.js'
 import adminRouter from './routes/admin/adminRoutes.js'
+import paymentRouter from './routes/payments/paymentRoutes.js'
+import { handleRazorpayWebhook } from './controllers/payments/paymentControllers.js'
 
 
 const app = express()
@@ -36,12 +38,15 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json())
-
-
-app.use(express.json())
 app.use(cookieParser())
 
+app.post(
+  '/api/payments/webhook',
+  express.raw({ type: 'application/json' }),
+  handleRazorpayWebhook
+)
+
+app.use(express.json())
 
 
 app.use('/users',userRouter)
@@ -51,6 +56,7 @@ app.use('/otp',verificationRoutes)
 app.use('/trip',tripRouter)
 app.use('/booking',bookingRouter)
 app.use('/admin',adminRouter)
+app.use('/api/payments',paymentRouter)
 
 app.use(errorMiddleWare)
 

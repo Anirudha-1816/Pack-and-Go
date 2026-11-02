@@ -39,7 +39,7 @@ export const createTrip = async (req, res, next) => {
     const {
       from, to, guide, date,
       pickupTime, pickupLocation, dropTime, dropLocation,
-      duration, pricePerHead, priceGroup2, priceGroup4,
+      duration, pricePerHead,
       tripType, stays, travel, termsType, customTerms,
     } = req.body;
 
@@ -47,7 +47,7 @@ export const createTrip = async (req, res, next) => {
     const trip = await Trip.create({
       from, to, guide, date,
       pickupTime, pickupLocation, dropTime, dropLocation,
-      duration, pricePerHead, priceGroup2, priceGroup4,
+      duration, pricePerHead,
       tripType, stays, travel, termsType, customTerms,
       meals: req.body.meals ? parseJson(req.body.meals, "meals") : [],
       roadmap: parseJson(req.body.roadmap, "roadmap"),

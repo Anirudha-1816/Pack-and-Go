@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styles from "./TripDetails.module.css";
+import CheckoutModal from "./CheckoutModal";
+import useAuthStore from "../../Stores/authStore";
 // import Navbar from '../Navbar/Navbar'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/trip/get`;
@@ -61,10 +63,14 @@ function Modal({ title, onClose, children }) {
 export default function TripDetails() {
   const { id } = useParams(); // the trip id from the URL: /trips/:id
   const navigate = useNavigate();
+  const location = useLocation();
+  const user = useAuthStore((state) => state.user);
 
   const [trip, setTrip] = useState(null);
   const [error, setError] = useState("");
-  const [modal, setModal] = useState(null); // null, "roadmap", "includes" or "terms"
+  const [modal, setModal] = useState(() =>
+    location.state?.openCheckout ? "checkout" : null
+  );
 
   // Get this trip from the API
   useEffect(() => {
@@ -77,7 +83,21 @@ export default function TripDetails() {
 });
   }, [id]);
 
+  useEffect(() => {
+    if (location.state?.openCheckout) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.key, location.pathname, location.state, navigate]);
+
   const closeModal = () => setModal(null);
+  const startBooking = () => {
+    if (!user) {
+      navigate("/login", { state: { from: location, openCheckout: true } });
+      return;
+    }
+
+    setModal("checkout");
+  };
 
   // ----- Loading and error screens -----
   if (error) {
@@ -148,8 +168,7 @@ export default function TripDetails() {
               <span>Must read this</span>
             </button>
 
-            {/* Change this route to your real booking page */}
-            <button className={styles.bookBtn} onClick={() => navigate(`/trips/${trip._id}/book`)}>
+            <button className={styles.bookBtn} onClick={startBooking}>
               <strong>Book this trip</strong>
               <span>from {money(trip.pricePerHead)} per person</span>
             </button>
@@ -247,15 +266,7 @@ export default function TripDetails() {
               <div className={styles.priceGrid}>
                 <div className={styles.price}>
                   <strong>{money(trip.pricePerHead)}</strong>
-                  <span>Solo / per head</span>
-                </div>
-                <div className={styles.price}>
-                  <strong>{money(trip.priceGroup2)}</strong>
-                  <span>Group of 2</span>
-                </div>
-                <div className={styles.price}>
-                  <strong>{money(trip.priceGroup4)}</strong>
-                  <span>Group of 4</span>
+                  <span>Per person</span>
                 </div>
               </div>
             </section>
@@ -340,6 +351,9 @@ export default function TripDetails() {
             I have read this
           </button>
         </Modal>
+      )}
+      {modal === "checkout" && (
+        <CheckoutModal trip={trip} user={user} onClose={closeModal} />
       )}
     </div>
     </>

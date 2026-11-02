@@ -8,7 +8,6 @@ import Trip from "../../models/components/tripModel.js";
 import Buttons from "../../models/global/buttonModel.js";
 import ContentBlocks from "../../models/global/contentBlockModel.js";
 
-import Bookings from "../../models/Bookings/bookingModel.js";
 import City from "../../models/global/citiesModel.js";
 
 
@@ -99,6 +98,3 @@ export const createContentBlocks = createComponents(ContentBlocks)
 export const getContentBlocks = getComponents(ContentBlocks)
 
 
-//Bookings 
-
-export const createBooking  = createComponents(Bookings)

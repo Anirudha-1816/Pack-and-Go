@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -47,6 +47,7 @@ export default function AuthPage({ signup = true }) {
   const [showOtp, setShowOtp] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
 
+  const location = useLocation();
   const navigate = useNavigate();
 
   const {
@@ -129,7 +130,15 @@ export default function AuthPage({ signup = true }) {
 
       toast.success(response.data.message || "Login successful!");
 
-      navigate("/", { replace: true });
+      const from = location.state?.from;
+      const destination = from?.pathname
+        ? `${from.pathname}${from.search || ""}${from.hash || ""}`
+        : "/";
+
+      navigate(destination, {
+        replace: true,
+        state: location.state?.openCheckout ? { openCheckout: true } : undefined,
+      });
     } catch (error) {
       console.error(
         "Authentication error:",

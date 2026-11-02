@@ -87,7 +87,6 @@ function TierPicker({ name, register, error }) {
   );
 }
 
-// ---------- The page ----------
 export default function AddPackage() {
   const {
     register,
@@ -388,23 +387,6 @@ export default function AddPackage() {
                 {...register("pricePerHead", { required: "Enter a price", min: { value: 1, message: "Must be more than 0" } })}
               />
             </Field>
-
-            <div className={styles.row}>
-              <Field label="Group of 2, per person (₹)" error={errors.priceGroup2}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  {...register("priceGroup2", { required: "Enter a price", min: { value: 1, message: "Must be more than 0" } })}
-                />
-              </Field>
-              <Field label="Group of 4, per person (₹)" error={errors.priceGroup4}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  {...register("priceGroup4", { required: "Enter a price", min: { value: 1, message: "Must be more than 0" } })}
-                />
-              </Field>
-            </div>
 
             {/* Trip type */}
             <Field label="Trip type" error={errors.tripType}>
