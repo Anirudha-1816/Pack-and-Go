@@ -80,7 +80,6 @@ export const createTrip = async (req, res, next) => {
   }
 };
 
-
 export const getTripById = async (req, res, next) => {
   try {
     const trip = await Trip.findById(req.params.id);
@@ -97,3 +96,26 @@ export const getTripById = async (req, res, next) => {
   }
 };
 
+export const deleteTripById = async (req, res, next) => {
+  try {
+    const trip = await Trip.findById(req.params.id)
+
+    if(!trip) {
+      const error = new Error("Trip not found.");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    await Trip.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ success: true, 
+      message: "Trip deleted successfully." });
+
+
+
+  }
+  catch (err) {
+    return next(err);
+  }
+
+};

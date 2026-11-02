@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form"; // NEW: useFieldArray
 import styles from "./AddPackage.module.css";
-import axios from 'axios'
-import {toast} from 'react-toastify'
+import toast from "react-hot-toast";
+import { tripsBaseUrlApi } from "../../api/trips/tripsApi";
 
 // ---------- Dropdown options (later you can load these from your API) ----------
-const cities = ["Jaipur", "Delhi", "Mumbai", "Goa", "Manali", "Leh", "Kerala", "Udaipur", "Varanasi", "Kashmir" ,"Spiti"];
+const cities = ["Jaipur", "Delhi", "Mumbai", "Goa", "Manali", "Leh", "Kerala", "Udaipur", "Varanasi", "Kashmir" ,"Spiti",'Meghalaya'];
 const guides = ["Rahul Sharma", "Priya Verma", "Amit Singh" , 'Raj']; // sample names
 const tripTypes = ["Solo travelers only", "Couples only", "Mixed group", "Friends group", "Family"];
 const mealOptions = ["Breakfast", "Lunch", "Dinner", "Snacks", "Tea / Coffee"];
@@ -93,6 +93,7 @@ export default function AddPackage() {
     register,
     handleSubmit,
     watch,
+    reset,
     getValues,
     control, // NEW: needed for the roadmap list
     trigger, // NEW: checks the roadmap when the pop-up is closed
@@ -109,6 +110,7 @@ export default function AddPackage() {
   });
 
   const [showRoadmap, setShowRoadmap] = useState(false); // NEW: pop-up open or closed
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Show the terms text box only when "Add new terms" is selected
   const termsType = watch("termsType");
@@ -158,13 +160,28 @@ export default function AddPackage() {
     console.log("FormData (what the backend will receive):", Object.fromEntries(formData));
     
 
-    try {
-  const res = await axios.post(`${import.meta.env.VITE_API_URL}/trip/create`, formData ,
-    {withCredentials : true}
-  ); 
-  toast.success(res.data.message);
+  setIsSubmitting(true);
+  const toastId = toast.loading("Adding package...");
+
+  try {
+  const res = await tripsBaseUrlApi.post(
+    "/create",
+    formData,
+    {
+      withCredentials: true,
+    }
+  );
+
+  console.log(res.data);
+  toast.success(res.data.message || "Package added successfully", { id: toastId });
+
+  reset();
+
 } catch (error) {
-  toast.error(error.response?.data?.message || "Something went wrong.");
+  console.error(error);
+  toast.error(error.response?.data?.message || "Something went wrong.", { id: toastId });
+} finally {
+  setIsSubmitting(false);
 }
   };
 
@@ -399,7 +416,10 @@ export default function AddPackage() {
               </select>
             </Field>
 
-            <button type="submit" className={styles.submit}>Add package</button>
+            <button type="submit" className={styles.submit} disabled={isSubmitting}>
+              {isSubmitting && <span className={styles.spinner} aria-hidden="true" />}
+              {isSubmitting ? "Adding package..." : "Add package"}
+            </button>
           </div>
         </div>
 

@@ -2,8 +2,12 @@ import { useState } from "react";
 import { NavLink, useNavigate ,  } from "react-router-dom";
 import {
   FaThLarge, FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar,
-  FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown,
+  FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown
 } from "react-icons/fa";
+
+import {FaGear} from "react-icons/fa6"
+
+
 import styles from "./AdminDashboard.module.css";
 import useAuthStore from "../../store/authStore";
 import baseApi from "../../api/baseApi";
@@ -12,11 +16,12 @@ const admin = { email: "admin@packandgo.com" };
 
 const nav = [
   { to: "/admin-dashboard", label: "Dashboard", icon: <FaThLarge />, end: true },
-  { to: "/admin-managePackages", label: "Packages", icon: <FaSuitcaseRolling /> },
-  { to: "/admin/bookings", label: "Bookings", icon: <FaCalendarCheck /> },
+  { to: "/admin-managePackages", label: "Manager packages", icon: <FaSuitcaseRolling /> },
+  { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
   { to: "/admin/gallery", label: "Gallery", icon: <FaImages /> },
   { to: "/admin/messages", label: "Messages", icon: <FaEnvelope />, badge: 3 },
   { to: "/admin/feedbacks", label: "Feedbacks", icon: <FaStar /> },
+  { to: "/admin/settings", label: "Settings", icon: <FaGear /> },
 ];
 
 const kpis = [
@@ -30,6 +35,7 @@ const kpis = [
 
 
 export default function AdminDashboard() {
+
   const [open, setOpen] = useState(() => window.innerWidth > 900);
   const navigate = useNavigate();
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
@@ -60,9 +66,7 @@ export default function AdminDashboard() {
       <div className={styles.shell} data-open={open}>
         {/* Logo - always visible */}
         <div className={styles.logo}>
-          <img src="/main.png" alt="" />
           <b>Pack<span>&amp;</span>Go</b>
-          <small>Admin</small>
         </div>
 
         {/* Top bar */}
@@ -77,7 +81,7 @@ export default function AdminDashboard() {
             <FaBars />
           </button>
           <div className={styles.heading}>
-            <h1>Overview</h1>
+            <h1>Admin</h1>
             <p>{today}</p>
           </div>
           <label className={styles.search}>

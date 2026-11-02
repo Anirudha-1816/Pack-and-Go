@@ -9,6 +9,7 @@ import Buttons from "../../models/global/buttonModel.js";
 import ContentBlocks from "../../models/global/contentBlockModel.js";
 
 import Bookings from "../../models/Bookings/bookingModel.js";
+import City from "../../models/global/citiesModel.js";
 
 
 //Reusable controller for creating components 
@@ -69,6 +70,11 @@ export const getTrips = getComponents(Trip)
 //Nav bar
 export const createNav = createComponents(NavbarModel)
 export const getNav = getComponents(NavbarModel)
+
+
+//Nav bar
+export const createCity = createComponents(City)
+export const getCity = getComponents(City)
 
 // Buttons 
 export const createButton = createComponents(Buttons)

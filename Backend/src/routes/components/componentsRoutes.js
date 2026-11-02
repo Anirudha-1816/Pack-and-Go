@@ -6,7 +6,9 @@ import { createButton,
           getContentBlocks,
             getNav,
             getTrips,
-            createBooking
+            createBooking,
+            createCity,
+            getCity
                 
              } from '../../controllers/components/componentsController.js'
 
@@ -18,6 +20,7 @@ componentRouter.post('/create-booking',createBooking)
 
 
 componentRouter.route('/nav').get(getNav).post(createNav)
+componentRouter.route('/city').get(getCity).post(createCity)
 componentRouter.route('/buttons').get(getButton).post(createButton)
 componentRouter.route('/content-blocks').get(getContentBlocks).post(createContentBlocks)
 
