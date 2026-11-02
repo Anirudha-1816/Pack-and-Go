@@ -7,15 +7,19 @@ export const tripsBaseUrlApi = axios.create({
 }) 
 // Get all trips
 export const getAllTrips = async () => {
-  
-  const { data } = await axios.get(
-    "http://localhost:8080/components/get-trips",
-    { withCredentials: true }
-  );
+  const { data } = await tripsBaseUrlApi.get("/manage");
 
   return Array.isArray(data)
     ? data
     : data.trips || data.data || [];
+};
+
+export const updateTripVisibility = async (tripId, isActive) => {
+  const { data } = await tripsBaseUrlApi.patch(`/visibility/${tripId}`, {
+    isActive,
+  });
+
+  return data;
 };
 
 // Delete a trip by ID

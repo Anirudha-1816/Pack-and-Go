@@ -80,13 +80,56 @@ export const createTrip = async (req, res, next) => {
   }
 };
 
+export const getAllTripsForAdmin = async (req, res, next) => {
+  try {
+    const trips = await Trip.find().sort({ createdAt: -1 });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: trips,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const updateTripVisibility = async (req, res, next) => {
+  try {
+    const { isActive } = req.body ?? {};
+
+    if (typeof isActive !== "boolean") {
+      throw badRequest("isActive must be a boolean.");
+    }
+
+    const trip = await Trip.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isActive } },
+      { new: true, runValidators: true }
+    );
+
+    if (!trip) {
+      const error = new Error("Trip not found.");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: isActive ? "Trip is live again." : "Trip hidden successfully.",
+      data: trip,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const getTripById = async (req, res, next) => {
   try {
     const trip = await Trip.findById(req.params.id);
 
-    if (!trip) {
+    if (!trip || trip.isActive === false) {
       const error = new Error("Trip not found.");
-      error.status = 404;
+      error.status = statusCode.NOT_FOUND;
       return next(error);
     }
 

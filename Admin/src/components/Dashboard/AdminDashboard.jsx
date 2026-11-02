@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate ,  } from "react-router-dom";
 import {
-  FaThLarge, FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar,
+   FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar,
   FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown
 } from "react-icons/fa";
 
@@ -15,7 +15,6 @@ import UpComingTrips from "./components/UpComingTrips";
 const admin = { email: "admin@packandgo.com" };
 
 const nav = [
-  { to: "/admin-dashboard", label: "Dashboard", icon: <FaThLarge />, end: true },
   { to: "/admin-managePackages", label: "Manager packages", icon: <FaSuitcaseRolling /> },
   { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
   { to: "/admin/gallery", label: "Gallery", icon: <FaImages /> },

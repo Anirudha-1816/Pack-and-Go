@@ -2,8 +2,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getAllTrips ,deleteTrip} from "../../api/trips/tripsApi";
-import axios from "axios";
+import {
+  deleteTrip,
+  getAllTrips,
+  updateTripVisibility,
+} from "../../api/trips/tripsApi";
 
 // ---------- Settings ----------
 
@@ -277,11 +280,7 @@ export default function ManagePackages() {
     try {
       setBusyId(trip.id);
 
-      await axios.patch(
-        updateApi(trip.id),
-        { isActive: !trip.visible },
-        { withCredentials: true }
-      );
+      await updateTripVisibility(trip.id, !trip.visible);
 
       setTrips((list) =>
         list.map((t) =>

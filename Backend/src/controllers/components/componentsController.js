@@ -65,7 +65,21 @@ export const getComponents = (Model)=> async (req,res,next)=>{
 
 // Hero slide 
 // export const createHeroSlide = createComponents(HeroSlide)
-export const getTrips = getComponents(Trip)
+export const getTrips = async (req, res, next) => {
+  try {
+    const trips = await Trip.find({ isActive: { $ne: false } }).sort({
+      order: 1,
+      createdAt: -1,
+    });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: trips,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
 
 //Nav bar
 export const createNav = createComponents(NavbarModel)
