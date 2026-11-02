@@ -1,8 +1,7 @@
 import axios from  'axios'
 
 export const tripsBaseUrlApi = axios.create({
-    // baseURL : `${import.meta.env.VITE_API_URL}/trips`,   //For production
-    baseURL : `http://localhost:8080/trip`,    // for local host
+  baseURL : `${import.meta.env.VITE_API_URL}/trip`,
     withCredentials : true,
 }) 
 // Get all trips
@@ -25,10 +24,7 @@ export const updateTripVisibility = async (tripId, isActive) => {
 // Delete a trip by ID
 export const deleteTrip = async (tripId) => {
 
-  const { data } = await axios.delete(
-    `http://localhost:8080/trip/delete/${tripId}`,
-    { withCredentials: true }
-  );
+  const { data } = await tripsBaseUrlApi.delete(`/delete/${tripId}`);
 
   return Array.isArray(data)
     ? data

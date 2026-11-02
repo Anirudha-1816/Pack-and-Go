@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const adminApi = axios.create({
-    baseURL : `http://localhost:8080/admin`,
+    baseURL : `${import.meta.env.VITE_API_URL}/admin`,
     withCredentials:true
 }) 
 
