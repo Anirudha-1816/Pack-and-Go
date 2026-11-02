@@ -185,9 +185,7 @@ export default function CheckoutModal({ trip, user, onClose }) {
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-emerald-100 bg-white/95 px-5 py-4 backdrop-blur sm:px-7">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-orange-600">Pack & Go checkout</p>
-            <h2 id="checkout-title" className="mt-1 text-xl font-bold sm:text-2xl">
-              {stage === "success" ? "Booking confirmed" : "Review your trip"}
-            </h2>
+         
           </div>
           <button
             type="button"
@@ -247,7 +245,7 @@ export default function CheckoutModal({ trip, user, onClose }) {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#082b21]/85 via-transparent to-transparent" />
                   <div className="absolute bottom-4 left-4 text-white sm:bottom-5 sm:left-5">
-                    <p className="text-xs font-bold uppercase tracking-widest text-orange-200">{trip.tripIdentifier}</p>
+                    
                     <h3 className="mt-1 text-2xl font-bold sm:text-3xl">{tripName}</h3>
                   </div>
                 </div>

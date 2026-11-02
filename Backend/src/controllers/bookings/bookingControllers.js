@@ -34,3 +34,25 @@ export const getMyBookings = async (req, res,next) => {
     next(err)
   }
 };
+
+export const getAllBookingsForAdmin = async (req, res, next) => {
+  try {
+    const bookings = await Bookings.find()
+      .populate({ path: "user", select: "fullName email" })
+      .populate({
+        path: "trip",
+        select:
+          "tripIdentifier from to date duration banner thumbnail pickupTime pickupLocation dropTime dropLocation pricePerHead tripType",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      count: bookings.length,
+      bookings,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};

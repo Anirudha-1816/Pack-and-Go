@@ -39,6 +39,28 @@
   color: #5b7a70;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.refresh {
+  padding: 9px 14px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--green);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.refresh:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 /* ---------- Number cards ---------- */
 .stats {
   display: grid;
@@ -411,4 +433,17 @@
   .details {
     grid-template-columns: 1fr;
   }
+}
+
+.error {
+  padding: 12px 14px;
+  color: #9f1d16;
+  background: #fff0ef;
+  border: 1px solid #f1c2be;
+  border-radius: 10px;
+}
+
+.failed {
+  color: #9f1d16;
+  background: #fff0ef;
 }

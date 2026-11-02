@@ -55,6 +55,7 @@ The backend validates the signature, ownership, fetched Razorpay order, amount, 
 `POST /api/payments/webhook` uses the original raw JSON body and `x-razorpay-signature`; it does not use JWT authentication. Configure these Razorpay events: `payment.authorized`, `payment.captured`, `payment.failed`, `refund.processed`, and `refund.failed`.
 
 Existing booking history remains available at `GET /booking/get` with the JWT cookie.
+Admins can review all bookings at `GET /booking/admin/get`; it requires the JWT cookie and an admin role.
 
 ## Environment
 
