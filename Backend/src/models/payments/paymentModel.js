@@ -23,9 +23,16 @@ const paymentSchema = new mongoose.Schema(
 			required: true,
 			index: true,
 		},
+		provider: {
+			type: String,
+			enum: ["razorpay", "stripe"],
+			default: "razorpay",
+		},
 		receipt: { type: String, required: true, unique: true },
 		razorpayOrderId: { type: String, default: undefined },
 		razorpayPaymentId: { type: String, default: undefined },
+		stripeCheckoutSessionId: { type: String, default: undefined },
+		stripePaymentIntentId: { type: String, default: undefined },
 		activeAttemptKey: { type: String, default: undefined },
 		refundId: { type: String, default: undefined },
 		amount: { type: Number, required: true, min: 1, validate: Number.isInteger },
@@ -52,6 +59,14 @@ paymentSchema.index(
 paymentSchema.index(
 	{ razorpayPaymentId: 1 },
 	{ unique: true, partialFilterExpression: { razorpayPaymentId: { $type: "string" } } }
+);
+paymentSchema.index(
+	{ stripeCheckoutSessionId: 1 },
+	{ unique: true, partialFilterExpression: { stripeCheckoutSessionId: { $type: "string" } } }
+);
+paymentSchema.index(
+	{ stripePaymentIntentId: 1 },
+	{ unique: true, partialFilterExpression: { stripePaymentIntentId: { $type: "string" } } }
 );
 paymentSchema.index({ booking: 1, createdAt: -1 });
 paymentSchema.index({ activeAttemptKey: 1 }, { unique: true, sparse: true });

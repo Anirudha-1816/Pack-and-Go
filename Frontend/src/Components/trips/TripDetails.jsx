@@ -134,11 +134,19 @@ export default function TripDetails() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
+  const checkoutQuery = new URLSearchParams(location.search);
+  const checkoutOutcome = checkoutQuery.get("checkout");
+  const checkoutBookingId = checkoutQuery.get("bookingId");
 
   const [trip, setTrip] = useState(null);
   const [error, setError] = useState("");
+  const [checkoutReturn] = useState(() =>
+    ["success", "cancelled"].includes(checkoutOutcome) && checkoutBookingId
+      ? { bookingId: checkoutBookingId, outcome: checkoutOutcome }
+      : null
+  );
   const [modal, setModal] = useState(() =>
-    location.state?.openCheckout ? "checkout" : null
+    location.state?.openCheckout || checkoutReturn ? "checkout" : null
   );
 
   // Get this trip from the API
@@ -153,10 +161,10 @@ export default function TripDetails() {
   }, [id]);
 
   useEffect(() => {
-    if (location.state?.openCheckout) {
+    if (location.state?.openCheckout || ["success", "cancelled"].includes(checkoutOutcome)) {
       navigate(location.pathname, { replace: true, state: null });
     }
-  }, [location.key, location.pathname, location.state, navigate]);
+  }, [checkoutOutcome, location.key, location.pathname, location.state, navigate]);
 
   const closeModal = () => setModal(null);
   const startBooking = () => {
@@ -497,7 +505,12 @@ export default function TripDetails() {
         </Modal>
       )}
       {modal === "checkout" && (
-        <CheckoutModal trip={trip} user={user} onClose={closeModal} />
+        <CheckoutModal
+          trip={trip}
+          user={user}
+          onClose={closeModal}
+          checkoutReturn={checkoutReturn}
+        />
       )}
     </div>
     </>

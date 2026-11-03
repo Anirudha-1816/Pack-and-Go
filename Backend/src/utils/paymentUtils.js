@@ -22,8 +22,9 @@ export const getPaymentPrice = (pricePerPerson, travelers) => {
   };
 };
 
-export const makeActivePaymentKey = (userId, tripId, travelers) =>
-  `${userId}_${tripId}_${travelers}`;
+export const makeActivePaymentKey = (userId, tripId, travelers) =>{
+  return `${userId}_${tripId}_${travelers}`;
+};
 
 export const makeReceipt = (paymentId) => paymentId.toString();
 

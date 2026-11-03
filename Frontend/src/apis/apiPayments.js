@@ -8,6 +8,9 @@ const apiPayments = axios.create({
 export const createPaymentOrder = (tripId, travelers) =>
   apiPayments.post("/create-order", { tripId, travelers });
 
+export const createStripeCheckoutSession = (tripId, travelers) =>
+  apiPayments.post("/create-checkout-session", { tripId, travelers });
+
 export const verifyPayment = (payment) =>
   apiPayments.post("/verify", payment);
 

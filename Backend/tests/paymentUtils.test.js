@@ -2,10 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import { getRazorpay, getWebhookSecret } from "../src/configs/razorpay.js";
+import { getStripe, getStripeWebhookSecret } from "../src/configs/stripe.js";
+import { handleStripeWebhook } from "../src/services/stripeWebhookService.js";
 import {
   createPaymentOrder,
   getPaymentStatus,
-} from "../src/controllers/payments/paymentControllers.js";
+} from "../src/controllers/payments/paymentController.js";
 import {
   getPaymentPrice,
   getWebhookEventId,
@@ -139,4 +141,41 @@ test("rejects invalid booking IDs without looking up another user's status", asy
 
   assert.equal(result.error.statusCode, 400);
   assert.match(result.error.message, /valid booking ID/i);
+});
+
+test("Stripe configuration is lazy and webhook signatures are verified by Stripe", async () => {
+  const names = ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"];
+  const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
+  names.forEach((name) => delete process.env[name]);
+
+  try {
+    assert.throws(() => getStripe(), (error) => error.statusCode === 503);
+    assert.throws(() => getStripeWebhookSecret(), (error) => error.statusCode === 503);
+
+    process.env.STRIPE_SECRET_KEY = "sk_live_disabled_for_tests";
+    assert.throws(() => getStripe(), (error) => error.statusCode === 503);
+
+    process.env.STRIPE_SECRET_KEY = "sk_test_unit_test";
+    process.env.STRIPE_WEBHOOK_SECRET = "whsec_unit_test";
+    const stripe = getStripe();
+    const body = Buffer.from(JSON.stringify({ id: "evt_unit_test", type: "unhandled.event" }));
+    const signature = stripe.webhooks.generateTestHeaderString({
+      payload: body.toString("utf8"),
+      secret: process.env.STRIPE_WEBHOOK_SECRET,
+    });
+
+    assert.deepEqual(await handleStripeWebhook(body, signature), {
+      success: true,
+      received: true,
+    });
+    await assert.rejects(
+      handleStripeWebhook(body, "invalid-signature"),
+      (error) => error.statusCode === 400
+    );
+  } finally {
+    names.forEach((name) => {
+      if (saved[name] === undefined) delete process.env[name];
+      else process.env[name] = saved[name];
+    });
+  }
 });

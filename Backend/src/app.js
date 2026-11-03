@@ -12,7 +12,10 @@ import tripRouter from './routes/trips/trips.js'
 import bookingRouter from './routes/components/bookings/bookingsRoutes.js'
 import adminRouter from './routes/admin/adminRoutes.js'
 import paymentRouter from './routes/payments/paymentRoutes.js'
-import { handleRazorpayWebhook } from './controllers/payments/paymentControllers.js'
+import {
+  handleRazorpayWebhook,
+  handleStripeWebhook,
+} from './controllers/payments/paymentController.js'
 
 
 const app = express()
@@ -44,6 +47,11 @@ app.post(
   '/api/payments/webhook',
   express.raw({ type: 'application/json' }),
   handleRazorpayWebhook
+)
+app.post(
+  '/api/payments/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  handleStripeWebhook
 )
 
 app.use(express.json())
