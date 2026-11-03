@@ -1,45 +1,20 @@
+// Small tests for payment prices, trip dates, and Stripe webhook signatures.
+
 import test from "node:test";
 import assert from "node:assert/strict";
-import crypto from "node:crypto";
-import { getRazorpay, getWebhookSecret } from "../src/configs/razorpay.js";
 import { getStripe, getStripeWebhookSecret } from "../src/configs/stripe.js";
-import { handleStripeWebhook } from "../src/services/stripeWebhookService.js";
 import {
-  createPaymentOrder,
-  getPaymentStatus,
-} from "../src/controllers/payments/paymentController.js";
-import {
+  BOOKING_STATUS,
+  PAYMENT_STATUS,
   getPaymentPrice,
-  getWebhookEventId,
   isTripDateAvailable,
-  makeActivePaymentKey,
-  makeReceipt,
-  matchesRazorpayPayment,
-  verifyCheckoutSignature,
-  verifyWebhookSignature,
+  validateBookingId,
+  validateCreatePayment,
 } from "../src/utils/paymentUtils.js";
+import { handleStripeWebhook } from "../src/services/paymentService.js";
 
-const callController = async (controller, req) => {
-  let result;
-  const res = {
-    status(status) {
-      this.statusCode = status;
-      return this;
-    },
-    json(body) {
-      result = { statusCode: this.statusCode, body };
-      return result;
-    },
-  };
-
-  await controller(req, res, (error) => {
-    result = { error };
-  });
-
-  return result;
-};
-
-test("calculates one fixed per-person price for every traveler", () => {
+// Calculate the saved rupee total and smallest-unit Stripe amount.
+test("calculates the saved price and amount in paise", () => {
   assert.deepEqual(getPaymentPrice(6499, 3), {
     pricePerPerson: 6499,
     subtotal: 19497,
@@ -48,102 +23,53 @@ test("calculates one fixed per-person price for every traveler", () => {
   });
 });
 
-test("rejects invalid traveler counts and unsafe prices", () => {
+// Reject inputs that could create a zero, fractional, or unsafe payment.
+test("rejects invalid traveler counts and prices", () => {
   assert.throws(() => getPaymentPrice(6499, 0));
   assert.throws(() => getPaymentPrice(6499, 1.5));
   assert.throws(() => getPaymentPrice(Number.MAX_SAFE_INTEGER, 2));
 });
 
-test("creates stable keys and valid Razorpay receipts", () => {
-  assert.equal(makeActivePaymentKey("user1", "trip1", 2), "user1_trip1_2");
-  assert.equal(makeReceipt("507f1f77bcf86cd799439011"), "507f1f77bcf86cd799439011");
-});
-
-test("allows today and future trip dates, but rejects past dates", () => {
+// Accept trips starting today or later, but not trips in the past.
+test("checks trip dates using a supplied current date", () => {
   const now = new Date("2026-11-02T15:00:00.000Z");
   assert.equal(isTripDateAvailable("2026-11-02", now), true);
   assert.equal(isTripDateAvailable("2026-11-03", now), true);
   assert.equal(isTripDateAvailable("2026-11-01", now), false);
 });
 
-test("verifies checkout signatures and rejects malformed signatures", () => {
-  const secret = "test-secret";
-  const signature = crypto
-    .createHmac("sha256", secret)
-    .update("order_123|payment_456")
-    .digest("hex");
-
-  assert.equal(verifyCheckoutSignature("order_123", "payment_456", signature, secret), true);
-  assert.equal(verifyCheckoutSignature("order_123", "payment_456", "bad", secret), false);
-});
-
-test("verifies webhook signatures against the original body", () => {
-  const secret = "webhook-secret";
-  const body = Buffer.from('{"event":"payment.captured"}');
-  const signature = crypto.createHmac("sha256", secret).update(body).digest("hex");
-
-  assert.equal(verifyWebhookSignature(body, signature, secret), true);
-  assert.equal(verifyWebhookSignature(body, signature, "wrong-secret"), false);
-  assert.equal(getWebhookEventId(body), crypto.createHash("sha256").update(body).digest("hex"));
-});
-
-test("matches a provider payment to the expected order, amount, and currency", () => {
-  const expected = { orderId: "order_test", amount: 1299800, currency: "INR" };
-  const payment = { order_id: "order_test", amount: 1299800, currency: "INR" };
-
-  assert.equal(matchesRazorpayPayment(payment, expected), true);
-  assert.equal(matchesRazorpayPayment({ ...payment, amount: 1 }, expected), false);
-  assert.equal(matchesRazorpayPayment({ ...payment, currency: "USD" }, expected), false);
-  assert.equal(matchesRazorpayPayment({ ...payment, order_id: "wrong" }, expected), false);
-});
-
-test("Razorpay credentials are checked only when a payment operation needs them", () => {
-  const names = ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET", "RAZORPAY_WEBHOOK_SECRET"];
-  const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
-  names.forEach((name) => delete process.env[name]);
-
-  try {
-    assert.throws(() => getRazorpay(), (error) => error.statusCode === 503);
-    assert.throws(() => getWebhookSecret(), (error) => error.statusCode === 503);
-  } finally {
-    names.forEach((name) => {
-      if (saved[name] === undefined) delete process.env[name];
-      else process.env[name] = saved[name];
-    });
-  }
-});
-
-test("rejects malformed trip IDs before starting payment work", async () => {
-  const result = await callController(createPaymentOrder, {
-    user: { userId: "507f1f77bcf86cd799439011" },
-    body: { tripId: "not-an-object-id", travelers: 1 },
+// Validate the signed-in user and traveler-provided booking fields.
+test("validates a payment request", () => {
+  const userId = "507f1f77bcf86cd799439011";
+  const tripId = "507f1f77bcf86cd799439012";
+  assert.deepEqual(validateCreatePayment(userId, { tripId, travelers: 2 }), {
+    userId,
+    tripId,
+    travelers: 2,
   });
-
-  assert.equal(result.error.statusCode, 400);
-  assert.match(result.error.message, /valid trip ID/i);
+  assert.throws(() => validateCreatePayment(userId, { tripId: "bad", travelers: 2 }));
+  assert.throws(() => validateCreatePayment(userId, { tripId, travelers: 1.5 }));
 });
 
-test("rejects invalid traveler counts before starting payment work", async () => {
-  const result = await callController(createPaymentOrder, {
-    user: { userId: "507f1f77bcf86cd799439011" },
-    body: { tripId: "507f1f77bcf86cd799439012", travelers: 1.5 },
-  });
-
-  assert.equal(result.error.statusCode, 400);
-  assert.match(result.error.message, /positive whole number/i);
+// Reject invalid booking IDs before querying MongoDB.
+test("validates booking IDs", () => {
+  assert.equal(
+    validateBookingId("507f1f77bcf86cd799439011"),
+    "507f1f77bcf86cd799439011"
+  );
+  assert.throws(() => validateBookingId("invalid"));
 });
 
-test("rejects invalid booking IDs without looking up another user's status", async () => {
-  const result = await callController(getPaymentStatus, {
-    user: { userId: "507f1f77bcf86cd799439011" },
-    params: { bookingId: "invalid" },
-  });
-
-  assert.equal(result.error.statusCode, 400);
-  assert.match(result.error.message, /valid booking ID/i);
+// Keep the status values used by the service and booking schema easy to compare.
+test("defines the booking and payment states", () => {
+  assert.equal(BOOKING_STATUS.CONFIRMED, "confirmed");
+  assert.equal(PAYMENT_STATUS.PENDING, "pending");
+  assert.equal(PAYMENT_STATUS.PAID, "paid");
+  assert.equal(PAYMENT_STATUS.FAILED, "failed");
 });
 
-test("Stripe configuration is lazy and webhook signatures are verified by Stripe", async () => {
+// Restore Stripe environment settings after checking webhook behavior.
+test("checks Stripe configuration and webhook signatures", async () => {
   const names = ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"];
   const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
   names.forEach((name) => delete process.env[name]);
@@ -152,13 +78,17 @@ test("Stripe configuration is lazy and webhook signatures are verified by Stripe
     assert.throws(() => getStripe(), (error) => error.statusCode === 503);
     assert.throws(() => getStripeWebhookSecret(), (error) => error.statusCode === 503);
 
-    process.env.STRIPE_SECRET_KEY = "sk_live_disabled_for_tests";
-    assert.throws(() => getStripe(), (error) => error.statusCode === 503);
-
     process.env.STRIPE_SECRET_KEY = "sk_test_unit_test";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_unit_test";
     const stripe = getStripe();
-    const body = Buffer.from(JSON.stringify({ id: "evt_unit_test", type: "unhandled.event" }));
+    process.env.STRIPE_SECRET_KEY = "sk_live_unit_test";
+    assert.doesNotThrow(() => getStripe());
+
+    const body = Buffer.from(JSON.stringify({
+      id: "evt_unit_test",
+      type: "unhandled.event",
+      data: { object: {} },
+    }));
     const signature = stripe.webhooks.generateTestHeaderString({
       payload: body.toString("utf8"),
       secret: process.env.STRIPE_WEBHOOK_SECRET,

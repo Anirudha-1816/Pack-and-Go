@@ -1,5 +1,6 @@
-
+// A booking also stores the single Stripe session currently used to pay for it.
 import mongoose from "mongoose";
+import { BOOKING_STATUS, PAYMENT_STATUS } from "../../utils/paymentUtils.js";
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -41,14 +42,14 @@ const bookingSchema = new mongoose.Schema(
     // Booking status
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled"],
-      default: "pending",
+      enum: Object.values(BOOKING_STATUS),
+      default: BOOKING_STATUS.PENDING,
     },
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
-      default: "pending",
+      enum: Object.values(PAYMENT_STATUS),
+      default: PAYMENT_STATUS.PENDING,
     },
 
     paymentReference: {
@@ -57,16 +58,10 @@ const bookingSchema = new mongoose.Schema(
       default: null,
     },
 
-    razorpayOrderId: {
+    stripeSessionId: {
       type: String,
       default: undefined,
     },
-
-    activePaymentKey: {
-      type: String,
-      default: undefined,
-    },
-
   },
   {
     timestamps: true,
@@ -75,9 +70,6 @@ const bookingSchema = new mongoose.Schema(
 
 // fetch a user's bookings, newest first
 bookingSchema.index({ user: 1, createdAt: -1 });
-bookingSchema.index({ activePaymentKey: 1 }, { unique: true, sparse: true });
-
-
 
 const Bookings = mongoose.model("Booking", bookingSchema);
 

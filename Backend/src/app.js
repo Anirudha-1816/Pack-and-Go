@@ -12,8 +12,9 @@ import tripRouter from './routes/trips/trips.js'
 import bookingRouter from './routes/components/bookings/bookingsRoutes.js'
 import adminRouter from './routes/admin/adminRoutes.js'
 import paymentRouter from './routes/payments/paymentRoutes.js'
+import swaggerUi from 'swagger-ui-express'
+import openApiSpec from './docs/openapi.js'
 import {
-  handleRazorpayWebhook,
   handleStripeWebhook,
 } from './controllers/payments/paymentController.js'
 
@@ -42,12 +43,9 @@ app.use(
   })
 );
 app.use(cookieParser())
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec))
 
-app.post(
-  '/api/payments/webhook',
-  express.raw({ type: 'application/json' }),
-  handleRazorpayWebhook
-)
+// Stripe needs the unparsed request bytes to check its webhook signature.
 app.post(
   '/api/payments/stripe/webhook',
   express.raw({ type: 'application/json' }),

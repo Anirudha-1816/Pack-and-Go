@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "migrate:stripe-sessions": "node scripts/migrateStripeSessions.js"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +29,7 @@
     "multer": "^2.4.0",
     "nodemailer": "^10.1.7",
     "rate-limiter-flexible": "^11.2.3",
-    "razorpay": "^2.9.8",
-    "stripe": "^23.1.0"
+    "stripe": "^23.1.0",
+    "swagger-ui-express": "^5.0.1"
   }
 }

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+// Shows trip details, creates Stripe Checkout, and checks the booking after return.
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   createStripeCheckoutSession,
-  createPaymentOrder,
   getPaymentStatus,
-  verifyPayment,
 } from "../../apis/apiPayments";
 
 const REGULAR_TERMS = [
@@ -15,77 +15,34 @@ const REGULAR_TERMS = [
   "The plan can change because of weather or road conditions.",
 ];
 
-// const REGULAR_TERMS = [  
-//   "Your booking is confirmed only after the required payment has been successfully completed and confirmation is issued by Pack&Go.",
-
-//   "Please provide accurate personal details and valid contact information while making your booking.",
-
-//   "Every traveller must carry a valid government-issued photo ID during the trip. The ID details should match the booking information where applicable.",
-
-//   "Travellers must reach the designated pickup point at least 15 minutes before the scheduled departure time.",
-
-//   "Travellers are responsible for checking their booking details, trip dates, pickup location, reporting time, and other instructions before departure.",
-
-//   "Cancellations, booking changes, and refund eligibility are governed by the Pack&Go Cancellation and Refund Policy.",
-
-//   "Any applicable refund will be processed according to the conditions and timelines mentioned in the cancellation policy.",
-
-//   "Trip itineraries, schedules, routes, accommodation, or activities may change due to weather, road conditions, safety concerns, operational requirements, or other unforeseen circumstances.",
-
-//   "Travellers are expected to follow the instructions of the trip coordinator and cooperate with other group members throughout the journey.",
-
-//   "Travellers must behave respectfully towards fellow travellers, staff, accommodation providers, and local communities. Misconduct or disruptive behaviour may result in removal from the trip where necessary.",
-
-//   "Any special requirements, medical considerations, or relevant travel limitations should be communicated to Pack&Go before the trip.",
-
-//   "Travellers are responsible for their personal belongings and valuables throughout the journey.",
-
-//   "Please review the trip description carefully to understand the included services, exclusions, accommodation details, and activities before making a booking.",
-
-//   "By completing a booking, you acknowledge that you have read, understood, and agreed to these terms and conditions."
-// ];  // change these with the actual terms you want to show in the checkout modal.
+// Format prices using the currency style travelers see in the app.
 const money = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
-const loadRazorpay = () => {
-  if (window.Razorpay) return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    const existingScript = document.querySelector(
-      'script[src="https://checkout.razorpay.com/v1/checkout.js"]'
-    );
-
-    const script = existingScript || document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = resolve;
-    script.onerror = () => reject(new Error("Could not load Razorpay Checkout."));
-
-    if (!existingScript) document.body.appendChild(script);
-  });
-};
-
+// Keep checkout state local while Stripe handles the card form on its hosted page.
 export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
   const navigate = useNavigate();
+  const payRequestInProgress = useRef(false);
   const [travelerInput, setTravelerInput] = useState("1");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [stage, setStage] = useState(checkoutReturn ? "checking" : "review");
   const [order, setOrder] = useState(
     checkoutReturn ? { bookingId: checkoutReturn.bookingId } : null
   );
-  const [provider, setProvider] = useState("razorpay");
   const [message, setMessage] = useState("");
 
   const travelers = Number(travelerInput);
   const validTravelers = Number.isInteger(travelers) && travelers >= 1;
   const totalPrice = validTravelers ? Number(trip.pricePerHead) * travelers : 0;
   const displayedTotalPrice = order?.totalPrice ?? totalPrice;
-  const busy = ["creating", "opening", "verifying", "checking", "redirecting"].includes(stage);
+  const busy = ["creating", "checking", "redirecting"].includes(stage);
   const tripName = `${trip.from} to ${trip.to}`;
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    // Let travelers close the dialog unless a request or redirect is in progress.
     const closeOnEscape = (event) => {
       if (event.key === "Escape" && !busy) onClose();
     };
@@ -97,19 +54,10 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
     };
   }, [busy, onClose]);
 
-  const showSuccess = (paymentData) => {
-    setOrder((current) => ({ ...current, ...paymentData }));
-    setMessage("");
-    setStage("success");
-  };
-
+  // Copy the verified server status into the checkout screen.
   const updatePaymentStatus = useCallback((paymentData) => {
     setOrder((current) => ({ ...current, ...paymentData }));
     if (paymentData.travelers) setTravelerInput(String(paymentData.travelers));
-    const latestProvider = paymentData.attempts?.[0]?.provider;
-    if (latestProvider === "stripe" || latestProvider === "razorpay") {
-      setProvider(latestProvider);
-    }
 
     if (paymentData.paymentStatus === "paid" && paymentData.status === "confirmed") {
       setMessage("");
@@ -127,6 +75,7 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
     );
   }, [checkoutReturn?.outcome]);
 
+  // Ask the backend for status; only the backend's webhook can mark it paid.
   const checkStatus = useCallback(async (bookingId) => {
     if (!bookingId) return;
 
@@ -161,87 +110,31 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
     };
   }, [checkoutReturn?.bookingId, updatePaymentStatus]);
 
+  // Create or resume the Stripe session, then send the traveler to Stripe.
   const handlePay = async () => {
-    if (!validTravelers || !acceptedTerms || busy) return;
+    if (!validTravelers || !acceptedTerms || payRequestInProgress.current) return;
 
+    payRequestInProgress.current = true;
     setStage("creating");
     setMessage("");
 
     try {
-      if (provider === "stripe") {
-        const { data } = await createStripeCheckoutSession(trip._id, travelers);
-        const checkout = data.data;
-        setOrder(checkout);
-        if (!checkout.checkoutUrl) {
-          setStage(checkout.paymentStatus === "failed" ? "failed" : "pending");
-          setMessage("Payment is not confirmed yet. Check its status before retrying.");
-          return;
-        }
-
-        setStage("redirecting");
-        window.location.assign(checkout.checkoutUrl);
+      const { data } = await createStripeCheckoutSession(trip._id, travelers);
+      const checkout = data.data;
+      setOrder(checkout);
+      if (!checkout.checkoutUrl) {
+        setStage(checkout.paymentStatus === "failed" ? "failed" : "pending");
+        setMessage("Payment is not confirmed yet. Check its status before retrying.");
         return;
       }
 
-      const { data } = await createPaymentOrder(trip._id, travelers);
-      const paymentOrder = data.data;
-      setOrder(paymentOrder);
-      setStage("opening");
-      await loadRazorpay();
-
-      const checkout = new window.Razorpay({
-        key: paymentOrder.keyId,
-        amount: paymentOrder.amount,
-        currency: paymentOrder.currency,
-        name: "Pack & Go",
-        description: `${tripName} · ${travelers} ${travelers === 1 ? "traveler" : "travelers"}`,
-        image: trip.thumbnail?.url || trip.banner?.url,
-        order_id: paymentOrder.orderId,
-        prefill: {
-          name: user?.fullName || "",
-          email: user?.email || "",
-        },
-        notes: { bookingId: paymentOrder.bookingId },
-        theme: { color: "#075b45" },
-        handler: async (response) => {
-          setStage("verifying");
-          try {
-            const result = await verifyPayment(response);
-            const paymentData = result.data.data;
-
-            if (paymentData.paymentStatus === "paid" && paymentData.status === "confirmed") {
-              showSuccess(paymentData);
-            } else {
-              setOrder((current) => ({ ...current, ...paymentData }));
-              setStage("pending");
-              setMessage("Payment is still being confirmed. Check its status shortly.");
-            }
-          } catch (error) {
-            setStage("pending");
-            setMessage(
-              error.response?.data?.message ||
-                "We could not confirm the payment yet. Check its status before retrying."
-            );
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setStage("pending");
-            setMessage("Checkout was closed. Your payment may still be processing.");
-          },
-        },
-      });
-
-      checkout.on("payment.failed", (response) => {
-        setStage("failed");
-        setMessage(response.error?.description || "Payment was not completed. You can retry safely.");
-      });
-
-      checkout.open();
-      setStage("review");
+      setStage("redirecting");
+      window.location.assign(checkout.checkoutUrl);
     } catch (error) {
       setStage("failed");
       setMessage(error.response?.data?.message || error.message || "Could not start payment.");
+    } finally {
+      payRequestInProgress.current = false;
     }
   };
 
@@ -359,9 +252,7 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
               )}
 
               {stage === "creating" && <p className="mt-4 text-sm font-semibold text-emerald-800">Preparing your secure payment order…</p>}
-              {stage === "opening" && <p className="mt-4 text-sm font-semibold text-emerald-800">Opening Razorpay Checkout…</p>}
               {stage === "redirecting" && <p className="mt-4 text-sm font-semibold text-emerald-800">Redirecting to secure Stripe Checkout…</p>}
-              {stage === "verifying" && <p className="mt-4 text-sm font-semibold text-emerald-800">Verifying your payment with Razorpay…</p>}
               {stage === "checking" && <p className="mt-4 text-sm font-semibold text-emerald-800">Checking the latest payment status…</p>}
             </div>
 
@@ -387,36 +278,6 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
                 <div className="flex justify-between gap-3 border-t border-emerald-200 pt-3 text-base"><span className="font-bold">Total payable</span><strong className="text-xl text-emerald-900">{money(displayedTotalPrice)}</strong></div>
               </div>
 
-              <fieldset className="mt-5">
-                <legend className="text-sm font-semibold">Payment method</legend>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  {[
-                    ["razorpay", "Razorpay"],
-                    ["stripe", "Stripe"],
-                  ].map(([value, label]) => (
-                    <label
-                      key={value}
-                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-semibold ${
-                        provider === value
-                          ? "border-emerald-700 bg-emerald-50 text-emerald-900"
-                          : "border-emerald-200 bg-white"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment-provider"
-                        value={value}
-                        checked={provider === value}
-                        onChange={() => setProvider(value)}
-                        disabled={busy}
-                        className="accent-emerald-800"
-                      />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
               <details className="mt-5 rounded-lg border border-emerald-200 bg-white p-3 text-sm">
                 <summary className="cursor-pointer font-semibold">Trip terms</summary>
                 <ul className="mt-3 list-disc space-y-2 pl-5 text-emerald-900/75">
@@ -441,10 +302,10 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
                 disabled={!validTravelers || !acceptedTerms || busy}
                 className="mt-5 w-full rounded-lg bg-orange-600 px-4 py-3.5 font-bold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-emerald-900/30"
               >
-                {stage === "creating" ? "Preparing checkout…" : stage === "verifying" ? "Verifying payment…" : order?.bookingId ? "Retry payment" : `Pay ${money(displayedTotalPrice)}`}
+                {stage === "creating" ? "Preparing checkout…" : order?.bookingId ? "Retry payment" : `Pay ${money(displayedTotalPrice)}`}
               </button>
               <p className="mt-3 text-center text-xs text-emerald-900/55">
-                Secure payment powered by {provider === "stripe" ? "Stripe" : "Razorpay"}
+                Secure payment powered by Stripe
               </p>
             </aside>
           </div>

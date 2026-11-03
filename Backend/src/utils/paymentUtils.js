@@ -1,17 +1,34 @@
-import crypto from "node:crypto";
+// Shared payment constants and small checks used by the payment service.
 
+import mongoose from "mongoose";
+import paymentError from "./paymentError.js";
+import statusCode from "./statusCodes.js";
+
+// Keep status spelling in one place so the service and model agree.
+export const BOOKING_STATUS = Object.freeze({
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  CANCELLED: "cancelled",
+});
+
+export const PAYMENT_STATUS = Object.freeze({
+  PENDING: "pending",
+  PAID: "paid",
+  FAILED: "failed",
+  REFUNDED: "refunded",
+});
+
+// Calculate the saved rupee price and Stripe amount in paise.
 export const getPaymentPrice = (pricePerPerson, travelers) => {
   const price = Number(pricePerPerson);
-
   if (!Number.isFinite(price) || price <= 0 || !Number.isInteger(travelers) || travelers < 1) {
-    throw new Error("Price and traveler count must be valid positive numbers.");
+    throw paymentError("Price and traveler count must be valid positive numbers.");
   }
 
   const priceInPaise = Math.round(price * 100);
   const amount = priceInPaise * travelers;
-
   if (!Number.isSafeInteger(amount) || amount < 1) {
-    throw new Error("The calculated payment amount is invalid.");
+    throw paymentError("The calculated payment amount is invalid.");
   }
 
   return {
@@ -22,12 +39,7 @@ export const getPaymentPrice = (pricePerPerson, travelers) => {
   };
 };
 
-export const makeActivePaymentKey = (userId, tripId, travelers) =>{
-  return `${userId}_${tripId}_${travelers}`;
-};
-
-export const makeReceipt = (paymentId) => paymentId.toString();
-
+// Return true when the trip date is today or later.
 export const isTripDateAvailable = (tripDate, now = new Date()) => {
   const start = new Date(tripDate);
   const today = new Date(now);
@@ -36,40 +48,27 @@ export const isTripDateAvailable = (tripDate, now = new Date()) => {
   return !Number.isNaN(start.getTime()) && start >= today;
 };
 
-export const verifyCheckoutSignature = (orderId, paymentId, signature, secret) => {
-  if (typeof signature !== "string" || !orderId || !paymentId || !secret) {
-    return false;
+// Check the signed-in user and the two values the browser may choose.
+export const validateCreatePayment = (userId, body = {}) => {
+  const { tripId, travelers } = body;
+
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw paymentError("Please log in to book a trip.", statusCode.UNAUTHORIZED);
+  }
+  if (typeof tripId !== "string" || !mongoose.Types.ObjectId.isValid(tripId)) {
+    throw paymentError("A valid trip ID is required.");
+  }
+  if (!Number.isInteger(travelers) || travelers < 1) {
+    throw paymentError("Travelers must be a positive whole number.");
   }
 
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(`${orderId}|${paymentId}`)
-    .digest();
-
-  let actual;
-  try {
-    actual = Buffer.from(signature, "hex");
-  } catch {
-    return false;
-  }
-
-  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+  return { userId, tripId, travelers };
 };
 
-export const verifyWebhookSignature = (body, signature, secret) => {
-  if (!Buffer.isBuffer(body) || typeof signature !== "string" || !secret) {
-    return false;
+// Reject malformed booking IDs before querying MongoDB.
+export const validateBookingId = (bookingId) => {
+  if (typeof bookingId !== "string" || !mongoose.Types.ObjectId.isValid(bookingId)) {
+    throw paymentError("A valid booking ID is required.");
   }
-
-  const expected = crypto.createHmac("sha256", secret).update(body).digest();
-  const actual = Buffer.from(signature, "hex");
-  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+  return bookingId;
 };
-
-export const getWebhookEventId = (body, headerValue) =>
-  headerValue || crypto.createHash("sha256").update(body).digest("hex");
-
-export const matchesRazorpayPayment = (payment, order) =>
-  payment?.order_id === order.orderId &&
-  payment.amount === order.amount &&
-  payment.currency === order.currency;
