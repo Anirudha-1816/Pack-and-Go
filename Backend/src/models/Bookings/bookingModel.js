@@ -1,6 +1,12 @@
-// A booking also stores the single Stripe session currently used to pay for it.
+// Flow: payment service saves one booking -> Stripe session is stored ->
+// a signed webhook updates the payment result.
+// The browser never changes the saved amount or confirms payment.
 import mongoose from "mongoose";
-import { BOOKING_STATUS, PAYMENT_STATUS } from "../../utils/paymentUtils.js";
+import {
+  BOOKING_STATUS,
+  MAX_TRAVELERS,
+  PAYMENT_STATUS,
+} from "../../utils/paymentUtils.js";
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -24,19 +30,23 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Number of travelers is required"],
       min: [1, "At least one traveler is required"],
+      max: [MAX_TRAVELERS, `No more than ${MAX_TRAVELERS} travelers are allowed`],
       validate: Number.isInteger,
     },
 
-    pricing: {
-      pricePerPerson: { type: Number, required: true, min: 0 },
-      subtotal: { type: Number, required: true, min: 0 },
-      currency: { type: String, required: true, enum: ["INR"], default: "INR" },
+    // Amount is a whole number of paise, not rupees.
+    amount: {
+      type: Number,
+      required: [true, "Amount in paise is required"],
+      min: [1, "Amount must be greater than zero"],
+      validate: Number.isSafeInteger,
     },
 
-    totalPrice: {
-      type: Number,
-      required: [true, "Total price is required"],
-      min: [0, "Total price cannot be negative"],
+    currency: {
+      type: String,
+      required: true,
+      enum: ["INR"],
+      default: "INR",
     },
 
     // Booking status
@@ -62,6 +72,19 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       default: undefined,
     },
+
+    // Each new checkout try gets a higher number after the last session expires.
+    stripeSessionGeneration: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+
+    // True when a signed payment event reports an amount different from this booking.
+    paymentReviewRequired: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -70,6 +93,20 @@ const bookingSchema = new mongoose.Schema(
 
 // fetch a user's bookings, newest first
 bookingSchema.index({ user: 1, createdAt: -1 });
+
+// Only one unpaid or failed booking for a user, trip, and traveler count may
+// be active. Cancelled and refunded bookings are outside this index.
+bookingSchema.index(
+  { user: 1, trip: 1, travelers: 1 },
+  {
+    unique: true,
+    name: "uniq_active_user_trip_travelers",
+    partialFilterExpression: {
+      status: BOOKING_STATUS.PENDING,
+      paymentStatus: { $in: [PAYMENT_STATUS.PENDING, PAYMENT_STATUS.FAILED] },
+    },
+  }
+);
 
 const Bookings = mongoose.model("Booking", bookingSchema);
 

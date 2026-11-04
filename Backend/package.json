@@ -7,6 +7,7 @@
     "test": "node --test",
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "migrate:booking-amounts": "node scripts/migrateBookingAmounts.js",
     "migrate:stripe-sessions": "node scripts/migrateStripeSessions.js"
   },
   "keywords": [],

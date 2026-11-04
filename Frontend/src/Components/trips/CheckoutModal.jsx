@@ -1,4 +1,5 @@
-// Shows trip details, creates Stripe Checkout, and checks the booking after return.
+// Flow: show the database trip price -> ask the backend to pay -> check signed status.
+// The browser return only requests status; it never proves that payment succeeded.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,11 +16,20 @@ const REGULAR_TERMS = [
   "The plan can change because of weather or road conditions.",
 ];
 
-// Format prices using the currency style travelers see in the app.
+// Format the trip's rupee price for the review screen.
 const money = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
+// Format an integer paise amount returned by the payment API.
+const moneyFromPaise = (amount, currency = "INR") =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(Number(amount || 0) / 100);
+
 // Keep checkout state local while Stripe handles the card form on its hosted page.
+// The backend remains responsible for creating the amount and proving payment.
 export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
   const navigate = useNavigate();
   const payRequestInProgress = useRef(false);
@@ -32,9 +42,13 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
   const [message, setMessage] = useState("");
 
   const travelers = Number(travelerInput);
-  const validTravelers = Number.isInteger(travelers) && travelers >= 1;
-  const totalPrice = validTravelers ? Number(trip.pricePerHead) * travelers : 0;
-  const displayedTotalPrice = order?.totalPrice ?? totalPrice;
+  const validTravelers =
+    Number.isInteger(travelers) && travelers >= 1 && travelers <= 10;
+  const estimatedTotal = validTravelers ? Number(trip.pricePerHead) * travelers : 0;
+  let displayedTotalPrice = money(estimatedTotal);
+  if (order?.amount !== undefined) {
+    displayedTotalPrice = moneyFromPaise(order.amount, order.currency);
+  }
   const busy = ["creating", "checking", "redirecting"].includes(stage);
   const tripName = `${trip.from} to ${trip.to}`;
 
@@ -65,14 +79,16 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
       return;
     }
 
-    setStage(paymentData.paymentStatus === "failed" ? "failed" : "pending");
-    setMessage(
-      paymentData.paymentStatus === "failed"
-        ? "The payment was not completed. You can safely retry."
-        : checkoutReturn?.outcome === "cancelled"
-          ? "Checkout was closed. Your payment may still be processing; check again shortly."
-          : "Payment is not confirmed yet. Check again in a moment."
-    );
+    if (paymentData.paymentStatus === "failed") {
+      setStage("failed");
+      setMessage("The payment was not completed. You can safely retry.");
+    } else if (checkoutReturn?.outcome === "cancelled") {
+      setStage("pending");
+      setMessage("Checkout was closed. Your payment may still be processing; check again shortly.");
+    } else {
+      setStage("pending");
+      setMessage("Payment is not confirmed yet. Check again in a moment.");
+    }
   }, [checkoutReturn?.outcome]);
 
   // Ask the backend for status; only the backend's webhook can mark it paid.
@@ -123,8 +139,16 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
       const checkout = data.data;
       setOrder(checkout);
       if (!checkout.checkoutUrl) {
-        setStage(checkout.paymentStatus === "failed" ? "failed" : "pending");
-        setMessage("Payment is not confirmed yet. Check its status before retrying.");
+        if (checkout.paymentStatus === "paid" && checkout.status === "confirmed") {
+          updatePaymentStatus(checkout);
+        } else if (checkout.paymentStatus === "failed") {
+          setStage("failed");
+        } else {
+          setStage("pending");
+        }
+        if (checkout.paymentStatus !== "paid") {
+          setMessage("Payment is not confirmed yet. Check its status before retrying.");
+        }
         return;
       }
 
@@ -138,9 +162,19 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
     }
   };
 
-  const terms = trip.termsType === "custom" && trip.customTerms
-    ? [trip.customTerms]
-    : REGULAR_TERMS;
+  let terms = REGULAR_TERMS;
+  if (trip.termsType === "custom" && trip.customTerms) {
+    terms = [trip.customTerms];
+  }
+
+  let payButtonLabel = "Retry payment";
+  if (!order?.bookingId) {
+    payButtonLabel = `Pay ${displayedTotalPrice}`;
+  }
+  let finalPayButtonLabel = payButtonLabel;
+  if (stage === "creating") {
+    finalPayButtonLabel = "Preparing checkout…";
+  }
 
   return (
     <div
@@ -181,7 +215,7 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
               <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50/60 p-5 text-left">
                 <p className="font-bold">{tripName}</p>
                 <p className="mt-1 text-sm text-emerald-900/70">
-                  {travelers} {travelers === 1 ? "traveler" : "travelers"} · {money(order?.totalPrice ?? totalPrice)}
+                  {travelers} {travelers === 1 ? "traveler" : "travelers"} · {displayedTotalPrice}
                 </p>
                 <p className="mt-3 break-all text-xs text-emerald-900/60">Booking reference: {order?.bookingId}</p>
                 {order?.paymentReference && (
@@ -263,6 +297,7 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
                 id="traveler-count"
                 type="number"
                 min="1"
+                max="10"
                 step="1"
                 inputMode="numeric"
                 value={travelerInput}
@@ -270,12 +305,12 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
                 disabled={busy || Boolean(order?.bookingId)}
                 className="mt-2 w-full rounded-lg border border-emerald-200 bg-white px-3 py-3 text-base font-semibold outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 disabled:bg-emerald-50"
               />
-              {!validTravelers && <p className="mt-2 text-sm text-red-700">Enter a whole number of at least one traveler.</p>}
+              {!validTravelers && <p className="mt-2 text-sm text-red-700">Enter a whole number from 1 to 10.</p>}
 
               <div className="mt-5 space-y-3 border-t border-emerald-200 pt-4 text-sm">
-                <div className="flex justify-between gap-3"><span>Price per person</span><strong>{money(order?.pricing?.pricePerPerson ?? trip.pricePerHead)}</strong></div>
+                <div className="flex justify-between gap-3"><span>Price per person</span><strong>{money(trip.pricePerHead)}</strong></div>
                 <div className="flex justify-between gap-3"><span>Travelers</span><strong>{validTravelers ? travelers : "—"}</strong></div>
-                <div className="flex justify-between gap-3 border-t border-emerald-200 pt-3 text-base"><span className="font-bold">Total payable</span><strong className="text-xl text-emerald-900">{money(displayedTotalPrice)}</strong></div>
+                <div className="flex justify-between gap-3 border-t border-emerald-200 pt-3 text-base"><span className="font-bold">Total payable</span><strong className="text-xl text-emerald-900">{displayedTotalPrice}</strong></div>
               </div>
 
               <details className="mt-5 rounded-lg border border-emerald-200 bg-white p-3 text-sm">
@@ -302,7 +337,7 @@ export default function CheckoutModal({ trip, user, onClose, checkoutReturn }) {
                 disabled={!validTravelers || !acceptedTerms || busy}
                 className="mt-5 w-full rounded-lg bg-orange-600 px-4 py-3.5 font-bold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-emerald-900/30"
               >
-                {stage === "creating" ? "Preparing checkout…" : order?.bookingId ? "Retry payment" : `Pay ${money(displayedTotalPrice)}`}
+                {finalPayButtonLabel}
               </button>
               <p className="mt-3 text-center text-xs text-emerald-900/55">
                 Secure payment powered by Stripe

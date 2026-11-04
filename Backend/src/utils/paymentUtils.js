@@ -1,16 +1,18 @@
-// Shared payment constants and small checks used by the payment service.
+// Flow: trip price in rupees -> validated amount in paise -> saved booking.
+// These shared rules keep every payment request using the same money format.
 
 import mongoose from "mongoose";
 import paymentError from "./paymentError.js";
 import statusCode from "./statusCodes.js";
 
-// Keep status spelling in one place so the service and model agree.
 export const BOOKING_STATUS = Object.freeze({
   PENDING: "pending",
   CONFIRMED: "confirmed",
   CANCELLED: "cancelled",
 });
 
+// Payment states: pending is waiting for Stripe; paid is verified by webhook;
+// failed can be retried; refunded means money was returned and needs a new booking.
 export const PAYMENT_STATUS = Object.freeze({
   PENDING: "pending",
   PAID: "paid",
@@ -18,25 +20,31 @@ export const PAYMENT_STATUS = Object.freeze({
   REFUNDED: "refunded",
 });
 
-// Calculate the saved rupee price and Stripe amount in paise.
-export const getPaymentPrice = (pricePerPerson, travelers) => {
-  const price = Number(pricePerPerson);
-  if (!Number.isFinite(price) || price <= 0 || !Number.isInteger(travelers) || travelers < 1) {
-    throw paymentError("Price and traveler count must be valid positive numbers.");
+// A single booking can contain no more than ten travelers.
+export const MAX_TRAVELERS = 10;
+
+// Convert the trip's database price to paise once and multiply by travelers.
+// Stripe receives paise, so the booking stores this same integer amount.
+export const getPaymentPrice = (pricePerHead, travelers) => {
+  const price = Number(pricePerHead);
+  if (
+    !Number.isFinite(price) ||
+    price <= 0 ||
+    !Number.isInteger(travelers) ||
+    travelers < 1 ||
+    travelers > MAX_TRAVELERS
+  ) {
+    throw paymentError(
+      `Price must be positive and travelers must be a whole number from 1 to ${MAX_TRAVELERS}.`
+    );
   }
 
-  const priceInPaise = Math.round(price * 100);
-  const amount = priceInPaise * travelers;
+  const amount = Math.round(price * 100) * travelers;
   if (!Number.isSafeInteger(amount) || amount < 1) {
     throw paymentError("The calculated payment amount is invalid.");
   }
 
-  return {
-    pricePerPerson: priceInPaise / 100,
-    subtotal: amount / 100,
-    amount,
-    currency: "INR",
-  };
+  return { amount, currency: "INR" };
 };
 
 // Return true when the trip date is today or later.
@@ -48,7 +56,7 @@ export const isTripDateAvailable = (tripDate, now = new Date()) => {
   return !Number.isNaN(start.getTime()) && start >= today;
 };
 
-// Check the signed-in user and the two values the browser may choose.
+// Check the signed-in user and the trip and traveler values sent by the browser.
 export const validateCreatePayment = (userId, body = {}) => {
   const { tripId, travelers } = body;
 
@@ -58,8 +66,8 @@ export const validateCreatePayment = (userId, body = {}) => {
   if (typeof tripId !== "string" || !mongoose.Types.ObjectId.isValid(tripId)) {
     throw paymentError("A valid trip ID is required.");
   }
-  if (!Number.isInteger(travelers) || travelers < 1) {
-    throw paymentError("Travelers must be a positive whole number.");
+  if (!Number.isInteger(travelers) || travelers < 1 || travelers > MAX_TRAVELERS) {
+    throw paymentError(`Travelers must be a whole number from 1 to ${MAX_TRAVELERS}.`);
   }
 
   return { userId, tripId, travelers };

@@ -1,3 +1,5 @@
+// Flow: booking API returns integer paise -> dashboard formats rupees for display.
+
 import { useEffect,  useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -21,8 +23,15 @@ const LOGIN_PAGE = "/login";
 
 const DAY = 86400000;
 
-const money = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+// Show a saved integer paise amount as a rupee price.
+const money = (amount) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(Number(amount || 0) / 100);
 
+// Format a trip date for the booking details.
 const formatDate = (date, long = false) =>
   new Date(date).toLocaleDateString("en-IN", {
     weekday: long ? "long" : undefined,
@@ -31,14 +40,14 @@ const formatDate = (date, long = false) =>
     year: "numeric",
   });
 
-// "06:30" -> "6:30 AM"
+// Convert a 24-hour pickup or drop time into a readable clock time.
 const formatTime = (time) => {
   if (!time) return "";
   const [hour, minute] = time.split(":");
   return `${hour % 12 || 12}:${minute} ${hour >= 12 ? "PM" : "AM"}`;
 };
 
-// Ask Cloudinary for a smaller picture (other image links stay as they are)
+// Ask Cloudinary for a smaller picture so the dashboard loads less image data.
 const small = (url, width) =>
   url && url.includes("/upload/")
     ? url.replace("/upload/", `/upload/w_${width},q_auto,f_auto/`)
@@ -76,6 +85,7 @@ function sortBookings(a, b) {
 
 // ---------- Small pieces ----------
 
+// Show one named detail in the trip summary.
 function Fact({ label, value }) {
   return (
     <div className={styles.fact}>
@@ -148,6 +158,7 @@ function EmptyState() {
 
 // ---------- Trip details (right side) ----------
 
+// Show trip dates, payment state, and the saved paise amount for one booking.
 function TripDetails({ booking }) {
   const { trip } = booking;
 
@@ -216,7 +227,7 @@ function TripDetails({ booking }) {
           <Fact label="Starts on" value={formatDate(start, true)} />
           <Fact label="Duration" value={`${trip.duration} days / ${trip.duration - 1} nights`} />
           <Fact label="Travelers" value={booking.travelers} />
-          <Fact label="Total price" value={money(booking.totalPrice)} />
+          <Fact label="Total price" value={money(booking.amount)} />
           <Fact label="Pickup" value={`${formatTime(trip.pickupTime)}, ${trip.pickupLocation}`} />
           <Fact label="Drop" value={`${formatTime(trip.dropTime)}, ${trip.dropLocation}`} />
           <Fact label="Trip type" value={trip.tripType} />
@@ -236,6 +247,7 @@ function TripDetails({ booking }) {
 
 // ---------- The page ----------
 
+// Load the signed-in user's bookings and show their trip details.
 export default function Dashboard() {
   const navigate = useNavigate();
 
@@ -248,6 +260,7 @@ export default function Dashboard() {
 
   // 1. Get the logged in user's bookings
   useEffect(() => {
+    // Load only bookings that still have a trip to display.
     async function loadBookings() {
       try {
         const res = await axios.get(BOOKINGS_API, { withCredentials: true });
@@ -271,6 +284,7 @@ export default function Dashboard() {
   }, []);
 
   // 2. Log out
+  // Sign the user out and return them to the login page.
   async function handleLogout() {
     try {
       await axios.post(LOGOUT_API, {}, { withCredentials: true });

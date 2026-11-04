@@ -1,10 +1,11 @@
-// Small tests for payment prices, trip dates, and Stripe webhook signatures.
+// Flow: payment rules and signed webhook are checked without real Stripe payments.
 
 import test from "node:test";
 import assert from "node:assert/strict";
 import { getStripe, getStripeWebhookSecret } from "../src/configs/stripe.js";
 import {
   BOOKING_STATUS,
+  MAX_TRAVELERS,
   PAYMENT_STATUS,
   getPaymentPrice,
   isTripDateAvailable,
@@ -13,11 +14,9 @@ import {
 } from "../src/utils/paymentUtils.js";
 import { handleStripeWebhook } from "../src/services/paymentService.js";
 
-// Calculate the saved rupee total and smallest-unit Stripe amount.
+// Convert a database rupee price into the one paise amount saved to a booking.
 test("calculates the saved price and amount in paise", () => {
   assert.deepEqual(getPaymentPrice(6499, 3), {
-    pricePerPerson: 6499,
-    subtotal: 19497,
     amount: 1949700,
     currency: "INR",
   });
@@ -27,6 +26,7 @@ test("calculates the saved price and amount in paise", () => {
 test("rejects invalid traveler counts and prices", () => {
   assert.throws(() => getPaymentPrice(6499, 0));
   assert.throws(() => getPaymentPrice(6499, 1.5));
+  assert.throws(() => getPaymentPrice(6499, MAX_TRAVELERS + 1));
   assert.throws(() => getPaymentPrice(Number.MAX_SAFE_INTEGER, 2));
 });
 
@@ -49,6 +49,9 @@ test("validates a payment request", () => {
   });
   assert.throws(() => validateCreatePayment(userId, { tripId: "bad", travelers: 2 }));
   assert.throws(() => validateCreatePayment(userId, { tripId, travelers: 1.5 }));
+  assert.throws(() =>
+    validateCreatePayment(userId, { tripId, travelers: MAX_TRAVELERS + 1 })
+  );
 });
 
 // Reject invalid booking IDs before querying MongoDB.
@@ -94,10 +97,7 @@ test("checks Stripe configuration and webhook signatures", async () => {
       secret: process.env.STRIPE_WEBHOOK_SECRET,
     });
 
-    assert.deepEqual(await handleStripeWebhook(body, signature), {
-      success: true,
-      received: true,
-    });
+    assert.deepEqual(await handleStripeWebhook(body, signature), { received: true });
     await assert.rejects(
       handleStripeWebhook(body, "invalid-signature"),
       (error) => error.statusCode === 400

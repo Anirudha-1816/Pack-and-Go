@@ -1,17 +1,33 @@
+// Flow: admin booking API -> saved paise amount -> formatted booking list.
+
 import { useEffect, useState } from "react";
 import baseApi from "../../api/baseApi";
 import styles from './AdminBookings.module.css'
 const statusTabs = ["All", "Pending", "Confirmed", "Cancelled"];
 
-const money = (amount) => `₹${Number(amount || 0).toLocaleString("en-IN")}`;
+// Show an integer paise amount as a rupee price.
+const money = (amount) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(Number(amount || 0) / 100);
 
+// Format the booking date for the admin table.
 const formatDate = (date) =>
   date
     ? new Date(date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
     : "Not available";
 
-const label = (value) => value?.charAt(0).toUpperCase() + value?.slice(1);
+// Capitalize a saved status for display.
+const label = (value) => {
+  if (!value) {
+    return "";
+  }
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
 
+// Map a database booking into the smaller values shown in the admin screen.
 const formatBooking = (booking) => ({
   id: booking._id,
   customer: booking.user?.fullName || "Unknown customer",
@@ -21,14 +37,15 @@ const formatBooking = (booking) => ({
   tripId: booking.trip?.tripIdentifier || booking.trip?._id || "Not available",
   travelDate: booking.trip?.date,
   seats: booking.travelers,
-  amount: booking.totalPrice,
+  amount: booking.amount,
   payment: label(booking.paymentStatus) || "Pending",
   status: label(booking.status) || "Pending",
   bookedOn: booking.createdAt,
   paymentReference: booking.paymentReference,
-  pricePerPerson: booking.pricing?.pricePerPerson,
+  reviewRequired: booking.paymentReviewRequired === true,
 });
 
+// Load and display bookings so administrators can review their payment status.
  function AdminBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +60,7 @@ const formatBooking = (booking) => ({
   useEffect(() => {
     let active = true;
 
+    // Load the latest booking list from the backend.
     const loadBookings = async () => {
       try {
         const { data } = await baseApi.get("/booking/admin/get");
@@ -65,6 +83,7 @@ const formatBooking = (booking) => ({
     return () => { active = false; };
   }, [reloadKey]);
 
+  // Reload the list after an administrator asks for fresh data.
   const refreshBookings = () => {
     setError("");
     setRefreshing(true);
@@ -75,7 +94,9 @@ const formatBooking = (booking) => ({
   const selected = bookings.find((booking) => booking.id === selectedId);
 
   // ----- Numbers for the cards -----
-  const countOf = (status) => bookings.filter((booking) => booking.status === status).length;
+  // Count bookings that match one status tab.
+  const countOf = (status) =>
+    bookings.filter((booking) => booking.status === status).length;
 
   const revenue = bookings
     .filter((booking) => booking.payment === "Paid")
@@ -263,8 +284,10 @@ const formatBooking = (booking) => ({
                 <div><small>Trip ID</small><strong>{selected.tripId}</strong></div>
                 <div><small>Travel date</small><strong>{formatDate(selected.travelDate)}</strong></div>
                 <div><small>Seats</small><strong>{selected.seats}</strong></div>
-                <div><small>Price per person</small><strong>{money(selected.pricePerPerson)}</strong></div>
                 <div><small>Amount</small><strong>{money(selected.amount)}</strong></div>
+                {selected.reviewRequired && (
+                  <div><small>Payment review</small><strong>Required</strong></div>
+                )}
                 <div><small>Payment reference</small><strong>{selected.paymentReference || "Not available"}</strong></div>
                 <div>
                   <small>Payment</small>
