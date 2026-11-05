@@ -1,7 +1,7 @@
 .section {
-  --ink: #101615;
-  --muted: #6b7773;
-  --brand: #00483a;             /* your green - the only color used */
+  --ink: #142b3b;
+  --muted: #61717b;
+  --brand: #2f6b8a;
   --peek: 19%;                  /* width of the previous / next items */
   --gap: 2.5%;
 
@@ -10,11 +10,13 @@
   margin: 4rem auto;
   padding: 3rem 2.5rem 2.25rem;
   overflow: hidden;
-  border: 1px solid #e3e8e6;
+  border: 1px solid #e8e5de;
   border-radius: 1.75rem;
   color: var(--ink);
-  background: #f4f6f5;
+  background: linear-gradient(145deg, #fff 0%, #f5f4ef 100%);
+  box-shadow: 0 20px 55px rgba(20, 43, 59, 0.08);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  animation: destination-section-enter 750ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 /* ---------- Header: title sits above the right edge of the main item ---------- */
@@ -23,12 +25,27 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 2.25rem;
+  margin-bottom: 2rem;
   padding-inline: calc(var(--peek) + var(--gap));
+  animation: destination-copy-enter 700ms ease 100ms both;
+}
+
+.headingCopy {
+  max-width: 38rem;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: #92703b;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .counter {
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.25rem;
   white-space: nowrap;
   font-family: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
   font-size: 0.9rem;
@@ -46,27 +63,19 @@
 
 .title {
   margin: 0;
-  text-align: right;
-  line-height: 1;
-}
-
-.title span {
-  display: block;
+  text-align: left;
+  line-height: 1.05;
   font-family: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
-  font-size: clamp(1.3rem, 2.6vw, 2.1rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-}
-
-.title em {
-  display: block;
-  margin-top: 0.05em;
-  font-family: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
-  font-size: clamp(2.8rem, 6.4vw, 5rem);
-  font-style: normal;
+  font-size: clamp(1.75rem, 3.2vw, 2.8rem);
   font-weight: 800;
-  letter-spacing: -0.045em;
-  color: var(--brand);
+  letter-spacing: -0.04em;
+}
+
+.subtitle {
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 /* ---------- Slider ---------- */
@@ -85,7 +94,7 @@
   position: absolute;
   overflow: hidden;
   border-radius: 1.1rem;
-  background: #d9dfdd; /* shows if a file is missing */
+  background: #dfe7e9;
   transition: left 0.7s cubic-bezier(0.65, 0, 0.35, 1), width 0.7s cubic-bezier(0.65, 0, 0.35, 1),
     top 0.7s cubic-bezier(0.65, 0, 0.35, 1), height 0.7s cubic-bezier(0.65, 0, 0.35, 1),
     opacity 0.7s, filter 0.7s;
@@ -106,7 +115,12 @@
   left: calc(var(--peek) + var(--gap));
   width: calc(100% - 2 * (var(--peek) + var(--gap)));
   z-index: 2;
-  box-shadow: 0 30px 50px -28px rgba(16, 22, 21, 0.45);
+  box-shadow: 0 32px 58px -28px rgba(20, 43, 59, 0.48);
+}
+
+.main img,
+.main video {
+  animation: destination-image-enter 1s ease both;
 }
 
 /* previous / next peeks: faded with a very light blur */
@@ -221,7 +235,7 @@
   height: 2px;
   overflow: hidden;
   border-radius: 2px;
-  background: rgba(16, 22, 21, 0.14);
+  background: rgba(20, 43, 59, 0.14);
   transition: width 0.4s;
 }
 
@@ -243,6 +257,21 @@
   to { transform: scaleX(1); }
 }
 
+@keyframes destination-section-enter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes destination-copy-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes destination-image-enter {
+  from { transform: scale(1.045); }
+  to { transform: scale(1); }
+}
+
 /* ---------- Breakpoints ---------- */
 @media (max-width: 1000px) {
   .section { --peek: 16%; --gap: 2.5%; padding: 2.5rem 1.75rem 2rem; }
@@ -254,9 +283,17 @@
   .caption { padding: 3rem 1rem 1rem; }
   .track { width: 1.1rem; }
   .dotOn .track { width: 2.4rem; }
+  .head { align-items: flex-start; }
+  .counter { padding-top: 0.2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .slide, .caption, .track { transition: none; }
   .track i { animation: none; transform: none; }
+  .section,
+  .head,
+  .main img,
+  .main video {
+    animation: none;
+  }
 }

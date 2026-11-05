@@ -1,8 +1,8 @@
 .header {
-  --green: #00483a;
-  --green-dark: #00372c;
-  --green-tint: #e6f0ed;
-  --coral: #f97316;
+  --green: #142b3b;
+  --green-dark: #142b3b;
+  --green-tint: #e8eff1;
+  --coral: #92703b;
 
   --font-brand: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
   --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -14,15 +14,18 @@
   max-width: 80rem;
   margin: 0.75rem auto 0;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #e5ebe8;
+  background: rgba(250, 250, 247, 0.95);
+  border: 1px solid rgba(232, 229, 222, 0.9);
   border-radius: 2rem;
-  transition: box-shadow 0.2s ease;
+  box-shadow: 0 8px 26px rgba(20, 43, 59, 0.08);
+  backdrop-filter: blur(16px);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
   font-family: var(--font-body);
 }
 
 .scrolled {
-  box-shadow: 0 10px 28px rgba(0, 40, 30, 0.12);
+  background: rgba(250, 250, 247, 0.98);
+  box-shadow: 0 14px 36px rgba(20, 43, 59, 0.14);
 }
 
 .nav {
@@ -31,8 +34,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* background: linear-gradient(135deg, #00372c, #0a3d5c); green to blue */
-
 }
 
 /* ---------- Brand ---------- */
@@ -84,6 +85,7 @@
 
 .link:hover {
   background: var(--green-tint);
+  color: #24566f;
 }
 
 .active,
@@ -95,7 +97,7 @@
 .link:focus-visible,
 .mobileLink:focus-visible,
 .toggle:focus-visible {
-  outline: 3px solid var(--coral);
+  outline: 3px solid #c49a55;
   outline-offset: 2px;
 }
 

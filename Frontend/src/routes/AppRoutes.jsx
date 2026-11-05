@@ -47,7 +47,7 @@ function LoadingFallback() {
 
 function Home() {
   return (
-    <>
+    <div className="landing-page">
       <NetworkStatus />
       <Navbar />
       <Hero />
@@ -55,7 +55,7 @@ function Home() {
       <HeroSlider />
       <Destinations />
       <Footer />
-    </>
+    </div>
   );
 }
 

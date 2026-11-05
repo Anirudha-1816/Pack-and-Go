@@ -4,13 +4,14 @@
   margin: 4rem auto;
   padding: 3rem 1.5rem;
   border-radius: 2rem;
-  color: #fff;
+  color: #142b3b;
   background: linear-gradient(
     135deg,
-    #d2ecf1 0%,
-    #ecf7f9 50%,
-    #aa9e40 100%
+    #e8eff1 0%,
+    #f7f7f3 55%,
+    #eee7d9 100%
   );
+  box-shadow: 0 20px 50px rgba(20, 43, 59, 0.08);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
@@ -32,7 +33,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color:#00483a;
+  color: #142b3b;
 
 }
 
@@ -44,7 +45,7 @@
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.035em;
-  color:#00483a;
+  color: #142b3b;
 }
 
 .stats {
@@ -52,9 +53,10 @@
   gap: 1.5rem;
   padding: 1rem 1.5rem;
   border-radius: 1.25rem;
-  background: rgba(62, 12, 12, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(20, 43, 59, 0.08);
   -webkit-backdrop-filter: blur(8px);
-  color:#00483a;
+  color: #142b3b;
  
   backdrop-filter: blur(8px);
 }
@@ -69,7 +71,7 @@
 }
 
 .stats span {
-  color:#00483a;
+  color: #61717b;
 
   font-size: 0.8rem;
 }
@@ -80,7 +82,7 @@
   align-items: center;
   justify-content: space-between;
   margin: 2rem 0 1rem;
-  color:#00483a;
+  color: #142b3b;
 
 }
 
@@ -88,18 +90,17 @@
 .arrows {
   display: flex;
   gap: 0.5rem;
-  color:#00483a;
+  color: #142b3b;
 
 }
 
 .tabs button,
 .arrows button {
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  background: transparent;
-  color: #fff;
+  border: 1px solid rgba(20, 43, 59, 0.18);
+  background: rgba(255, 255, 255, 0.45);
+  color: #142b3b;
   font: 700 0.9rem "Plus Jakarta Sans", system-ui, sans-serif;
   cursor: pointer;
-  color:#00483a;
   transition:
     background 0.2s,
     
@@ -122,9 +123,9 @@
 .tabs button:hover,
 .arrows button:hover,
 .tabOn {
-  background: #fff !important;
-  color: #00483a !important;
-  border-color: #fff !important;
+  background: #142b3b !important;
+  color: #fff !important;
+  border-color: #142b3b !important;
 }
 
 /* ---------- Carousel ---------- */
@@ -136,11 +137,11 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
   scroll-behavior: smooth;
-  scrollbar-color: rgba(255, 255, 255, 0.6) transparent;
+  scrollbar-color: rgba(20, 43, 59, 0.35) transparent;
 }
 
 .card {
-  --bg: linear-gradient(160deg, #bcced3, #d0d8dd);
+  --bg: linear-gradient(160deg, #c9d6db, #e3e7e5);
 
   position: relative;
   flex: 0 0 min(78vw, 19rem);
@@ -204,7 +205,7 @@
   height: 2.5rem;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.92);
-  color: #00483a;
+  color: #142b3b;
 }
 
 .rating {
@@ -281,7 +282,7 @@
 
 /* Orange accent matches the Pack&Go branding */
 .panel b {
-  color: #ff7617;
+  color: #e0bd7f;
 }
 
 .card:hover .panel,

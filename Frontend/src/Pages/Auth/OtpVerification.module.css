@@ -16,7 +16,7 @@
   box-sizing: border-box;
   padding: 0;
   text-align: center;
-  border: 1.5px solid #d5dedb;
+  border: 1px solid #d9e0e2;
   border-radius: 1rem;
   background: #fff;
   color: #0f172a;
@@ -26,8 +26,8 @@
 
 .box:focus {
   outline: none;
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(0, 72, 58, 0.15);
+  border-color: #2f6b8a;
+  box-shadow: 0 0 0 3px rgba(47, 107, 138, 0.15);
 }
 
 .box:disabled {

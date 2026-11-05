@@ -75,11 +75,16 @@ export default function Destinations() {
   return (
     <section className={styles.section}>
       <header className={styles.head}>
-        <span className={styles.counter}><b>{pad(index + 1)}</b> / {pad(n)}</span>
-        <h2 className={styles.title}>
-          {/* <span>Random destinations we</span> */}
-          {/* <em>crushed</em> */}
-        </h2>
+        <div className={styles.headingCopy}>
+          <span className={styles.eyebrow}>Find your somewhere</span>
+          <h2 className={styles.title}>A little closer to your next escape.</h2>
+          <p className={styles.subtitle}>
+            Get inspired by the places and moments waiting along the way.
+          </p>
+        </div>
+        <span className={styles.counter} aria-live="polite">
+          <b>{pad(index + 1)}</b> / {pad(n)}
+        </span>
       </header>
 
       <div

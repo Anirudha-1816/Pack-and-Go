@@ -1,17 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap");
 
 .page {
-  --green: #1b7a4b;
-  --green-dark: #0f3d2a;
-  --orange: #ff7a1a;
-  --bg: #f5f7f2;
-  --text: #17261e;
-  --muted: #66766c;
+  --green: #2f6b8a;
+  --green-dark: #142b3b;
+  --orange: #c49a55;
+  --bg: #fafaf7;
+  --text: #243746;
+  --muted: #61717b;
 
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px 80px; /* top space for the floating navbar */
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--bg) 0%, #f3f0e9 100%);
   color: var(--text);
   font-family: "Figtree", sans-serif;
 }
@@ -46,14 +46,14 @@
   max-width: 100%;
   padding: 13px 20px;
   border-radius: 999px;
-  border: 1.5px solid #d9e0d6;
+  border: 1px solid #e4e6e3;
   background: #fff;
   font: inherit;
 }
 
 .search:focus,
 .sort:focus {
-  outline: 3px solid rgba(27, 122, 75, 0.25);
+  outline: 3px solid rgba(47, 107, 138, 0.18);
   border-color: var(--green);
 }
 
@@ -76,7 +76,7 @@
 .chip {
   padding: 9px 18px;
   border-radius: 999px;
-  border: 1.5px solid #d9e0d6;
+  border: 1px solid #e4e6e3;
   background: #fff;
   font: inherit;
   font-weight: 500;
@@ -96,7 +96,7 @@
 .sort {
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1.5px solid #d9e0d6;
+  border: 1px solid #e4e6e3;
   background: #fff;
   font: inherit;
   cursor: pointer;
@@ -112,24 +112,25 @@
 /* ---------- Card ---------- */
 .card {
   background: #fff;
+  border: 1px solid rgba(232, 229, 222, 0.9);
   border-radius: 28px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 0 #e3e9df;
+  box-shadow: 0 8px 24px rgba(20, 43, 59, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 30px -18px rgba(15, 61, 42, 0.45);
+  box-shadow: 0 24px 44px -20px rgba(20, 43, 59, 0.3);
 }
 
 .image {
   position: relative;
   height: 250px;
   overflow: hidden;
-  background: #dfe6da;
+  background: #e8eff1;
 }
 
 .image img {
@@ -166,7 +167,7 @@
 .date span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--orange);
+  color: #92703b;
 }
 
 /* Seats badge */
@@ -182,7 +183,8 @@
 }
 
 .seats.few {
-  background: var(--orange);
+  background: #c49a55;
+  color: #142b3b;
 }
 
 .seats.sold {
@@ -201,7 +203,7 @@
   align-self: flex-start;
   padding: 4px 12px;
   border-radius: 999px;
-  background: #e4f2ea;
+  background: #e8eff1;
   color: var(--green);
   font-size: 0.8rem;
   font-weight: 600;
@@ -250,20 +252,22 @@
 .btn {
   padding: 12px 22px;
   border-radius: 999px;
-  background: var(--orange);
+  background: #2f6b8a;
   color: #fff;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(47, 107, 138, 0.2);
 }
 
 .btn:hover {
-  background: #e8660a;
+  background: #24566f;
+  box-shadow: 0 12px 24px rgba(47, 107, 138, 0.28);
 }
 
 .btn:focus-visible,
 .chip:focus-visible {
-  outline: 3px solid rgba(27, 122, 75, 0.45);
+  outline: 3px solid rgba(47, 107, 138, 0.45);
   outline-offset: 2px;
 }
 
@@ -278,7 +282,7 @@
 
 .card.skeleton {
   height: 440px;
-  background: linear-gradient(90deg, #e9eee5 25%, #f4f7f1 50%, #e9eee5 75%);
+  background: linear-gradient(90deg, #e8e5de 25%, #f8f7f2 50%, #e8e5de 75%);
   background-size: 200% 100%;
   animation: pk-shimmer 1.4s infinite;
   box-shadow: none;
@@ -305,7 +309,7 @@
 }
 
 .btn:focus-visible::after {
-  outline: 3px solid rgba(27, 122, 75, 0.45);
+  outline: 3px solid rgba(47, 107, 138, 0.45);
   outline-offset: -3px;
   border-radius: 28px;
 }

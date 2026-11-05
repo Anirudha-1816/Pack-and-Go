@@ -1,9 +1,9 @@
 .footer {
-  --green-dark: #0f3d2a;
-  --orange: #ff7a1a;
-  --mint: #cfe3d6;
+  --green-dark: #142b3b;
+  --orange: #c49a55;
+  --mint: #d4e0e5;
 
-  background: var(--green-dark);
+  background: linear-gradient(135deg, #142b3b 0%, #1d4055 100%);
   color: var(--mint);
   padding: 72px 20px 0;
   font-family: "Figtree", sans-serif;
@@ -15,7 +15,7 @@
 }
 
 .footer a:hover {
-  color: var(--orange);
+  color: #e0bd7f;
 }
 
 .footer a:focus-visible {
@@ -67,7 +67,7 @@
 
 .brand em {
   font-style: normal;
-  color: var(--orange);
+  color: #e0bd7f;
 }
 
 .tagline {
@@ -108,7 +108,7 @@
 .date {
   min-width: 52px;
   font-weight: 700;
-  color: var(--orange);
+  color: #e0bd7f;
 }
 
 .contact {
@@ -121,7 +121,7 @@
 .contact svg {
   flex-shrink: 0;
   margin-top: 3px;
-  color: var(--orange);
+  color: #e0bd7f;
 }
 
 /* ---------- Bottom bar ---------- */

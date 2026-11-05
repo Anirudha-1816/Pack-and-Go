@@ -54,38 +54,32 @@ export default function HeroSlider() {
   // Render an empty hero while loading
   if (slides.length === 0) {
   return (
-    <section
-      className={`${styles.hero} flex flex-col items-center justify-center px-5 pt-28 text-center`}
-    >
-      {/* Soft glowing circles in the background */}
-      <div className="absolute -left-20 -top-20 h-96 w-96 animate-pulse rounded-full bg-emerald-600/40 blur-3xl" />
-      <div className="absolute -bottom-24 -right-16 h-80 w-80 animate-pulse rounded-full bg-orange-500/25 blur-3xl" />
-
-      <div className="relative z-10 max-w-2xl">
-        <span className="inline-flex items-center gap-2 rounded-full border border-orange-500 bg-orange-500/20 px-4 py-1.5 text-sm text-orange-100">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+    <section className={`${styles.hero} ${styles.emptyHero}`}>
+      <div className={styles.emptyGlow} aria-hidden="true" />
+      <div className={styles.emptyContent}>
+        <span className={styles.emptyTag}>
+          <span className={styles.emptyDot} />
           New trips coming soon
         </span>
 
-        <h1 className="mt-5 text-5xl font-bold leading-tight text-white md:text-7xl">
-          No trips on the road <span className="text-orange-500">right now</span>
-        </h1>
+        <h2 className={styles.emptyTitle}>
+          No trips on the road <span>right now</span>
+        </h2>
 
-        <p className="mx-auto mt-4 max-w-md text-lg text-emerald-100/80">
+        <p className={styles.emptyDescription}>
           New group trips will show up here as soon as they are added.
         </p>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          {/* Change these routes to your real pages */}
+        <div className={styles.emptyActions}>
           <button
             onClick={() => navigate("/destinations")}
-            className="rounded-full bg-orange-500 px-7 py-3.5 font-semibold text-white hover:bg-orange-600"
+            className={styles.emptyPrimary}
           >
             Explore destinations
           </button>
           <button
             onClick={() => navigate("/contact")}
-            className="rounded-full border border-white px-7 py-3.5 font-semibold text-white hover:bg-white/15"
+            className={styles.emptySecondary}
           >
             Contact us
           </button>
@@ -190,31 +184,41 @@ export default function HeroSlider() {
         </div>
 
         {/* Right: upcoming destination cards */}
-        <div className={styles.cards} key={`cards-${active}`}>
-          {upcoming.map(({ slide, index }) => (
-            <div
-              key={slide._id}
-              className={`${styles.card} heroCard`}
-              style={{
-                backgroundImage: `url(${
-                  slide.cardImage || slide.backgroundImage
-                })`,
-              }}
-              onClick={(event) => {
-                event.stopPropagation();
-                setActive(index);
-              }}
-            >
-              <div className={styles.cardInfo}>
-                <p className={styles.cardName}>{slide.title}</p>
-
-                <p className={styles.cardPrice}>
-                  ₹{slide.price.toLocaleString("en-IN")}
-                </p>
-              </div>
+        {upcoming.length > 0 && (
+          <div className={styles.cardsSection}>
+            <p className={styles.cardsHeading}>
+              <span>UP NEXT</span>
+              Choose another journey
+            </p>
+            <div className={styles.cards} key={`cards-${active}`}>
+              {upcoming.map(({ slide, index }) => (
+                <button
+                  key={slide._id}
+                  type="button"
+                  className={`${styles.card} heroCard`}
+                  style={{
+                    backgroundImage: `url(${
+                      slide.cardImage || slide.backgroundImage
+                    })`,
+                  }}
+                  aria-label={`Show ${slide.title} trip`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setActive(index);
+                  }}
+                >
+                  <span className={styles.cardInfo}>
+                    {slide.tripType && <span className={styles.cardType}>{slide.tripType}</span>}
+                    <span className={styles.cardName}>{slide.title}</span>
+                    <span className={styles.cardPrice}>
+                      ₹{slide.price.toLocaleString("en-IN")} / person
+                    </span>
+                  </span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Counter and navigation arrows */}

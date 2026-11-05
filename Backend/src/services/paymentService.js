@@ -310,7 +310,7 @@ const completeCheckout = async (session) => {
   if (booking.paymentStatus === PAYMENT_STATUS.PAID) {
     console.log(`[stripe webhook] Booking ${bookingId} is already paid.`);
     return;
-  }
+  }  
   if (booking.stripeSessionId && booking.stripeSessionId !== session.id) {
     console.warn(`[stripe webhook] Ignored old session for booking ${bookingId}.`);
     return;

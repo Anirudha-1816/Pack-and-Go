@@ -1,6 +1,6 @@
 .page {
-  --green: #00483a;
-  --coral: #f97316;
+  --green: #142b3b;
+  --coral: #2f6b8a;
   display: grid;
   grid-template-columns: 1fr 1.1fr;
   gap: 1.25rem;
@@ -22,7 +22,8 @@
   height: 60vh;
   border-radius: 2rem;
   color: #fff;
-  background: linear-gradient(135deg, #00483a, #0a3d5c);
+  background: linear-gradient(145deg, #142b3b, #24566f);
+  box-shadow: 0 24px 55px rgba(20, 43, 59, 0.18);
 }
 
 /* faint mountains, same as the footer */
@@ -44,7 +45,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #ffb783;
+  color: #e0bd7f;
 }
 
 .title {
@@ -96,9 +97,9 @@
   padding: 2rem;
   background: #fff;
   height: 100%;
-  border: 1px solid #e5ebe8;
+  border: 1px solid #e8e5de;
   border-radius: 2rem;
-  box-shadow: 0 20px 50px rgba(0, 40, 30, 0.1);
+  box-shadow: 0 24px 60px rgba(20, 43, 59, 0.1);
 }
 
 .field {
@@ -114,7 +115,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 0.8rem 1rem;
-  border: 1.5px solid #d5dedb;
+  border: 1px solid #d9e0e2;
   border-radius: 1rem;
   background: #fff;
   color: #0f172a;
@@ -126,8 +127,8 @@
 .field input:focus,
 .field textarea:focus {
   outline: none;
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(0, 72, 58, 0.15);
+  border-color: #2f6b8a;
+  box-shadow: 0 0 0 3px rgba(47, 107, 138, 0.15);
 }
 
 .bad input,
@@ -141,14 +142,14 @@
   padding: 1rem;
   border: 0;
   border-radius: 999px;
-  background: var(--green);
+  background: #2f6b8a;
   color: #fff;
   font: 700 1rem "Plus Jakarta Sans", system-ui, sans-serif;
   cursor: pointer;
   transition: background-color 0.15s, transform 0.15s;
 }
 
-.button:hover { background: #00372c; transform: translateY(-2px); }
+.button:hover { background: #24566f; transform: translateY(-2px); }
 .phoneInput {
   display: flex;
   align-items: center;

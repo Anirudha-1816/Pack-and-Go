@@ -32,8 +32,8 @@ const formatTime = (time) => {
 // ---------- Styles used in many places ----------
 
 const headingFont = "font-['Bricolage_Grotesque',sans-serif]";
-const card = "rounded-2xl border border-[#e3e8de] bg-white";
-const sectionTitle = `${headingFont} mb-4 text-lg font-bold text-[#0f3d2a]`;
+const card = "rounded-2xl border border-[#e8e5de] bg-white shadow-[0_12px_30px_rgba(20,43,59,0.06)]";
+const sectionTitle = `${headingFont} mb-4 text-lg font-bold text-[#142b3b]`;
 
 // ---------- Small icons ----------
 function Icon({ children }) {
@@ -92,7 +92,7 @@ function Modal({ title, onClose, children }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a2b1e]/60 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0d202d]/65 p-4"
       onClick={onClose}
     >
       <div
@@ -102,10 +102,10 @@ function Modal({ title, onClose, children }) {
         aria-label={title}
         onClick={(e) => e.stopPropagation()} // clicks inside should not close it
       >
-        <div className="flex items-center justify-between border-b border-[#e3e8de] px-6 py-4">
-          <h2 className={`${headingFont} text-xl font-bold text-[#0f3d2a]`}>{title}</h2>
+        <div className="flex items-center justify-between border-b border-[#e8e5de] px-6 py-4">
+          <h2 className={`${headingFont} text-xl font-bold text-[#142b3b]`}>{title}</h2>
           <button
-            className="grid h-9 w-9 place-items-center rounded-full bg-[#f1f5ee] text-sm text-[#0f3d2a] transition hover:bg-[#b3261e] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff7a1a]"
+            className="grid h-9 w-9 place-items-center rounded-full bg-[#e8eff1] text-sm text-[#142b3b] transition hover:bg-[#b3261e] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c49a55]"
             onClick={onClose}
             aria-label="Close"
           >
@@ -122,8 +122,8 @@ function Modal({ title, onClose, children }) {
 function Fact({ label, children, className = "" }) {
   return (
     <div className={`bg-white px-5 py-4 ${className}`}>
-      <p className="mb-1 text-xs text-[#6b7a72]">{label}</p>
-      <p className="break-words text-sm font-semibold text-[#14211a]">{children}</p>
+      <p className="mb-1 text-xs text-[#61717b]">{label}</p>
+      <p className="break-words text-sm font-semibold text-[#243746]">{children}</p>
     </div>
   );
 }
@@ -179,27 +179,27 @@ export default function TripDetails() {
   // ----- Loading and error screens -----
   if (error) {
     return (
-      <div className="mx-auto w-[min(1120px,92%)] pb-16 pt-6 font-['Figtree',system-ui,sans-serif] text-[#14211a]">
+      <div className="mx-auto w-[min(1120px,92%)] pb-16 pt-6 font-['Figtree',system-ui,sans-serif] text-[#243746]">
         <button
-          className="mb-4 inline-flex h-10 items-center rounded-full border border-[#d9ddd4] bg-white px-4 text-sm font-semibold text-[#0f3d2a] transition hover:bg-[#f1f5ee]"
+          className="mb-4 inline-flex h-10 items-center rounded-full border border-[#e8e5de] bg-white px-4 text-sm font-semibold text-[#142b3b] transition hover:bg-[#e8eff1]"
           onClick={() => navigate(-1)}
         >
           ← Back
         </button>
-        <p className={`${card} px-6 py-14 text-center text-[#55655b]`}>{error}</p>
+        <p className={`${card} px-6 py-14 text-center text-[#61717b]`}>{error}</p>
       </div>
     );
   }
 
   if (!trip) {
     return (
-      <div className="mx-auto w-[min(1120px,92%)] pb-16 pt-6 font-['Figtree',system-ui,sans-serif] text-[#14211a]">
+      <div className="mx-auto w-[min(1120px,92%)] pb-16 pt-6 font-['Figtree',system-ui,sans-serif] text-[#243746]">
         <p className="sr-only">Loading trip...</p>
-        <div className="h-10 w-32 animate-pulse rounded-full bg-[#e6ece2]" />
-        <div className="mt-4 h-[300px] animate-pulse rounded-[28px] bg-[#e6ece2]" />
+        <div className="h-10 w-32 animate-pulse rounded-full bg-[#e8e5de]" />
+        <div className="mt-4 h-[300px] animate-pulse rounded-[28px] bg-[#e8e5de]" />
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
-          <div className="h-72 animate-pulse rounded-2xl bg-[#e6ece2]" />
-          <div className="h-72 animate-pulse rounded-2xl bg-[#e6ece2]" />
+          <div className="h-72 animate-pulse rounded-2xl bg-[#e8e5de]" />
+          <div className="h-72 animate-pulse rounded-2xl bg-[#e8e5de]" />
         </div>
       </div>
     );
@@ -238,10 +238,10 @@ export default function TripDetails() {
 
   return (
     <>
-    <div className="mx-auto w-[min(1120px,92%)] pb-16 pt-6 font-['Figtree',system-ui,sans-serif] text-[#14211a]">
+    <div className="mx-auto w-[min(1120px,92%)] pb-16 pt-6 font-['Figtree',system-ui,sans-serif] text-[#243746]">
       {/* Back link */}
       <button
-        className="mb-4 inline-flex h-10 items-center rounded-full border border-[#d9ddd4] bg-white px-4 text-sm font-semibold text-[#0f3d2a] transition hover:bg-[#f1f5ee] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff7a1a]"
+        className="mb-4 inline-flex h-10 items-center rounded-full border border-[#e8e5de] bg-white px-4 text-sm font-semibold text-[#142b3b] transition hover:bg-[#e8eff1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c49a55]"
         onClick={() => navigate(-1)}
       >
         ← Back to trips
@@ -249,10 +249,10 @@ export default function TripDetails() {
 
       {/* ================= BANNER ================= */}
       <div
-        className="relative flex h-[260px] items-end overflow-hidden rounded-[28px] bg-[#0b2a22] bg-cover bg-center sm:h-[320px]"
+        className="relative flex h-[260px] items-end overflow-hidden rounded-[28px] bg-[#142b3b] bg-cover bg-center shadow-[0_22px_48px_rgba(20,43,59,0.22)] sm:h-[320px]"
         style={{ backgroundImage: `url(${bannerUrl})` }}
       >
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,43,30,0)_30%,rgba(10,43,30,0.85))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,32,45,0)_25%,rgba(13,32,45,0.88))]" />
         <div className="relative p-6 text-white sm:p-8">
           <div className="mb-3 flex flex-wrap gap-2">
             <span className="rounded-full border border-white/40 bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
@@ -293,9 +293,9 @@ export default function TripDetails() {
             <div className="flex flex-wrap items-center gap-2">
               {trip.roadmap.map((stop, index) => (
                 <span key={index} className="inline-flex items-center gap-2">
-                  {index > 0 && <span className="font-bold text-[#ff7a1a]">→</span>}
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#f1f5ee] py-1.5 pl-1.5 pr-4 text-sm font-semibold">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#0f3d2a] text-xs text-white">
+                  {index > 0 && <span className="font-bold text-[#c49a55]">→</span>}
+                  <span className="inline-flex items-center gap-2 rounded-full bg-[#e8eff1] py-1.5 pl-1.5 pr-4 text-sm font-semibold">
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[#142b3b] text-xs text-white">
                       {index + 1}
                     </span>
                     {stop.place} · {stop.days} {stop.days === 1 ? "day" : "days"}
@@ -304,7 +304,7 @@ export default function TripDetails() {
               ))}
             </div>
             <button
-              className="mt-4 text-sm font-semibold text-[#0f3d2a] underline underline-offset-4 hover:text-[#ff7a1a]"
+              className="mt-4 text-sm font-semibold text-[#142b3b] underline underline-offset-4 hover:text-[#2f6b8a]"
               onClick={() => setModal("roadmap")}
             >
               View full roadmap
@@ -315,8 +315,8 @@ export default function TripDetails() {
           <section className={`${card} p-6`}>
             <h3 className={sectionTitle}>Stay, travel and meals</h3>
             <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl bg-[#f1f5ee] p-4">
-                <span className="mb-3 grid h-9 w-9 place-items-center rounded-full bg-white text-[#0f3d2a]">
+              <div className="rounded-xl bg-[#e8eff1] p-4">
+                <span className="mb-3 grid h-9 w-9 place-items-center rounded-full bg-white text-[#142b3b]">
                   <BedIcon />
                 </span>
                 <p className="text-xs text-[#6b7a72]">Where we stay</p>
@@ -325,8 +325,8 @@ export default function TripDetails() {
                 </p>
               </div>
 
-              <div className="rounded-xl bg-[#f1f5ee] p-4">
-                <span className="mb-3 grid h-9 w-9 place-items-center rounded-full bg-white text-[#0f3d2a]">
+              <div className="rounded-xl bg-[#e8eff1] p-4">
+                <span className="mb-3 grid h-9 w-9 place-items-center rounded-full bg-white text-[#142b3b]">
                   <BusIcon />
                 </span>
                 <p className="text-xs text-[#6b7a72]">How we travel</p>
@@ -335,8 +335,8 @@ export default function TripDetails() {
                 </p>
               </div>
 
-              <div className="rounded-xl bg-[#f1f5ee] p-4">
-                <span className="mb-3 grid h-9 w-9 place-items-center rounded-full bg-white text-[#0f3d2a]">
+              <div className="rounded-xl bg-[#e8eff1] p-4">
+                <span className="mb-3 grid h-9 w-9 place-items-center rounded-full bg-white text-[#142b3b]">
                   <MealIcon />
                 </span>
                 <p className="text-xs text-[#6b7a72]">Meals</p>
@@ -345,7 +345,7 @@ export default function TripDetails() {
                     {trip.meals.map((meal) => (
                       <span
                         key={meal}
-                        className="rounded-full bg-[#0f3d2a] px-2.5 py-0.5 text-xs font-semibold text-white"
+                        className="rounded-full bg-[#142b3b] px-2.5 py-0.5 text-xs font-semibold text-white"
                       >
                         {meal}
                       </span>
@@ -360,22 +360,22 @@ export default function TripDetails() {
         </main>
 
         {/* ================= BOOKING CARD ================= */}
-        <aside className={`${card} order-first p-6 shadow-[0_18px_40px_-28px_rgba(15,61,42,0.5)] lg:sticky lg:top-28 lg:order-last`}>
-          <p className="text-sm text-[#6b7a72]">Starting from</p>
+        <aside className={`${card} order-first p-6 shadow-[0_18px_40px_-28px_rgba(20,43,59,0.34)] lg:sticky lg:top-28 lg:order-last`}>
+          <p className="text-sm text-[#61717b]">Starting from</p>
           <p className="mt-1">
-            <span className={`${headingFont} text-[34px] font-extrabold leading-none text-[#0f3d2a]`}>
+            <span className={`${headingFont} text-[34px] font-extrabold leading-none text-[#142b3b]`}>
               {money(trip.pricePerHead)}
             </span>
-            <span className="text-sm text-[#6b7a72]"> per person</span>
+            <span className="text-sm text-[#61717b]"> per person</span>
           </p>
 
           <button
-            className="mt-5 flex h-12 w-full items-center justify-center rounded-xl bg-[#ff7a1a] text-base font-bold text-[#17261e] transition hover:bg-[#e8660a] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0f3d2a]"
+            className="mt-5 flex h-12 w-full items-center justify-center rounded-xl bg-[#2f6b8a] text-base font-bold text-white shadow-[0_8px_20px_rgba(47,107,138,0.22)] transition hover:bg-[#24566f] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#c49a55]"
             onClick={startBooking}
           >
             Book this trip
           </button>
-          <p className="mt-2.5 text-center text-xs text-[#6b7a72]">
+          <p className="mt-2.5 text-center text-xs text-[#61717b]">
             Your seat is confirmed after the payment is complete.
           </p>
 
@@ -387,18 +387,18 @@ export default function TripDetails() {
                 onClick={() => setModal(row.key)}
               >
                 <span>
-                  <span className="block font-semibold text-[#14211a] group-hover:text-[#0f3d2a]">
+                  <span className="block font-semibold text-[#243746] group-hover:text-[#142b3b]">
                     {row.title}
                   </span>
                   <span
                     className={`block text-xs ${
-                      row.important ? "font-semibold text-[#d9620d]" : "text-[#6b7a72]"
+                      row.important ? "font-semibold text-[#92703b]" : "text-[#61717b]"
                     }`}
                   >
                     {row.note}
                   </span>
                 </span>
-                <span className="text-[#9aa59d] transition group-hover:translate-x-0.5 group-hover:text-[#0f3d2a]">
+                <span className="text-[#9aa5aa] transition group-hover:translate-x-0.5 group-hover:text-[#142b3b]">
                   <ChevronIcon />
                 </span>
               </button>
@@ -414,19 +414,19 @@ export default function TripDetails() {
         <Modal title="Trip roadmap" onClose={closeModal}>
           <div className="flex flex-col gap-3">
             {trip.roadmap.map((stop, index) => (
-              <div key={index} className="rounded-2xl border border-[#e3e8de] p-4">
-                <span className="inline-block rounded-full bg-[#0f3d2a] px-3 py-1 text-xs font-bold text-white">
+              <div key={index} className="rounded-2xl border border-[#e8e5de] p-4">
+                <span className="inline-block rounded-full bg-[#142b3b] px-3 py-1 text-xs font-bold text-white">
                   {dayLabel(index)}
                 </span>
                 <h3 className={`${headingFont} mt-2 text-lg font-bold`}>{stop.place}</h3>
-                <p className="mt-0.5 text-sm text-[#6b7a72]">
+                <p className="mt-0.5 text-sm text-[#61717b]">
                   {stop.days} {stop.days === 1 ? "day" : "days"} here
                 </p>
                 {stop.note && <p className="mt-2 text-sm leading-relaxed text-[#2b3a31]">{stop.note}</p>}
               </div>
             ))}
           </div>
-          <p className="text-center text-sm font-semibold text-[#0f3d2a]">
+          <p className="text-center text-sm font-semibold text-[#142b3b]">
             {trip.roadmap.length} places, {totalDays} days in total
           </p>
         </Modal>
@@ -435,7 +435,7 @@ export default function TripDetails() {
       {/* Includes */}
       {modal === "includes" && (
         <Modal title="What's included" onClose={closeModal}>
-          <h3 className="text-sm font-bold text-[#0f3d2a]">Meals</h3>
+          <h3 className="text-sm font-bold text-[#142b3b]">Meals</h3>
           <ul className="grid gap-2">
             {ALL_MEALS.map((meal) => {
               const included = trip.meals.includes(meal);
@@ -443,7 +443,7 @@ export default function TripDetails() {
                 <li
                   key={meal}
                   className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold ${
-                    included ? "bg-[#e8f6ee] text-[#0f6b3a]" : "bg-[#f4f4f2] text-[#8a8f8c]"
+                    included ? "bg-[#e8eff1] text-[#24566f]" : "bg-[#f4f4f2] text-[#8a8f8c]"
                   }`}
                 >
                   <span className="w-4 font-bold">{included ? "✓" : "✕"}</span> {meal}
@@ -452,13 +452,13 @@ export default function TripDetails() {
             })}
           </ul>
 
-          <h3 className="mt-2 text-sm font-bold text-[#0f3d2a]">Stay and travel</h3>
+          <h3 className="mt-2 text-sm font-bold text-[#142b3b]">Stay and travel</h3>
           <ul className="grid gap-2">
             {[["Stay", trip.stays], ["Travel", trip.travel]].map(([name, tier]) => (
               <li
                 key={name}
                 className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold ${
-                  tier === "Not included" ? "bg-[#f4f4f2] text-[#8a8f8c]" : "bg-[#e8f6ee] text-[#0f6b3a]"
+                  tier === "Not included" ? "bg-[#f4f4f2] text-[#8a8f8c]" : "bg-[#e8eff1] text-[#24566f]"
                 }`}
               >
                 <span className="w-4 font-bold">{tier === "Not included" ? "✕" : "✓"}</span> {name}: {tier}
@@ -471,21 +471,21 @@ export default function TripDetails() {
       {/* Terms and timings */}
       {modal === "terms" && (
         <Modal title="Terms and timings" onClose={closeModal}>
-          <h3 className="text-sm font-bold text-[#0f3d2a]">Pickup and drop</h3>
+          <h3 className="text-sm font-bold text-[#142b3b]">Pickup and drop</h3>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl bg-[#f1f5ee] p-4">
-              <p className="text-xs text-[#6b7a72]">Pickup</p>
-              <p className={`${headingFont} text-2xl font-bold text-[#0f3d2a]`}>{formatTime(trip.pickupTime)}</p>
+            <div className="rounded-xl bg-[#e8eff1] p-4">
+              <p className="text-xs text-[#61717b]">Pickup</p>
+              <p className={`${headingFont} text-2xl font-bold text-[#142b3b]`}>{formatTime(trip.pickupTime)}</p>
               <p className="text-sm">{trip.pickupLocation}</p>
             </div>
-            <div className="rounded-xl bg-[#f1f5ee] p-4">
-              <p className="text-xs text-[#6b7a72]">Drop</p>
-              <p className={`${headingFont} text-2xl font-bold text-[#0f3d2a]`}>{formatTime(trip.dropTime)}</p>
+            <div className="rounded-xl bg-[#e8eff1] p-4">
+              <p className="text-xs text-[#61717b]">Drop</p>
+              <p className={`${headingFont} text-2xl font-bold text-[#142b3b]`}>{formatTime(trip.dropTime)}</p>
               <p className="text-sm">{trip.dropLocation}</p>
             </div>
           </div>
 
-          <h3 className="mt-2 text-sm font-bold text-[#0f3d2a]">Terms</h3>
+          <h3 className="mt-2 text-sm font-bold text-[#142b3b]">Terms</h3>
           {trip.termsType === "custom" ? (
             <p className="whitespace-pre-line text-sm leading-relaxed">{trip.customTerms}</p>
           ) : (
@@ -497,7 +497,7 @@ export default function TripDetails() {
           )}
 
           <button
-            className="mt-2 h-12 rounded-xl bg-[#0f3d2a] font-bold text-white transition hover:bg-[#0a2b1e] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#ff7a1a]"
+            className="mt-2 h-12 rounded-xl bg-[#142b3b] font-bold text-white transition hover:bg-[#0d202d] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#c49a55]"
             onClick={closeModal}
           >
             I have read this

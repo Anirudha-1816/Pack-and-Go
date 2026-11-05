@@ -1,12 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap");
 
 .page {
-  --green: #1b7a4b;
-  --green-dark: #0f3d2a;
-  --orange: #ff7a1a;
-  --bg: #f5f7f2;
-  --text: #17261e;
-  --muted: #46564c;
+  --green: #2f6b8a;
+  --green-dark: #142b3b;
+  --orange: #2f6b8a;
+  --bg: #fafaf7;
+  --text: #243746;
+  --muted: #61717b;
   margin-top: 0px;
 
   background: var(--bg);
@@ -46,17 +46,19 @@
   padding: 14px 28px;
   border-radius: 999px;
   background: var(--orange);
-  color: var(--text);
+  color: #fff;
   font-weight: 600;
   text-decoration: none;
+  box-shadow: 0 10px 24px rgba(47, 107, 138, 0.22);
 }
 
 .btn:hover {
-  background: #e8660a;
+  background: #24566f;
+  box-shadow: 0 14px 28px rgba(47, 107, 138, 0.28);
 }
 
 .btn:focus-visible {
-  outline: 3px solid rgba(27, 122, 75, 0.45);
+  outline: 3px solid rgba(47, 107, 138, 0.45);
   outline-offset: 2px;
 }
 
@@ -70,11 +72,16 @@
   gap: 56px;
   align-items: center;
   margin-bottom: 3rem;
+  position: relative;
 }
 
 .heroText {
   flex: 1 1 440px;
   max-width: 560px;
+}
+
+:global(.landing-page) .heroText {
+  animation: landing-about-rise 750ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .heroText h1 {
@@ -100,8 +107,31 @@
   gap: 16px;
 }
 
+:global(.landing-page) .heroCards {
+  animation: landing-about-rise 850ms cubic-bezier(0.2, 0.7, 0.2, 1) 140ms both;
+}
+
+:global(.landing-page) .heroCards .heroCard {
+  animation: landing-about-card 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+:global(.landing-page) .heroCards .heroCard:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+:global(.landing-page) .heroCards .heroCard:nth-child(3) {
+  animation-delay: 200ms;
+}
+
 .heroCard {
   padding: 26px 28px;
+  box-shadow: 0 14px 34px rgba(20, 43, 59, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.heroCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 42px rgba(20, 43, 59, 0.13);
 }
 
 .heroCard h2 {
@@ -117,14 +147,14 @@
 /* Each hero card has its own colors and rounded corners */
 .heroWhite {
   background: #fff;
-  border: 1.5px solid #d9e0d6;
+  border: 1px solid #e8e5de;
   border-radius: 28px 28px 28px 8px;
   color: var(--muted);
 }
 
 .heroGreen {
-  background: var(--green-dark);
-  color: #cfe3d6;
+  background: linear-gradient(135deg, #142b3b, #20465d);
+  color: #e8eff1;
   border-radius: 28px 8px 28px 28px;
 }
 
@@ -133,14 +163,15 @@
 }
 
 .heroOrange {
-
+  background: linear-gradient(135deg, #f3ead9, #fbf8f1);
+  border: 1px solid #e8ddc8;
   color: var(--text);
   border-radius: 28px 28px 8px 28px;
 }
 
 /* ---------- 2. Story ---------- */
 .story {
-  background: #fff;
+  background: linear-gradient(180deg, #fff 0%, #fafaf7 100%);
   padding: 88px 0;
 }
 
@@ -160,7 +191,7 @@
   max-width: 680px;
   font-size: 1.2rem;
   line-height: 1.7;
-  color: #2f4338;
+  color: #45545f;
 }
 
 .storyText p {
@@ -179,7 +210,14 @@
   padding: 28px;
   border-radius: 28px;
   background: #fff;
-  border: 1.5px solid #d9e0d6;
+  border: 1px solid #e8e5de;
+  box-shadow: 0 10px 28px rgba(20, 43, 59, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(20, 43, 59, 0.1);
 }
 
 .card h3 {
@@ -203,7 +241,7 @@
 }
 
 .values {
-  background: var(--green-dark);
+  background: linear-gradient(135deg, #142b3b, #1d4055);
   padding: 88px 0;
 }
 
@@ -212,8 +250,9 @@
 }
 
 .values .card {
-  background: #16573b;
-  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: none;
 }
 
 .values .card h3 {
@@ -221,7 +260,7 @@
 }
 
 .values .card p {
-  color: #cfe3d6;
+  color: #d4e0e5;
 }
 
 /* ---------- 5. Numbers ---------- */
@@ -257,7 +296,7 @@
   max-width: 620px;
   font-size: 1.2rem;
   line-height: 1.6;
-  color: #4e715e;
+  color: #61717b;
 }
 
 .team {
@@ -272,7 +311,8 @@
   padding: 28px;
   border-radius: 28px;
   background: #fff;
-  border: 1.5px solid #d9e0d6;
+  border: 1px solid #e8e5de;
+  box-shadow: 0 10px 28px rgba(20, 43, 59, 0.05);
 }
 
 .avatar {
@@ -294,7 +334,7 @@
 
 /* ---------- 7. Call to action ---------- */
 .cta {
-  background: #e4f2ea;
+  background: linear-gradient(120deg, #e8eff1, #f3f0e9);
   padding: 88px 0;
 }
 
@@ -311,12 +351,35 @@
   max-width: 560px;
   font-size: 1.1rem;
   line-height: 1.6;
-  color: #5b9a77;
+  color: #61717b;
 }
 
 @media (max-width: 600px) {
   .hero {
     padding-top: 110px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.landing-page) .heroText,
+    :global(.landing-page) .heroCards,
+    :global(.landing-page) .heroCards .heroCard {
+      animation: none;
+    }
+
+    .heroCard,
+    .card {
+      transition: none;
+    }
+  }
+
+  @keyframes landing-about-rise {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes landing-about-card {
+    from { opacity: 0; transform: translateY(16px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
   .section,
   .story,

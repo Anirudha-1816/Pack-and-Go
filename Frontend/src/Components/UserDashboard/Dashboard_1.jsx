@@ -100,8 +100,8 @@ function Fact({ label, value }) {
 //     <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
 //       <path
 //         d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"
-//         fill={filled ? "#ff7a1a" : "none"}
-//         stroke={filled ? "#ff7a1a" : "#cfe3d6"}
+//         fill={filled ? "#c49a55" : "none"}
+//         stroke={filled ? "#c49a55" : "#e8eff1"}
 //         strokeWidth="1.6"
 //         strokeLinejoin="round"
 //       />
@@ -123,10 +123,10 @@ function EmptyState() {
         <div className={styles.emptyArt}>
           <div className={styles.emptySun} />
           <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-            <polygon points="0,220 0,140 90,70 160,130 250,40 340,130 400,100 400,220" fill="#1b7a4b" />
+            <polygon points="0,220 0,140 90,70 160,130 250,40 340,130 400,100 400,220" fill="#2f6b8a" />
             <polygon points="250,40 226,72 242,66 252,82 262,66 278,72" fill="#fff" />
-            <path d="M0 220 V170 Q200 140 400 175 V220 Z" fill="#0f3d2a" />
-            <path d="M160 220 C160 196 250 198 228 170 C214 154 190 160 204 144 L212 144 C196 160 240 158 252 172 C272 196 226 200 238 220 Z" fill="#ff7a1a" />
+            <path d="M0 220 V170 Q200 140 400 175 V220 Z" fill="#142b3b" />
+            <path d="M160 220 C160 196 250 198 228 170 C214 154 190 160 204 144 L212 144 C196 160 240 158 252 172 C272 196 226 200 238 220 Z" fill="#c49a55" />
           </svg>
         </div>
 

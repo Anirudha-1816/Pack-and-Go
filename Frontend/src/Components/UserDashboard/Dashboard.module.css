@@ -1,21 +1,21 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap");
 
 .page {
-  --green: #1b7a4b;
-  --green-dark: #0f3d2a;
-  --green-deep: #0a2b1e;
-  --orange: #ff7a1a;
-  --bg: #f5f7f2;
-  --text: #17261e;
-  --muted: #55655b;
-  --line: #d9e0d6;
-  --mint: #cfe3d6;
+  --green: #2f6b8a;
+  --green-dark: #142b3b;
+  --green-deep: #0d202d;
+  --orange: #c49a55;
+  --bg: #fafaf7;
+  --text: #243746;
+  --muted: #61717b;
+  --line: #e8e5de;
+  --mint: #e8eff1;
 
   min-height: 100vh;
   box-sizing: border-box;
   /* full-width background, content centered up to 1240px */
 padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the floating navbar */
-  background: var(--bg);
+  background: linear-gradient(180deg, #fafaf7 0%, #f3f0e9 100%);
   color: var(--text);
   font-family: "Figtree", sans-serif;
   border-radius:2rem ;
@@ -35,7 +35,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   border: none;
   border-radius: 999px;
   background: var(--orange);
-  color: var(--text);
+  color: #142b3b;
   font: inherit;
   font-weight: 600;
   text-decoration: none;
@@ -43,7 +43,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .btn:hover {
-  background: #e8660a;
+  background: #b48b48;
 }
 
 .btn:disabled {
@@ -54,7 +54,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .page button:focus-visible,
 .page a:focus-visible,
 .page textarea:focus-visible {
-  outline: 3px solid rgba(27, 122, 75, 0.5);
+  outline: 3px solid rgba(47, 107, 138, 0.45);
   outline-offset: 2px;
 }
 
@@ -76,6 +76,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   border-radius: 28px;
   background: #fff;
   border: 1.5px solid var(--line);
+  box-shadow: 0 12px 32px rgba(20, 43, 59, 0.06);
 }
 
 .sideHead {
@@ -136,7 +137,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   width: 68px;
   height: 68px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #ff9d2e, var(--green));
+  background: linear-gradient(135deg, #c49a55, var(--green));
   background-size: cover;
   background-position: center;
 }
@@ -215,7 +216,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .item:not(.itemActive) .completed {
-  background: #e4f2ea;
+  background: #e8eff1;
 }
 
 /* ---------- Right side: details ---------- */
@@ -232,7 +233,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   min-height: 300px;
   display: flex;
   align-items: flex-end;
-  background: linear-gradient(135deg, #ff9d2e, var(--green));
+  background: linear-gradient(135deg, #c49a55, var(--green));
   background-size: cover;
   background-position: center;
 }
@@ -240,7 +241,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .heroShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 43, 30, 0) 30%, rgba(10, 43, 30, 0.85));
+  background: linear-gradient(180deg, rgba(13, 32, 45, 0) 30%, rgba(13, 32, 45, 0.85));
 }
 
 .heroText {
@@ -279,8 +280,8 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   gap: 2px;
   padding: 14px 18px;
   border-radius: 16px;
-  background: #fff1e3;
-  color: #7a3a00;
+  background: #f3ead9;
+  color: #725627;
 }
 
 .countdown {
@@ -304,7 +305,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .bar {
   height: 10px;
   border-radius: 999px;
-  background: #e4f2ea;
+  background: #e8eff1;
   overflow: hidden;
 }
 
@@ -392,7 +393,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   padding: 14px 16px;
   border: 1.5px solid transparent;
   border-radius: 18px;
-  background: #f5f7f2;
+  background: #fafaf7;
   color: var(--text);
   font: inherit;
   resize: vertical;
@@ -471,7 +472,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   height: 28px;
   border: none;
   border-radius: 50%;
-  background: rgba(10, 43, 30, 0.85);
+  background: rgba(13, 32, 45, 0.88);
   color: #fff;
   cursor: pointer;
 }
@@ -515,7 +516,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   position: relative;
   flex: 1 1 340px;
   min-height: 340px;
-  background: linear-gradient(180deg, #fbb62a, #ff8a24);
+  background: linear-gradient(180deg, #d2ad6f, #b48b48);
 }
 
 .emptyArt svg {
@@ -617,7 +618,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .skeleton {
   border-radius: 28px;
-  background: linear-gradient(90deg, #e9eee5 25%, #f4f7f1 50%, #e9eee5 75%);
+  background: linear-gradient(90deg, #e8e5de 25%, #f8f7f2 50%, #e8e5de 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }

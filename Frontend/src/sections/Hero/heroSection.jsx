@@ -29,6 +29,10 @@ export default function Hero() {
       <div className={styles.content}>
         {/* LEFT: text, buttons and the live booking tag */}
         <div className={styles.text}>
+          <p className={styles.eyebrow}>
+            <span aria-hidden="true" />
+            Small-group journeys, thoughtfully planned
+          </p>
           <h1 className={styles.title}>
             Pick a route.
             <br />
@@ -38,11 +42,11 @@ export default function Hero() {
           </h1>
 
           <p className={styles.desc}>
-            Jaipur to Leh in one booking, with a group that actually shows up.
+            Find a planned group trip, choose your seat and book in a few taps.
+            Your itinerary and guide are part of the plan.
           </p>
 
           <div className={styles.buttons}>
-            {/* Change these routes to your real pages */}
             <button className={styles.primary} onClick={() => navigate("/package")}>
               Browse trips
             </button>
@@ -50,6 +54,12 @@ export default function Hero() {
               How it works
             </button>
           </div>
+
+          <ul className={styles.highlights} aria-label="What to expect">
+            <li>Planned itineraries</li>
+            <li>Guides on every trip</li>
+            <li>Easy online booking</li>
+          </ul>
 
           {/* The key makes the tag replay its slide-in animation on every change */}
           <div className={styles.feed} key={index}>
@@ -65,45 +75,43 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* RIGHT: the route map */}
-        <svg className={styles.map} viewBox="0 0 500 400" aria-hidden="true">
-          {/* Light dotted path (always visible) */}
-          <path
-            id="route"
-            d="M40,330 C110,320 130,210 230,205 S380,110 440,70"
-            className={styles.dotted}
-          />
-
-          {/* Orange path that draws itself */}
-          <path
-            d="M40,330 C110,320 130,210 230,205 S380,110 440,70"
-            pathLength="1"
-            className={styles.line}
-          />
-
-          {/* Pins */}
-          <circle cx="40" cy="330" r="9" className={styles.pin} />
-          <circle cx="230" cy="205" r="9" className={styles.pin} />
-          <circle cx="440" cy="70" r="9" className={styles.pin} />
-
-          {/* Pulsing ring around Manali */}
-          <circle cx="230" cy="205" r="9" className={styles.ring}>
-            <animate attributeName="r" values="9;28" dur="1.8s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.9;0" dur="1.8s" repeatCount="indefinite" />
-          </circle>
-
-          {/* City names */}
-          <text x="40" y="362" className={styles.label}>Jaipur</text>
-          <text x="230" y="172" className={styles.label} textAnchor="middle">Spiti Valley </text>
-          <text x="440" y="46" className={styles.label} textAnchor="end">Leh</text>
-
-          {/* The bus (white dot) that travels along the route */}
-          <circle r="8" className={styles.bus}>
-            <animateMotion dur="6s" repeatCount="indefinite">
-              <mpath href="#route" />
-            </animateMotion>
-          </circle>
-        </svg>
+        <div className={styles.mapPanel}>
+          <div className={styles.mapHeading}>
+            <span className={styles.mapIcon} aria-hidden="true">↗</span>
+            <div>
+              <span className={styles.mapKicker}>THE JOURNEY</span>
+              <strong>One route. A whole lot to see.</strong>
+            </div>
+          </div>
+          <svg className={styles.map} viewBox="0 0 500 400" aria-hidden="true">
+            <path
+              id="route"
+              d="M40,330 C110,320 130,210 230,205 S380,110 440,70"
+              className={styles.dotted}
+            />
+            <path
+              d="M40,330 C110,320 130,210 230,205 S380,110 440,70"
+              pathLength="1"
+              className={styles.line}
+            />
+            <circle cx="40" cy="330" r="9" className={styles.pin} />
+            <circle cx="230" cy="205" r="9" className={styles.pin} />
+            <circle cx="440" cy="70" r="9" className={styles.pin} />
+            <circle cx="230" cy="205" r="9" className={styles.ring}>
+              <animate attributeName="r" values="9;28" dur="1.8s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.9;0" dur="1.8s" repeatCount="indefinite" />
+            </circle>
+            <text x="40" y="362" className={styles.label}>Jaipur</text>
+            <text x="230" y="172" className={styles.label} textAnchor="middle">Spiti Valley</text>
+            <text x="440" y="46" className={styles.label} textAnchor="end">Leh</text>
+            <circle r="8" className={styles.bus}>
+              <animateMotion dur="6s" repeatCount="indefinite">
+                <mpath href="#route" />
+              </animateMotion>
+            </circle>
+          </svg>
+          <p className={styles.mapCaption}>Your next great story starts with a seat.</p>
+        </div>
       </div>
     </section>
   );

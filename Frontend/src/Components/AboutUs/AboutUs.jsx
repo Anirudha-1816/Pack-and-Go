@@ -56,9 +56,9 @@ const numbers = [
 
 // Add real names, roles and photos here
 const team = [
-  { name: "[NAME]", role: "[ROLE]", about: "[One line about them.]", color: "#ff7a1a" },
-  { name: "[NAME]", role: "[ROLE]", about: "[One line about them.]", color: "#1b7a4b" },
-  { name: "[NAME]", role: "[ROLE]", about: "[One line about them.]", color: "#0f3d2a" },
+  { name: "Ashish Jangid", role: "Travel Experience Planner. Passionate about making every journey memorable, enjoyable, and hassle-free.", about: "[One line about them.]", color: "#c49a55" },
+  { name: "Harsh Sharma", role: "Trip Planning & Operations. Focuses on creating smooth travel experiences and making group adventures easier to manage.", about: "[One line about them.]", color: "#2f6b8a" },
+  { name: "Raj Singh", role: "Founder & Full-Stack Developer. Building Pack&Go to make discovering destinations, planning trips, and booking adventures easier for everyone.", about: "[One line about them.]", color: "#142b3b" },
 ];
 
 // ---------- Page ----------

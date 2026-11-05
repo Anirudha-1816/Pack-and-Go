@@ -1,6 +1,6 @@
 .page {
-  --green: #00483a;
-  --coral: #f97316;
+  --green: #142b3b;
+  --coral: #92703b;
   display: grid;
   place-items: center;
   min-height: calc(100vh - 8rem);
@@ -13,9 +13,9 @@
   max-width: 28rem;
   padding: 2.25rem 2rem;
   background: #ffffff;
-  border: 2px solid #e5ebe8;
+  border: 1px solid #e8e5de;
   border-radius: 2rem;
-  box-shadow: 0 20px 50px rgba(0, 40, 30, 0.1);
+  box-shadow: 0 24px 60px rgba(20, 43, 59, 0.12);
 }
 .authError {
   margin-bottom: 18px;
@@ -54,7 +54,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 0.8rem 1rem;
-  border: 1.5px solid #d5dedb;
+  border: 1px solid #d9e0e2;
   border-radius: 1rem;
   background: #fff;
   color: #0f172a;
@@ -64,8 +64,8 @@
 .field input:focus,
 .field select:focus {
   outline: none;
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(0, 72, 58, 0.15);
+  border-color: #2f6b8a;
+  box-shadow: 0 0 0 3px rgba(47, 107, 138, 0.15);
 }
 
 .bad input,
@@ -112,14 +112,14 @@
   padding: 1rem;
   border: 0;
   border-radius: 999px;
-  background: var(--green);
+  background: #2f6b8a;
   color: #fff;
   font: 700 1rem "Plus Jakarta Sans", system-ui, sans-serif;
   cursor: pointer;
   transition: background-color 0.15s;
 }
 
-.button:hover { background: #00372c; }
+.button:hover { background: #24566f; }
 .button:disabled { opacity: 0.6; cursor: wait; }
 
 .switch { margin: 1.25rem 0 0; text-align: center; color: #4b5563; }
