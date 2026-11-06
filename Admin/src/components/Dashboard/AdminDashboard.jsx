@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useNavigate ,  } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
    FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar,
   FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown
@@ -12,8 +12,6 @@ import styles from "./AdminDashboard.module.css";
 import useAuthStore from "../../store/authStore";
 import baseApi from "../../api/baseApi";
 import UpComingTrips from "./components/UpComingTrips";
-const admin = { email: "admin@packandgo.com" };
-
 const nav = [
   { to: "/admin-managePackages", label: "Manager packages", icon: <FaSuitcaseRolling /> },
   { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
@@ -37,10 +35,19 @@ export default function AdminDashboard() {
 
   const [open, setOpen] = useState(() => window.innerWidth > 900);
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
 
   const logoutUser  = useAuthStore((state)=> state.logout)
-
+  const displayName = user?.fullName?.trim() || "Administrator";
+  // const firstName = displayName.split(/\s+/)[0];   // used for admin welcome message, but currently commented 
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  
   const closeOnMobile = () => window.innerWidth <= 900 && setOpen(false);
   const logout = async() => {
 
@@ -111,6 +118,26 @@ export default function AdminDashboard() {
 
         {/* Main area */}
         <main className={styles.main}>
+          {/* <section className={styles.welcome} aria-label="Admin account overview">
+            <div className={styles.welcomeCopy}>
+              <span className={styles.eyebrow}>PACK&amp;GO ADMIN</span>
+              <h2>Welcome back, {firstName}</h2>
+              <p>Here’s what’s happening with your travel business today.</p>
+              <div className={styles.account}>
+                <span className={styles.accountAvatar} aria-hidden="true">{initials || "A"}</span>
+                <span className={styles.accountText}>
+                  <strong>{displayName}</strong>
+                  <span>{user?.email || "Admin account"}</span>
+                </span>
+                <span className={styles.adminTag}>Administrator</span>
+              </div>
+            </div>
+            <div className={styles.welcomeDate}>
+              <span>Today</span>
+              <strong>{today}</strong>
+            </div>
+          </section> */}
+
           <section className={styles.kpis}>
             {kpis.map((k) => (
               <div key={k.label} className={styles.kpi}>
@@ -126,15 +153,50 @@ export default function AdminDashboard() {
             ))}
           </section>
 
-          {/* Empty on purpose - future updates go here */}
-          <section className={styles.workspace} aria-label="Workspace" />
+          <section className={styles.workspace} aria-labelledby="quick-actions-title">
+            <div className={styles.workspaceHead}>
+              <div>
+                <span className={styles.sectionEyebrow}>WORKSPACE</span>
+                <h2 id="quick-actions-title">Quick actions</h2>
+                <p>Jump straight into the tasks you manage most.</p>
+              </div>
+            </div>
+            <div className={styles.actions}>
+              <Link to="/admin/add-package" className={styles.action}>
+                <span className={styles.actionIcon}><FaSuitcaseRolling /></span>
+                <span>
+                  <strong>Add a package</strong>
+                  <small>Create a new trip offering</small>
+                </span>
+                <span className={styles.actionArrow} aria-hidden="true">→</span>
+              </Link>
+              <Link to="/admin-managePackages" className={styles.action}>
+                <span className={styles.actionIcon}><FaImages /></span>
+                <span>
+                  <strong>Manage packages</strong>
+                  <small>Update visibility and trip details</small>
+                </span>
+                <span className={styles.actionArrow} aria-hidden="true">→</span>
+              </Link>
+              <Link to="/admin/bookings" className={styles.action}>
+                <span className={styles.actionIcon}><FaCalendarCheck /></span>
+                <span>
+                  <strong>Review bookings</strong>
+                  <small>Check traveler reservations</small>
+                </span>
+                <span className={styles.actionArrow} aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </section>
         </main>
 
         {/* Admin profile */}
         <section className={styles.profile}>
-          <div className={styles.avatar}><img className={styles.adminImg} src="/Admin-logo.png" alt="A" /></div>
+          <div className={styles.avatar}>
+            {user?.fullName ? initials : <img className={styles.adminImg} src="/Admin-logo.png" alt="" />}
+          </div>
           <div>
-            <p>{admin.email}</p>
+            <p>{user?.email || "Admin account"}</p>
             <span className={styles.role}>Admin</span>
           </div>
         </section>

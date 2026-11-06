@@ -133,9 +133,7 @@ function AboutUs() {
       <section className={styles.section}>
         <div className={styles.inner}>
           <h2 className={styles.sectionTitle}>The people behind your trip</h2>
-          <p className={styles.mission}>
-            [YOUR MISSION: one sentence about why you build trips for groups.]
-          </p>
+          
           <div className={styles.team}>
             {team.map((person, index) => (
               <div key={index} className={styles.person}>

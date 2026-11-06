@@ -89,6 +89,11 @@
   line-height: 1;
 }
 
+.metricHint {
+  color: #61717b;
+  font-size: 12px;
+}
+
 .warn {
   color: var(--coral);
 }

@@ -13,6 +13,9 @@ const money = (amount) =>
     maximumFractionDigits: 2,
   }).format(Number(amount || 0) / 100);
 
+const bookingAmountLabel = (amount) =>
+  Number.isSafeInteger(amount) && amount > 0 ? money(amount) : "Amount not recorded";
+
 // Format the booking date for the admin table.
 const formatDate = (date) =>
   date
@@ -24,26 +27,37 @@ const label = (value) => {
   if (!value) {
     return "";
   }
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  const normalized = String(value).trim().toLowerCase();
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
 
 // Map a database booking into the smaller values shown in the admin screen.
-const formatBooking = (booking) => ({
-  id: booking._id,
-  customer: booking.user?.fullName || "Unknown customer",
-  email: booking.user?.email || "No email",
-  phone: booking.user?.phone || "Not provided",
-  trip: booking.trip ? `${booking.trip.from} → ${booking.trip.to}` : "Trip unavailable",
-  tripId: booking.trip?.tripIdentifier || booking.trip?._id || "Not available",
-  travelDate: booking.trip?.date,
-  seats: booking.travelers,
-  amount: booking.amount,
-  payment: label(booking.paymentStatus) || "Pending",
-  status: label(booking.status) || "Pending",
-  bookedOn: booking.createdAt,
-  paymentReference: booking.paymentReference,
-  reviewRequired: booking.paymentReviewRequired === true,
-});
+const formatBooking = (booking) => {
+  const rawAmount = booking.amount;
+  const amount =
+    rawAmount === null || rawAmount === undefined || rawAmount === ""
+      ? null
+      : Number(rawAmount);
+  const paymentStatus = String(booking.paymentStatus || "pending").trim().toLowerCase();
+
+  return {
+    id: booking._id,
+    customer: booking.user?.fullName || "Unknown customer",
+    email: booking.user?.email || "No email",
+    phone: booking.user?.phone || "Not provided",
+    trip: booking.trip ? `${booking.trip.from} → ${booking.trip.to}` : "Trip unavailable",
+    tripId: booking.trip?.tripIdentifier || booking.trip?._id || "Not available",
+    travelDate: booking.trip?.date,
+    seats: booking.travelers,
+    amount: Number.isSafeInteger(amount) && amount > 0 ? amount : null,
+    payment: label(paymentStatus) || "Pending",
+    isPaid: paymentStatus === "paid",
+    status: label(booking.status) || "Pending",
+    bookedOn: booking.createdAt,
+    paymentReference: booking.paymentReference,
+    reviewRequired: booking.paymentReviewRequired === true,
+  };
+};
 
 // Load and display bookings so administrators can review their payment status.
  function AdminBookings() {
@@ -64,7 +78,8 @@ const formatBooking = (booking) => ({
     const loadBookings = async () => {
       try {
         const { data } = await baseApi.get("/booking/admin/get");
-        if (active) setBookings((data.bookings || []).map(formatBooking));
+        const apiBookings = data.bookings || [];
+        if (active) setBookings(apiBookings.map(formatBooking));
       } catch (requestError) {
         if (active) {
           setError(
@@ -76,7 +91,7 @@ const formatBooking = (booking) => ({
           setLoading(false);
           setRefreshing(false);
         }
-      }
+       }
     };
 
     loadBookings();
@@ -98,9 +113,14 @@ const formatBooking = (booking) => ({
   const countOf = (status) =>
     bookings.filter((booking) => booking.status === status).length;
 
-  const revenue = bookings
-    .filter((booking) => booking.payment === "Paid")
-    .reduce((sum, booking) => sum + booking.amount, 0);
+  const paidBookings = bookings.filter((booking) => booking.isPaid);
+  const paidBookingsMissingAmount = paidBookings.filter(
+    (booking) => !Number.isFinite(booking.amount)
+  ).length;
+  const revenue = paidBookings.reduce(
+    (sum, booking) => sum + (Number.isFinite(booking.amount) ? booking.amount : 0),
+    0
+  );
 
   // ----- Filters -----
   const tripNames = [...new Set(bookings.map((booking) => booking.trip))]; // each trip once
@@ -146,6 +166,11 @@ const formatBooking = (booking) => ({
         <div className={styles.stat}>
           <small>Revenue (paid)</small>
           <strong>{money(revenue)}</strong>
+          <span className={styles.metricHint}>
+            {paidBookings.length} paid booking{paidBookings.length === 1 ? "" : "s"}
+            {paidBookingsMissingAmount > 0 &&
+              ` · ${paidBookingsMissingAmount} missing amount`}
+          </span>
         </div>
       </div>
 
@@ -222,7 +247,7 @@ const formatBooking = (booking) => ({
                   <td>{booking.trip}</td>
                   <td>{formatDate(booking.travelDate)}</td>
                   <td>{booking.seats}</td>
-                  <td><strong>{money(booking.amount)}</strong></td>
+                  <td><strong>{bookingAmountLabel(booking.amount)}</strong></td>
 
                   <td>
                     <span className={`${styles.badge} ${styles[booking.payment.toLowerCase()]}`}>
@@ -284,7 +309,7 @@ const formatBooking = (booking) => ({
                 <div><small>Trip ID</small><strong>{selected.tripId}</strong></div>
                 <div><small>Travel date</small><strong>{formatDate(selected.travelDate)}</strong></div>
                 <div><small>Seats</small><strong>{selected.seats}</strong></div>
-                <div><small>Amount</small><strong>{money(selected.amount)}</strong></div>
+                <div><small>Amount</small><strong>{bookingAmountLabel(selected.amount)}</strong></div>
                 {selected.reviewRequired && (
                   <div><small>Payment review</small><strong>Required</strong></div>
                 )}

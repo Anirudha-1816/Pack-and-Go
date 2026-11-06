@@ -1,12 +1,15 @@
 {
   "scripts": {
-    "dev": "concurrently -n FRONTEND,BACKEND \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\"",
+    "dev": "concurrently -n FRONTEND,BACKEND,ADMIN \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\"",
     "launch": "npm run dev",
     "frontend": "npm run dev --prefix Frontend",
     "server": "npm run dev --prefix Backend",
+    "admin": "npm run dev --prefix Admin",
     "craft": "npm run build --prefix Frontend",
     "stage": "npm run preview --prefix Frontend",
-    "reveal": "concurrently -n FRONTEND,BACKEND \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\""
+    "craftadmin": "npm run build --prefix Admin",
+    "stageadmin": "npm run preview --prefix Admin",
+    "reveal": "concurrently -n FRONTEND,BACKEND,ADMIN \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\""
   },
   "dependencies": {
     "axios": "^1.21.0",
@@ -14,3 +17,4 @@
     "react-router-dom": "^7.18.5"
   }
 }
+     

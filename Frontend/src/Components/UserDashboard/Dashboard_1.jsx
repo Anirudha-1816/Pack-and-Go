@@ -3,7 +3,9 @@
 import { useEffect,  useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 import Navbar from "../Navbar/Navbar";
+import useAuthStore from "../../Stores/authStore";
 import styles from "./Dashboard.module.css";
 // ---------- Settings ----------
 
@@ -67,11 +69,12 @@ const STATUS_LABEL = {
   upcoming: "Upcoming",
   running: "Running now",
   completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 // Running trips first, then upcoming (soonest first), then completed (latest first)
 function sortBookings(a, b) {
-  const order = { running: 0, upcoming: 1, completed: 2 };
+  const order = { running: 0, upcoming: 1, completed: 2, cancelled: 3 };
   if (order[a.tripStatus] !== order[b.tripStatus]) {
     return order[a.tripStatus] - order[b.tripStatus];
   }
@@ -238,6 +241,12 @@ function TripDetails({ booking }) {
         <Link to={`/trips/${trip._id}`} className={styles.btn}>
           View full trip details
         </Link>
+        {booking.cancelledLocally && (
+          <div className={styles.localNotice} role="status">
+            This trip is marked cancelled in this dashboard only. Your actual booking has not been
+            changed.
+          </div>
+        )}
       </div>
     </section>
   );
@@ -250,6 +259,7 @@ function TripDetails({ booking }) {
 // Load the signed-in user's bookings and show their trip details.
 export default function Dashboard() {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
 
   const [bookings, setBookings] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -257,6 +267,22 @@ export default function Dashboard() {
   const [needsLogin, setNeedsLogin] = useState(false);
   const [error, setError] = useState("");
   const [logoutError, setLogoutError] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [profilePreviewName, setProfilePreviewName] = useState("");
+  const [profileNotice, setProfileNotice] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors: profileErrors, isSubmitting: isSavingProfile },
+  } = useForm({
+    mode: "onTouched",
+    defaultValues: {
+      fullName: user?.fullName || "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
   // 1. Get the logged in user's bookings
   useEffect(() => {
@@ -267,7 +293,10 @@ export default function Dashboard() {
 
         const list = (res.data.bookings || [])
           .filter((b) => b.trip) // skip bookings whose trip was deleted
-          .map((b) => ({ ...b, tripStatus: getTripStatus(b.trip) }))
+          .map((b) => ({
+            ...b,
+            tripStatus: b.status === "cancelled" ? "cancelled" : getTripStatus(b.trip),
+          }))
           .sort(sortBookings);
 
         setBookings(list);
@@ -283,6 +312,23 @@ export default function Dashboard() {
     loadBookings();
   }, []);
 
+  useEffect(() => {
+    if (!settingsOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setSettingsOpen(false);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [settingsOpen]);
+
   // 2. Log out
   // Sign the user out and return them to the login page.
   async function handleLogout() {
@@ -295,13 +341,275 @@ export default function Dashboard() {
     }
   }
 
+  function handleCancelTrip(booking) {
+    const confirmed = window.confirm(
+      `Mark your trip from ${booking.trip.from} to ${booking.trip.to} as cancelled in this dashboard? This will not cancel your actual booking.`
+    );
+
+    if (!confirmed) return;
+
+    setBookings((currentBookings) =>
+      currentBookings.map((item) =>
+        item._id === booking._id
+          ? { ...item, status: "cancelled", tripStatus: "cancelled", cancelledLocally: true }
+          : item
+      )
+    );
+  }
+
+  function openSettings() {
+    reset({
+      fullName: profilePreviewName || user?.fullName || "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setProfileNotice("");
+    setSettingsOpen(true);
+  }
+
+  function handleProfilePreview({ fullName }) {
+    const updatedName = fullName.trim();
+    setProfilePreviewName(updatedName);
+    setProfileNotice(
+      "Name preview updated for this dashboard session. Password changes are not saved or sent anywhere."
+    );
+    reset({ fullName: updatedName, newPassword: "", confirmPassword: "" });
+  }
+
   const selected = bookings.find((b) => b._id === selectedId);
   const ready = !loading && !needsLogin && !error;
+  const displayName = profilePreviewName || user?.fullName?.trim() || "Traveler";
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  const activeTrips = bookings.filter((booking) =>
+    ["upcoming", "running"].includes(booking.tripStatus)
+  ).length;
+  const upcomingTrips = bookings.filter((booking) => booking.tripStatus === "upcoming").length;
+  const completedTrips = bookings.filter((booking) => booking.tripStatus === "completed").length;
 
   return (
     <>
       <Navbar />
       <main className={styles.page}>
+        {!needsLogin && (
+          <section className={styles.welcome} aria-label="Your account overview">
+            <div className={styles.welcomeIntro}>
+              <span className={styles.eyebrow}>YOUR PACK&amp;GO ACCOUNT</span>
+              <h1>Welcome back, {displayName.split(/\s+/)[0]}</h1>
+              <p>Your trips, travel details and account at a glance.</p>
+              <button
+                type="button"
+                className={styles.settingsButton}
+                onClick={openSettings}
+                aria-expanded={settingsOpen}
+                aria-controls="settings-drawer"
+              >
+                <span aria-hidden="true">⚙</span>
+                Account settings
+              </button>
+            </div>
+            <div className={styles.stats} aria-label="Trip summary">
+              <div className={styles.stat}>
+                <strong>{loading ? "—" : bookings.length}</strong>
+                <span>Total trips</span>
+              </div>
+              <div className={styles.stat}>
+                <strong>{loading ? "—" : activeTrips}</strong>
+                <span>Active</span>
+              </div>
+              <div className={styles.stat}>
+                <strong>{loading ? "—" : upcomingTrips}</strong>
+                <span>Upcoming</span>
+              </div>
+              <div className={styles.stat}>
+                <strong>{loading ? "—" : completedTrips}</strong>
+                <span>Completed</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {settingsOpen && (
+          <div className={styles.drawerLayer} onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSettingsOpen(false);
+          }}>
+            <aside
+              className={styles.settingsDrawer}
+              id="settings-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="settings-title"
+            >
+              <div className={styles.drawerHeader}>
+                <div>
+                  <span className={styles.editorEyebrow}>PACK&amp;GO ACCOUNT</span>
+                  <h2 id="settings-title">Settings</h2>
+                </div>
+                <button
+                  type="button"
+                  className={styles.drawerClose}
+                  onClick={() => setSettingsOpen(false)}
+                  aria-label="Close settings"
+                  autoFocus
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className={styles.drawerContent}>
+                <section className={styles.drawerProfile} aria-label="Profile information">
+                  <span className={styles.avatar} aria-hidden="true">{initials || "T"}</span>
+                  <div className={styles.drawerIdentity}>
+                    <strong>{displayName}</strong>
+                    <span>{user?.email || "Email unavailable"}</span>
+                  </div>
+                </section>
+
+                <div className={styles.accountFacts}>
+                  <div>
+                    <span>Account type</span>
+                    <strong>{user?.role || "Traveler"}</strong>
+                  </div>
+                  <div>
+                    <span>Member since</span>
+                    <strong>
+                      {user?.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString("en-IN", {
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "Pack&Go member"}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Trips booked</span>
+                    <strong>{loading ? "Loading" : bookings.length}</strong>
+                  </div>
+                </div>
+
+                <section className={styles.drawerSection} aria-labelledby="edit-profile-title">
+                  <div className={styles.drawerSectionTitle}>
+                    <h3 id="edit-profile-title">Edit profile</h3>
+                    <span className={styles.previewBadge}>Preview only</span>
+                  </div>
+                  <form
+                    className={styles.drawerForm}
+                    onSubmit={handleSubmit(handleProfilePreview)}
+                    noValidate
+                  >
+                    <label className={styles.profileField}>
+                      <span>Full name</span>
+                      <input
+                        autoComplete="name"
+                        {...register("fullName", {
+                          required: "Please enter your name.",
+                          minLength: { value: 2, message: "Name must be at least 2 characters." },
+                          maxLength: { value: 60, message: "Name must be 60 characters or fewer." },
+                        })}
+                        aria-invalid={Boolean(profileErrors.fullName)}
+                      />
+                      {profileErrors.fullName && (
+                        <small role="alert">{profileErrors.fullName.message}</small>
+                      )}
+                    </label>
+                    <label className={styles.profileField}>
+                      <span>New password</span>
+                      <input
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="At least 8 characters"
+                        {...register("newPassword", {
+                          minLength: {
+                            value: 8,
+                            message: "Password must be at least 8 characters.",
+                          },
+                        })}
+                        aria-invalid={Boolean(profileErrors.newPassword)}
+                      />
+                      {profileErrors.newPassword && (
+                        <small role="alert">{profileErrors.newPassword.message}</small>
+                      )}
+                    </label>
+                    <label className={styles.profileField}>
+                      <span>Confirm new password</span>
+                      <input
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="Re-enter the new password"
+                        {...register("confirmPassword", {
+                          deps: ["newPassword"],
+                          validate: (value, formValues) =>
+                            (!value && !formValues.newPassword) ||
+                            value === formValues.newPassword ||
+                            "Passwords do not match.",
+                        })}
+                        aria-invalid={Boolean(profileErrors.confirmPassword)}
+                      />
+                      {profileErrors.confirmPassword && (
+                        <small role="alert">{profileErrors.confirmPassword.message}</small>
+                      )}
+                    </label>
+                    <p className={styles.drawerHint}>
+                      Profile and password changes are previews only and are not saved to your
+                      account.
+                    </p>
+                    <button
+                      type="submit"
+                      className={styles.saveProfileButton}
+                      disabled={isSavingProfile}
+                    >
+                      Preview changes
+                    </button>
+                    {profileNotice && (
+                      <p className={styles.profileNotice} role="status">{profileNotice}</p>
+                    )}
+                  </form>
+                </section>
+
+                <section className={styles.drawerSection} aria-labelledby="trip-actions-title">
+                  <div className={styles.drawerSectionTitle}>
+                    <h3 id="trip-actions-title">Trip actions</h3>
+                  </div>
+                  {selected?.tripStatus === "upcoming" && selected.status !== "cancelled" ? (
+                    <>
+                      <div className={styles.selectedTrip}>
+                        <span>Selected upcoming trip</span>
+                        <strong>{selected.trip.from} to {selected.trip.to}</strong>
+                        <small>{formatDate(selected.trip.date)}</small>
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.cancelButton}
+                        onClick={() => handleCancelTrip(selected)}
+                      >
+                        Cancel this trip
+                      </button>
+                      <p className={styles.drawerHint}>
+                        This only marks the trip as cancelled in this dashboard. Your actual
+                        booking is not changed.
+                      </p>
+                    </>
+                  ) : (
+                    <p className={styles.drawerHint}>
+                      {selected
+                        ? "Cancellation is only available here for upcoming trips."
+                        : "Select an upcoming trip from My trips to see its available actions."}
+                    </p>
+                  )}
+                  {logoutError && <p className={styles.errorText}>{logoutError}</p>}
+                  <button type="button" className={styles.drawerLogout} onClick={handleLogout}>
+                    Log out
+                  </button>
+                </section>
+              </div>
+            </aside>
+          </div>
+        )}
+
         {/* Loading */}
         {loading && (
           <div className={styles.top}>
@@ -374,10 +682,6 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                <div className={styles.logout}>
-                  {logoutError && <p className={styles.errorText}>{logoutError}</p>}
-                  <button onClick={handleLogout}>Log out</button>
-                </div>
               </aside>
 
               {/* Right: the selected trip */}
