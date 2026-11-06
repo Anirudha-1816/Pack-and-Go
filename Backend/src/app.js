@@ -1,19 +1,26 @@
 import configDotenv  from 'dotenv'
 import express from 'express'
+
 import connectToDataBase from './configs/dataBaseConnection.js'
+
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+
 import userRouter from './routes/usersRoute.js'
 import componentRouter from './routes/components/componentsRoutes.js'
-import cors from 'cors'
-import errorMiddleWare from './middlewares/errorHandlerMiddleware.js'
-import cookieParser from 'cookie-parser'
-import contactRouter from './routes/contactRoutes.js'
 import verificationRoutes from './routes/verifications/optVerificationRoute.js'
-import tripRouter from './routes/trips/trips.js'
+import contactRouter from './routes/contactRoutes.js'
 import bookingRouter from './routes/components/bookings/bookingsRoutes.js'
+import tripRouter from './routes/trips/trips.js'
 import adminRouter from './routes/admin/adminRoutes.js'
 import paymentRouter from './routes/payments/paymentRoutes.js'
+import operatorsRouter from './routes/operatorsRoutes.js'
+
+import errorMiddleWare from './middlewares/errorHandlerMiddleware.js'
+
 import swaggerUi from 'swagger-ui-express'
 import openApiSpec from './docs/openapi.js'
+
 import {
   handleStripeWebhook,
 } from './controllers/payments/paymentController.js'
@@ -63,6 +70,7 @@ app.use('/trip',tripRouter)
 app.use('/booking',bookingRouter)
 app.use('/admin',adminRouter)
 app.use('/api/payments',paymentRouter)
+app.use('/operator',operatorsRouter)
 
 app.use(errorMiddleWare)
 

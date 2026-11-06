@@ -73,3 +73,8 @@ export const loginAdmin = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const approveOperators = async (req,res,next) => {
+
+  
+} 

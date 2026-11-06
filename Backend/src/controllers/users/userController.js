@@ -1,15 +1,14 @@
-
 import User from "../../models/users/usersModel.js";
 import bcrypt from "bcrypt";
 import jwt  from 'jsonwebtoken'
 import statusCode from "../../utils/statusCodes.js";
 
 export const createUser = async (req, res, next) => {
+
   try {
+
     const  verificationEmail = req.verifiedEmail;
     const  {otp} = req.body ?? {};
-
-
 
     // 1. Validate request structure and terms
    const { terms, ...body } = req.body;
