@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-
+import axios from 'axios'
 // Photo limits
 const MAX_PHOTO_MB = 5;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 // Input styles. The red version is used when a field has an error.
 const inputBase =
@@ -13,6 +14,7 @@ const inputBad = "border-[#b3261e] focus:ring-[#b3261e]/10";
 
 const labelStyle = "mb-2 block text-sm font-semibold text-[#142b3b]";
 const errorStyle = "mt-1.5 text-[13px] text-[#b3261e]";
+
 
 // Logo + name, used on both the blue panel and the mobile top bar
 function Brand() {
@@ -46,6 +48,8 @@ export default function OperatorSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [preview, setPreview] = useState(""); // link to show the chosen photo
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   const fileInput = useRef(null);
 
@@ -94,27 +98,40 @@ export default function OperatorSignup() {
   }, [photoFiles]);
 
   // Runs only when every field is valid
-  function onSubmit(data) {
-    const file = data.profileImage?.[0];
+  async function onSubmit(data) {
+    setSubmitStatus(null);
+    setSubmitting(true);
 
-    // These are the fields of your Operator schema.
-    // availability ("available") and status ("pending") are set by the schema defaults.
-    const operatorData = {
-      name: data.name.trim(),
-      email: data.email.trim().toLowerCase(),
-      password: data.password,
-      phone: data.phone.trim(),
-      location: data.location.trim(),
-      experience: data.experience === "" ? 0 : Number(data.experience),
-      profileImage: file ? { name: file.name, type: file.type, size: file.size } : null,
-    };
-    console.log(operatorData);
+    const formData = new FormData();
+    formData.append("name", data.name.trim());
+    formData.append("email", data.email.trim().toLowerCase());
+    formData.append("password", data.password);
+    formData.append("phone", data.phone.trim());
+    formData.append("location", data.location.trim());
+    formData.append("experience", String(Number(data.experience || 0)));
 
-    // Later, send it as multipart form data (your upload uses the field name "media"):
-    // const formData = new FormData();
-    // Object.entries(operatorData).forEach(([key, value]) => key !== "profileImage" && formData.append(key, value));
-    // if (file) formData.append("media", file);
-    // axios.post(`${import.meta.env.VITE_API_URL}/operator/register`, formData, { withCredentials: true });
+    if (data.profileImage?.[0]) {
+      formData.append("media", data.profileImage[0]);
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/operator/register`,
+        formData,
+        { withCredentials: true }
+      );
+      setSubmitStatus({
+        type: "success",
+        message: response.data.message || "Your application was submitted successfully.",
+      });
+    } catch (error) {
+      setSubmitStatus({
+        type: "error",
+        message: error.response?.data?.message || "Could not submit your application. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -447,11 +464,25 @@ export default function OperatorSignup() {
               )}
             </div>
 
+            {submitStatus && (
+              <p
+                className={`mb-3 rounded-xl border px-3 py-2 text-sm ${
+                  submitStatus.type === "success"
+                    ? "border-[#b8d8c5] bg-[#eff8f2] text-[#23623b]"
+                    : "border-[#e6c4c0] bg-[#fdf0ee] text-[#8f1d17]"
+                }`}
+                role={submitStatus.type === "error" ? "alert" : "status"}
+              >
+                {submitStatus.message}
+              </p>
+            )}
+
             <button
               type="submit"
+              disabled={submitting}
               className="h-11 w-full cursor-pointer rounded-full bg-[#2f6b8a] text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(47,107,138,0.2)] transition hover:bg-[#24566f] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#c49a55]"
             >
-              Submit application
+              {submitting ? "Submitting..." : "Submit application"}
             </button>
             </form>
 

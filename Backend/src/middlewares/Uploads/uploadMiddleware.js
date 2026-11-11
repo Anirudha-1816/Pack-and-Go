@@ -1,5 +1,5 @@
 import Busboy from "busboy";
-import { uploadMedia } from "../../services/cloudinaryService.js"; // change to wherever your uploadMedia file is
+import { uploadMedia } from "../../services/cloudinaryService.js";
 
 export const uploadTripImages = (req, res, next) => {
   const contentType = req.headers["content-type"];

@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from 'axios'
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 // Input styles. The red version is used when a field has an error.
 const inputBase =
   "h-12 w-full rounded-2xl border bg-white px-4 text-[15px] text-[#243746] placeholder:text-[#87949d] transition focus:outline-none focus:ring-4";
@@ -42,7 +44,6 @@ export default function OperatorLogin() {
   const [notice, setNotice] = useState(null);
 
   const navigate = useNavigate()
-  const ApiLogin = 'http://localhost:8080'
 
   const {
     register,
@@ -62,7 +63,7 @@ export default function OperatorLogin() {
 
     // Later, when your backend is ready:
     try {
-      const res = await axios.post(`${ApiLogin}/operator/login`, loginData, { withCredentials: true });
+      const res = await axios.post(`${API_URL}/operator/login`, loginData, { withCredentials: true });
       navigate("/operator/dashboard");
       console.log(res)
     } catch (err) {

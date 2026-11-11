@@ -13,6 +13,7 @@ import NotFoundPage from "./utils/NotFound/NotFoundPage.jsx";
 import useAuthStore from "./store/authStore";
 import ManagePackages from "./components/x/ManagePackages.jsx";
 import { Toaster } from "react-hot-toast";
+import OperatorRequests from "./components/x/Operatorrequests.jsx";
 
 const App = () => {
   const fetchUser = useAuthStore((state) => state.fetchUser);
@@ -36,6 +37,7 @@ const App = () => {
         <Route path="/admin/add-package" element={<AddPackage />} />
       <Route path="/admin-managePackages" element={<ManagePackages />} />
         <Route path="/admin/bookings" element={<AdminBookings />} />
+        <Route path="/admin/operator-requests" element={<OperatorRequests />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

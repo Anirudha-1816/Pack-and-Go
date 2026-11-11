@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
-   FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar,
+   FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar, FaUsers,
   FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown
 } from "react-icons/fa";
 
@@ -15,6 +15,7 @@ import UpComingTrips from "./components/UpComingTrips";
 const nav = [
   { to: "/admin-managePackages", label: "Manager packages", icon: <FaSuitcaseRolling /> },
   { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
+  { to: "/admin/operator-requests", label: "Operator requests", icon: <FaUsers /> },
   { to: "/admin/gallery", label: "Gallery", icon: <FaImages /> },
   { to: "/admin/messages", label: "Messages", icon: <FaEnvelope />, badge: 3 },
   { to: "/admin/feedbacks", label: "Feedbacks", icon: <FaStar /> },
