@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Readable } from "stream";
 import Operator from "../../models/users/operatorsModel.js";
+import Trip from "../../models/components/tripModel.js";
+import Booking from "../../models/Bookings/bookingModel.js";
 import cloudinary from "../../configs/cloudinary.js";
 import { uploadMedia } from "../../services/cloudinaryService.js";
 import statusCode from "../../utils/statusCodes.js";
@@ -203,6 +205,112 @@ export const updateOperatorRequestStatus = async (req, res, next) => {
       success: true,
       message: `Operator request ${status}.`,
       data: operator,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getCurrentOperator = async (req, res, next) => {
+  try {
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      const error = new Error("Operator not authorized");
+      error.status = statusCode.UNAUTHORIZED;
+      return next(error);
+    }
+
+    const operator = await Operator.findById(operatorId).select("-password");
+    if (!operator) {
+      const error = new Error("Operator not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: operator,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getOperatorTrips = async (req, res, next) => {
+  try {
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      const error = new Error("Operator not authorized");
+      error.status = statusCode.UNAUTHORIZED;
+      return next(error);
+    }
+
+    // Get trips where the guide matches the operator's name
+    const operator = await Operator.findById(operatorId);
+    if (!operator) {
+      const error = new Error("Operator not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    const trips = await Trip.find({ guide: operator.name }).sort({ date: 1 });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: trips,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getOperatorBookings = async (req, res, next) => {
+  try {
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      const error = new Error("Operator not authorized");
+      error.status = statusCode.UNAUTHORIZED;
+      return next(error);
+    }
+
+    // Get operator's trips first
+    const operator = await Operator.findById(operatorId);
+    if (!operator) {
+      const error = new Error("Operator not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    const operatorTrips = await Trip.find({ guide: operator.name }).select("_id");
+    const tripIds = operatorTrips.map((t) => t._id);
+
+    // Get bookings for those trips
+    const bookings = await Booking.find({ trip: { $in: tripIds } })
+      .populate("trip", "from to date duration")
+      .populate("user", "fullName email phone")
+      .sort({ createdAt: -1 });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: bookings,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const logoutOperator = async (req, res, next) => {
+  try {
+    // Clear the token cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Logged out successfully",
     });
   } catch (err) {
     return next(err);

@@ -5,11 +5,13 @@
 
 Pack & Go is a travel booking website. Travelers can browse trips, create an account, book a trip, and pay online. Staff use a separate admin app to manage trips and review bookings.
 
+Operators can signup and wait for there approval by admin when admin can check and approve the request they can login and add trips and there trips so they can start of there own 
+
 This document describes the current system, not planned features.
 
 ## 2. People who use the system
 
-- **Traveler:** creates an account, views trips, books trips, pays, and checks its own bookings.
+- **Operators:** creates an account, views trips, books trips, pays, and checks its own bookings.
 - **Admin:** signs in to the admin app, creates , hides or delete trips, and reviews bookings.
 - **Visitor:** browses public trip and website content, and can request help through the contact form.
 

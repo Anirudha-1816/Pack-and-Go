@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { getNav } from "./api";
-// import axios from "axios";
 
 export default function Navbar() {
   const [nav, setNav] = useState([]);
@@ -35,40 +34,39 @@ export default function Navbar() {
   const navItems = nav[0]?.navItems || [];
 
   return (
-    <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+    <header className={`${styles.header} ${scrolled ? styles.scrolled : ""} animate-slide-down`}>
       <nav className={styles.nav} aria-label="Main">
         <Link to="/" className={styles.brand} aria-label="Pack&Go home">
-          {logo && <img src={logo} alt="" className={styles.logo} />}
+          {logo && <img src={logo} alt="" className={`${styles.logo} animate-fade-in`} />}
           <span className={styles.brandName}>
-            Pack<span className={styles.amp}>&amp;</span>Go
+            Pack<span className={styles.amp}>&</span>Go
           </span>
         </Link>
 
         {/* Desktop links */}
-     <ul className={styles.links}>
-  {navItems.map((l) => (
-    <li key={l._id}>
-      {l.path.startsWith("#") ? (
-        <a
-          href={l.path}
-          className={styles.link}
-        >
-          {l.label}
-        </a>
-      ) : (
-        <NavLink
-          to={l.path}
-          end={l.path === "/"}
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {l.label}
-        </NavLink>
-      )}
-    </li>
-  ))}
-</ul>
+        <ul className={styles.links}>
+          {navItems.map((l, i) => (
+            <li key={l._id} style={{ animationDelay: `${i * 80}ms` }} className="animate-slide-up">
+              {l.path.startsWith("#") ? (
+                <a
+                  href={l.path}
+                  className={styles.link}
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <NavLink
+                  to={l.path}
+                  end={l.path === "/"}
+                  className={({ isActive }) =>
+                    `${styles.link} ${isActive ? styles.active : ""}`}
+                >
+                  {l.label}
+                </NavLink>
+              )}
+            </li>
+          ))}
+        </ul>
 
         {/* Mobile toggle */}
         <button
@@ -99,27 +97,24 @@ export default function Navbar() {
       {/* Mobile menu */}
       <div
         id="mobile-menu"
-        className={`${styles.mobileMenu} ${open ? styles.mobileMenuOpen : ""}`}
+        className={`${styles.mobileMenu} ${open ? styles.mobileMenuOpen : ""} animate-slide-down`}
       >
         <ul className={styles.mobileList}>
-          {navItems.map((l) => (
-            <li key={l._id}>
+          {navItems.map((l, i) => (
+            <li key={l._id} style={{ animationDelay: `${i * 60}ms` }} className="animate-slide-up">
               <NavLink
                 to={l.path}
                 end={l.path === "/"}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `${styles.mobileLink} ${isActive ? styles.mobileActive : ""}`
-                }
+                  `${styles.mobileLink} ${isActive ? styles.mobileActive : ""}`}
               >
                 {l.label}
               </NavLink>
             </li>
           ))}
         </ul>
-
       </div>
-     
     </header>
   );
 }

@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
@@ -8,12 +7,12 @@ import AddPackage from "./components/Sections/AddPackage.jsx";
 import AdminBookings from "./components/Sections/AdminBookings.jsx";
 
 import ProtectedRoutes from "./Routes/ProtectedRoutes.jsx";
-import NotFoundPage from "./utils/NotFound/NotFoundPage.jsx";
 
 import useAuthStore from "./store/authStore";
 import ManagePackages from "./components/x/ManagePackages.jsx";
 import { Toaster } from "react-hot-toast";
 import OperatorRequests from "./components/x/Operatorrequests.jsx";
+import NotFound from "./utils/notFound/NotFound";
 
 const App = () => {
   const fetchUser = useAuthStore((state) => state.fetchUser);
@@ -40,7 +39,7 @@ const App = () => {
         <Route path="/admin/operator-requests" element={<OperatorRequests />} />
       </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
     </>
   );

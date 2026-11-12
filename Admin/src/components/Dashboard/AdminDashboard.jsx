@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
-   FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar, FaUsers,
+  FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar, FaUsers,
   FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown
 } from "react-icons/fa";
 
@@ -40,15 +40,15 @@ export default function AdminDashboard() {
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
 
   const logoutUser  = useAuthStore((state)=> state.logout)
-  const displayName = user?.fullName?.trim() || "Administrator";
-  // const firstName = displayName.split(/\s+/)[0];   // used for admin welcome message, but currently commented 
-  const initials = displayName
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-  
+  // const displayName = user?.fullName?.trim() || "Administrator";
+  // const firstName = displayName.split(/\s+/)[0];   // used for admin welcome message, but currently commented
+  // const initials = displayName
+  //   .split(/\s+/)
+  //   .slice(0, 2)
+  //   .map((part) => part[0])
+  //   .join("")
+  //   .toUpperCase();
+
   const closeOnMobile = () => window.innerWidth <= 900 && setOpen(false);
   const logout = async() => {
 
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
 
       console.log(response.data)
 
-      await logoutUser() 
+      await logoutUser()
       navigate("/");
     }
     catch(err){
@@ -72,12 +72,12 @@ export default function AdminDashboard() {
     <div className={styles.app}>
       <div className={styles.shell} data-open={open}>
         {/* Logo - always visible */}
-        <div className={styles.logo}>
-          <b>Pack<span>&amp;</span>Go</b>
+        <div className={`${styles.logo} animate-slide-up`}>
+          <b>Pack<span>&</span>Go</b>
         </div>
 
         {/* Top bar */}
-        <header className={styles.top}>
+        <header className={`${styles.top} animate-slide-down`}>
           <button
             className={styles.toggle}
             onClick={() => setOpen((o) => !o)}
@@ -88,7 +88,9 @@ export default function AdminDashboard() {
             <FaBars />
           </button>
           <div className={styles.heading}>
-            <h1>Admin</h1>
+            <h1>
+              {user?.fullName}
+            </h1>
             <p>{today}</p>
           </div>
           <label className={styles.search}>
@@ -99,20 +101,21 @@ export default function AdminDashboard() {
         </header>
 
         {/* Slide-open sidebar */}
-        <aside id="admin-menu" className={styles.side}>
-          {nav.map((n) => (
+        <aside id="admin-menu" className={`${styles.side} ${open ? '' : 'animate-slide-down'}`}>
+          {nav.map((n, i) => (
             <NavLink
               key={n.to}
               to={n.to}
               end={n.end}
               onClick={closeOnMobile}
-              className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}
+              className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""} animate-slide-up`}
+              style={{ animationDelay: `${i * 60}ms` }}
             >
               {n.icon} {n.label}
               {n.badge && <span className={styles.badge}>{n.badge}</span>}
             </NavLink>
           ))}
-          <button className={`${styles.item} ${styles.logout}`} onClick={logout}>
+          <button className={`${styles.item} ${styles.logout} animate-slide-up`} onClick={logout}>
             <FaSignOutAlt /> Log out
           </button>
         </aside>
@@ -121,9 +124,9 @@ export default function AdminDashboard() {
         <main className={styles.main}>
           {/* <section className={styles.welcome} aria-label="Admin account overview">
             <div className={styles.welcomeCopy}>
-              <span className={styles.eyebrow}>PACK&amp;GO ADMIN</span>
+              <span className={styles.eyebrow}>PACK&GO ADMIN</span>
               <h2>Welcome back, {firstName}</h2>
-              <p>Here’s what’s happening with your travel business today.</p>
+              <p>Here's what's happening with your travel business today.</p>
               <div className={styles.account}>
                 <span className={styles.accountAvatar} aria-hidden="true">{initials || "A"}</span>
                 <span className={styles.accountText}>
@@ -139,9 +142,9 @@ export default function AdminDashboard() {
             </div>
           </section> */}
 
-          <section className={styles.kpis}>
-            {kpis.map((k) => (
-              <div key={k.label} className={styles.kpi}>
+          <section className={`${styles.kpis} animate-slide-up`}>
+            {kpis.map((k, i) => (
+              <div key={k.label} className={`${styles.kpi} animate-scale-in`} style={{ animationDelay: `${i * 80}ms` }}>
                 <div className={styles.kpiTop}>
                   <span className={styles.icon}>{k.icon}</span>
                   <span className={`${styles.trend} ${k.up ? styles.up : styles.down}`}>
@@ -154,7 +157,7 @@ export default function AdminDashboard() {
             ))}
           </section>
 
-          <section className={styles.workspace} aria-labelledby="quick-actions-title">
+          <section className={`${styles.workspace} animate-slide-up`} aria-labelledby="quick-actions-title">
             <div className={styles.workspaceHead}>
               <div>
                 <span className={styles.sectionEyebrow}>WORKSPACE</span>
@@ -163,51 +166,36 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className={styles.actions}>
-              <Link to="/admin/add-package" className={styles.action}>
-                <span className={styles.actionIcon}><FaSuitcaseRolling /></span>
-                <span>
-                  <strong>Add a package</strong>
-                  <small>Create a new trip offering</small>
-                </span>
-                <span className={styles.actionArrow} aria-hidden="true">→</span>
-              </Link>
-              <Link to="/admin-managePackages" className={styles.action}>
-                <span className={styles.actionIcon}><FaImages /></span>
-                <span>
-                  <strong>Manage packages</strong>
-                  <small>Update visibility and trip details</small>
-                </span>
-                <span className={styles.actionArrow} aria-hidden="true">→</span>
-              </Link>
-              <Link to="/admin/bookings" className={styles.action}>
-                <span className={styles.actionIcon}><FaCalendarCheck /></span>
-                <span>
-                  <strong>Review bookings</strong>
-                  <small>Check traveler reservations</small>
-                </span>
-                <span className={styles.actionArrow} aria-hidden="true">→</span>
-              </Link>
+              {[
+                { to: "/admin/add-package", icon: <FaSuitcaseRolling />, title: "Add a package", desc: "Create a new trip offering" },
+                { to: "/admin-managePackages", icon: <FaImages />, title: "Manage packages", desc: "Update visibility and trip details" },
+                { to: "/admin/bookings", icon: <FaCalendarCheck />, title: "Review bookings", desc: "Check traveler reservations" },
+              ].map((action, i) => (
+                <Link key={action.to} to={action.to} className={`${styles.action} animate-scale-in`} style={{ animationDelay: `${i * 100}ms` }}>
+                  <span className={styles.actionIcon}>{action.icon}</span>
+                  <span>
+                    <strong>{action.title}</strong>
+                    <small>{action.desc}</small>
+                  </span>
+                  <span className={styles.actionArrow} aria-hidden="true">→</span>
+                </Link>
+              ))}
             </div>
           </section>
         </main>
 
         {/* Admin profile */}
-        <section className={styles.profile}>
-          <div className={styles.avatar}>
-            {user?.fullName ? initials : <img className={styles.adminImg} src="/Admin-logo.png" alt="" />}
-          </div>
-          <div>
+        <section className={`${styles.profile} animate-slide-up`}>
+        
             <p>{user?.email || "Admin account"}</p>
-            <span className={styles.role}>Admin</span>
-          </div>
         </section>
 
         <UpComingTrips/>
 
-        
+
       </div>
 
-      {open && <div className={styles.backdrop} onClick={() => setOpen(false)} />}
+      {open && <div className={`${styles.backdrop} animate-fade-in`} onClick={() => setOpen(false)} />}
     </div>
   );
 }

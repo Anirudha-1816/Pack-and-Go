@@ -1,4 +1,3 @@
-
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -11,10 +10,10 @@ import Hero from "../sections/Hero/heroSection.jsx";
 import HeroSlider from "../sections/Hero/HeroSlider";
 import Destinations from "../sections/Destinations/Destinations";
 import AboutHero from "../Components/AboutUs/AboutHero";
+import NotFound from "../utils/notFound/NotFound";
 
 
 const AuthPage = lazy(() => import("../Pages/Auth/AuthPage"));
-const NotFoundPage = lazy(() => import("../Utils/notFound/NotFound"));
 const Contact = lazy(() => import("../Pages/Contacts/Contact"));
 const AboutUs = lazy(() => import("../Components/AboutUs/AboutUs"));
 
@@ -76,10 +75,9 @@ export default function AppRoutes() {
           <Route path="user-dashboard" element={<Dashboard />} />
         </Route>
 
-        
 
         {/* 404 Route */}
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );

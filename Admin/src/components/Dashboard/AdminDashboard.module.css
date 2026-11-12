@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap");
 
 .app {
-  --green: #2f6b8a;
+  --green: #18490b;
   --green-dark: #142b3b;
   --tint: #e8eff1;
   --coral: #c49a55;
@@ -255,7 +255,7 @@
 .sectionEyebrow {
   display: block;
   color: #e2c78f;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
 }
@@ -309,12 +309,12 @@
 }
 
 .accountText strong {
-  font-size: 0.83rem;
+  font-size: 1.8rem;
 }
 
 .accountText span {
   color: #d3e0e5;
-  font-size: 0.74rem;
+  font-size: 1rem;
 }
 
 .adminTag {

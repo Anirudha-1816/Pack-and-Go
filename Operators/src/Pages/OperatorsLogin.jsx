@@ -28,7 +28,7 @@ function Brand() {
     <div className="flex items-center gap-3">
       <img src="/favicon.svg" alt="" className="h-9 w-9" />
       <span className="font-['Bricolage_Grotesque',Outfit,system-ui,sans-serif] text-xl font-extrabold tracking-tight text-white">
-        Pack<span className="text-[#c49a55]">&amp;</span>Go
+        Pack<span className="text-[#c49a55]">&</span>Go
       </span>
       <span className="rounded-full border border-white/25 px-2.5 py-0.5 text-xs font-medium text-white/75">
         Operator
@@ -120,7 +120,7 @@ export default function OperatorLogin() {
         </div>
 
         <p className="relative text-sm text-white/50">
-          © {new Date().getFullYear()} Pack&amp;Go
+          © {new Date().getFullYear()} Pack&Go
         </p>
       </section>
 
@@ -233,7 +233,7 @@ export default function OperatorLogin() {
 
           {/* New operators apply here */}
           <p className="mt-5 text-center text-sm text-[#61717b]">
-            New to Pack&amp;Go?{" "}
+            New to Pack&Go?{" "}
             <Link
               to="/operator/register"
               className="font-bold text-[#24566f] underline underline-offset-4 decoration-[#c49a55] hover:text-[#142b3b]"
@@ -245,7 +245,7 @@ export default function OperatorLogin() {
         </div>
 
         <p className="text-center text-xs text-[#87949d]">
-          New accounts are reviewed and approved by the Pack&amp;Go team.
+          New accounts are reviewed and approved by the Pack&Go team.
         </p>
       </section>
     </main>
