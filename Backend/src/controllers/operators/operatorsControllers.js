@@ -9,6 +9,21 @@ import cloudinary from "../../configs/cloudinary.js";
 import { uploadMedia } from "../../services/cloudinaryService.js";
 import statusCode from "../../utils/statusCodes.js";
 
+// Reuse the same JSON parsing and validation logic from tripController
+const badRequest = (message) => {
+  const error = new Error(message);
+  error.status = statusCode.BAD_REQUEST;
+  return error;
+};
+
+const parseJson = (value, name) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    throw badRequest(`${name} is missing or not valid.`);
+  }
+};
+
 export const createOperators = async (req, res, next) => {
   let uploadedImage;
 
@@ -295,6 +310,76 @@ export const getOperatorBookings = async (req, res, next) => {
       data: bookings,
     });
   } catch (err) {
+    return next(err);
+  }
+};
+
+
+export const createOperatorTrip = async (req, res, next) => {
+  let images = [];
+
+  try {
+    // 1. Wait for both images to finish uploading
+    const results = await Promise.allSettled([req.uploads.banner, req.uploads.thumbnail]);
+    const [banner, thumbnail] = results.map((r) => (r.status === "fulfilled" ? r.value : undefined));
+    images = [banner, thumbnail].filter(Boolean);
+
+    // 2. Check the images
+    if (req.uploadError) throw badRequest(req.uploadError);
+    if (results.some((r) => r.status === "rejected")) {
+      throw new Error("Image upload failed. Please try again.");
+    }
+    if (!banner || !thumbnail) {
+      throw badRequest("Banner image and small image are both required.");
+    }
+
+    // 3. Get operator ID from auth
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      throw badRequest("Operator not authorized");
+    }
+
+    // 4. Take only the fields we expect
+    const {
+      from, to, guide, date,
+      pickupTime, pickupLocation, dropTime, dropLocation,
+      duration, pricePerHead,
+      tripType, stays, travel, termsType, customTerms,
+    } = req.body;
+
+    // 5. Save the trip with operator reference and pending status
+    const trip = await Trip.create({
+      from, to, guide, date,
+      pickupTime, pickupLocation, dropTime, dropLocation,
+      duration, pricePerHead,
+      tripType, stays, travel, termsType, customTerms,
+      meals: req.body.meals ? parseJson(req.body.meals, "meals") : [],
+      roadmap: parseJson(req.body.roadmap, "roadmap"),
+      banner,
+      thumbnail,
+      operator: operatorId,
+      status: "pending", // operator-created trips need admin approval
+    });
+
+    return res.status(statusCode.CREATED).json({
+      success: true,
+      message: "Trip submitted for approval.",
+      data: trip,
+    });
+  } catch (err) {
+    // Saving failed, so remove the images we already uploaded
+    await Promise.all(images.map((img) => cloudinary.uploader.destroy(img.publicId))).catch(() => {});
+
+    // Turn common database errors into clear 400 messages
+    if (err.name === "ValidationError") {
+      err.status = statusCode.BAD_REQUEST;
+      err.message = Object.values(err.errors)[0].message;
+    }
+    if (err.code === 11000) {
+      err.status = statusCode.BAD_REQUEST;
+      err.message = "Trip identifier already exists. Please try again.";
+    }
+
     return next(err);
   }
 };

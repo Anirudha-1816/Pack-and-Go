@@ -3,6 +3,7 @@ import OperatorLogin from "./Pages/OperatorsLogin";
 import Signup from "./Pages/OperatorSignup";
 import OperatorHome from "./Pages/home";
 import OperatorDashboard from "./components/dashboard";
+import AddTrip from "./Pages/AddTrip";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./utils/notFound/NotFound";
 
@@ -18,6 +19,14 @@ export default function App() {
         element={
           <OperatorProtectedRoute>
             <OperatorDashboard />
+          </OperatorProtectedRoute>
+        }
+      />
+      <Route
+        path="/operator/add-trip"
+        element={
+          <OperatorProtectedRoute>
+            <AddTrip />
           </OperatorProtectedRoute>
         }
       />

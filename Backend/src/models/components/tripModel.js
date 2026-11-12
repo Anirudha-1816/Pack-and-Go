@@ -36,6 +36,13 @@ const tripSchema = new mongoose.Schema(
       immutable: true, // can't be changed after the trip is created
     },
 
+    // Operator who created this trip (for operator-created trips)
+    operator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Operator",
+      default: null,
+    },
+
     // ----- Images -----
     banner: { type: imageSchema, required: [true, "Banner image is required."] },
     thumbnail: { type: imageSchema, required: [true, "Small image is required."] },
@@ -99,6 +106,14 @@ const tripSchema = new mongoose.Schema(
 
     // Admin can hide a trip without deleting it
     isActive: { type: Boolean, default: true },
+
+    // For operator-created trips: pending | approved | rejected
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "approved", // admin-created trips are approved by default
+    },
+    rejectionReason: { type: String, default: "" },
   },
   {
     timestamps: true,
