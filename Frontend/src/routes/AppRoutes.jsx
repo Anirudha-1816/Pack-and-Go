@@ -10,7 +10,7 @@ import Hero from "../sections/Hero/heroSection.jsx";
 import HeroSlider from "../sections/Hero/HeroSlider";
 import Destinations from "../sections/Destinations/Destinations";
 import AboutHero from "../Components/AboutUs/AboutHero";
-import NotFound from "../utils/notFound/NotFound";
+import NotFound from "../Utils/notFound/NotFound.jsx";
 
 
 const AuthPage = lazy(() => import("../Pages/Auth/AuthPage"));
