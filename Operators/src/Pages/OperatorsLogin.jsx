@@ -61,16 +61,12 @@ export default function OperatorLogin() {
     const loginData = { ...data, email: data.email.trim().toLowerCase() };
     console.log(loginData);
 
-    // Later, when your backend is ready:
     try {
       const res = await axios.post(`${API_URL}/operator/login`, loginData, { withCredentials: true });
 
-
-      if(res.data.status === "success") {
-
-        navigate("/operator/dashboard");
-      }
       console.log(res)
+
+        navigate("/operator/dashboard", { replace: true });
     } catch (err) {
       const message = err.response?.data?.message || "Something went wrong. Please try again.";
       if (err.response?.data?.status === "pending")

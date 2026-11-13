@@ -165,7 +165,7 @@ export const logoutUser = async (req, res, next) => {
 };
 
 export const getCurrentUser =  async (req,res,next) => {
-  
+
   try {
     const user = await User.findById(req.user.userId).select('-password')
 
@@ -179,13 +179,87 @@ export const getCurrentUser =  async (req,res,next) => {
 
     res.status(statusCode.OK).json({
       success : true,
-      data : user  
+      data : user
     })
   } catch (err) {
 
   next(err)
-    
+
   }
 }
+
+export const updatePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body ?? {};
+
+    // Validate required fields
+    if (
+      typeof currentPassword !== "string" ||
+      !currentPassword ||
+      typeof newPassword !== "string" ||
+      !newPassword ||
+      typeof confirmPassword !== "string" ||
+      !confirmPassword
+    ) {
+      const error = new Error("All password fields are required");
+      error.statusCode = statusCode.BAD_REQUEST;
+      return next(error);
+    }
+
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+      const error = new Error("New password and confirmation do not match");
+      error.statusCode = statusCode.BAD_REQUEST;
+      return next(error);
+    }
+
+    // Validate new password length
+    if (newPassword.length < 8) {
+      const error = new Error("New password must be at least 8 characters");
+      error.statusCode = statusCode.BAD_REQUEST;
+      return next(error);
+    }
+
+    // Get user with password
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = statusCode.UNAUTHORIZED;
+      error.extraDetails = "This user is no longer available";
+      return next(error);
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      const error = new Error("Current password is incorrect");
+      error.statusCode = statusCode.UNAUTHORIZED;
+      error.extraDetails = "Please enter your correct current password";
+      return next(error);
+    }
+
+    // Check if new password is different from current
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      const error = new Error("New password must be different from current password");
+      error.statusCode = statusCode.BAD_REQUEST;
+      return next(error);
+    }
+
+    // Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 

@@ -4,6 +4,7 @@ import { useEffect,  useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import Navbar from "../Navbar/Navbar";
 import useAuthStore from "../../Stores/authStore";
 import styles from "./Dashboard.module.css";
@@ -13,6 +14,7 @@ const BOOKINGS_API = `${import.meta.env.VITE_API_URL}/booking/get`;
 
 // These two are my guesses. Change them to your real routes.
 const LOGOUT_API =`${import.meta.env.VITE_API_URL}/users/logout`;
+const UPDATE_PASSWORD_API = `${import.meta.env.VITE_API_URL}/users/update-password`;
 
 const LOGIN_PAGE = "/login";
 
@@ -270,6 +272,9 @@ export default function Dashboard() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profilePreviewName, setProfilePreviewName] = useState("");
   const [profileNotice, setProfileNotice] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -279,6 +284,7 @@ export default function Dashboard() {
     mode: "onTouched",
     defaultValues: {
       fullName: user?.fullName || "",
+      currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
@@ -360,11 +366,45 @@ export default function Dashboard() {
   function openSettings() {
     reset({
       fullName: profilePreviewName || user?.fullName || "",
+      currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
     setProfileNotice("");
+    setPasswordError("");
+    setPasswordSuccess("");
     setSettingsOpen(true);
+  }
+
+  async function handlePasswordChange({ currentPassword, newPassword, confirmPassword }) {
+    setPasswordError("");
+    setPasswordSuccess("");
+    setIsChangingPassword(true);
+
+    try {
+      const res = await axios.put(UPDATE_PASSWORD_API, { currentPassword, newPassword, confirmPassword }, { withCredentials: true });
+      if (res.data.success) {
+        toast.success("Password updated successfully!");
+        reset({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      } else {
+        setPasswordError(res.data.message || "Failed to update password");
+        toast.error(res.data.message || "Failed to update password");
+      }
+    } catch (err) {
+      console.error(err);
+      if (err.response?.data?.message) {
+        setPasswordError(err.response.data.message);
+        toast.error(err.response.data.message);
+      } else if (err.response?.data?.extraDetails) {
+        setPasswordError(err.response.data.extraDetails);
+        toast.error(err.response.data.extraDetails);
+      } else {
+        setPasswordError("Failed to update password. Please try again.");
+        toast.error("Failed to update password. Please try again.");
+      }
+    } finally {
+      setIsChangingPassword(false);
+    }
   }
 
   function handleProfilePreview({ fullName }) {
@@ -516,58 +556,92 @@ export default function Dashboard() {
                         <small role="alert">{profileErrors.fullName.message}</small>
                       )}
                     </label>
-                    <label className={styles.profileField}>
-                      <span>New password</span>
-                      <input
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder="At least 8 characters"
-                        {...register("newPassword", {
-                          minLength: {
-                            value: 8,
-                            message: "Password must be at least 8 characters.",
-                          },
-                        })}
-                        aria-invalid={Boolean(profileErrors.newPassword)}
-                      />
-                      {profileErrors.newPassword && (
-                        <small role="alert">{profileErrors.newPassword.message}</small>
-                      )}
-                    </label>
-                    <label className={styles.profileField}>
-                      <span>Confirm new password</span>
-                      <input
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder="Re-enter the new password"
-                        {...register("confirmPassword", {
-                          deps: ["newPassword"],
-                          validate: (value, formValues) =>
-                            (!value && !formValues.newPassword) ||
-                            value === formValues.newPassword ||
-                            "Passwords do not match.",
-                        })}
-                        aria-invalid={Boolean(profileErrors.confirmPassword)}
-                      />
-                      {profileErrors.confirmPassword && (
-                        <small role="alert">{profileErrors.confirmPassword.message}</small>
-                      )}
-                    </label>
                     <p className={styles.drawerHint}>
-                      Profile and password changes are previews only and are not saved to your
-                      account.
+                      Name changes are previews only and are not saved to your account.
                     </p>
                     <button
                       type="submit"
                       className={styles.saveProfileButton}
                       disabled={isSavingProfile}
                     >
-                      Preview changes
+                      Preview name change
                     </button>
                     {profileNotice && (
                       <p className={styles.profileNotice} role="status">{profileNotice}</p>
                     )}
                   </form>
+
+                  <section className={styles.drawerSection} aria-labelledby="change-password-title">
+                    <div className={styles.drawerSectionTitle}>
+                      <h3 id="change-password-title">Change password</h3>
+                    </div>
+                    <form
+                      className={styles.drawerForm}
+                      onSubmit={handleSubmit(handlePasswordChange)}
+                      noValidate
+                    >
+                      <label className={styles.profileField}>
+                        <span>Current password</span>
+                        <input
+                          type="password"
+                          autoComplete="current-password"
+                          placeholder="Enter your current password"
+                          {...register("currentPassword", {
+                            required: "Please enter your current password.",
+                          })}
+                          aria-invalid={Boolean(passwordError)}
+                        />
+                      </label>
+                      <label className={styles.profileField}>
+                        <span>New password</span>
+                        <input
+                          type="password"
+                          autoComplete="new-password"
+                          placeholder="At least 8 characters"
+                          {...register("newPassword", {
+                            required: "Please enter a new password.",
+                            minLength: {
+                              value: 8,
+                              message: "Password must be at least 8 characters.",
+                            },
+                          })}
+                          aria-invalid={Boolean(profileErrors.newPassword)}
+                        />
+                        {profileErrors.newPassword && (
+                          <small role="alert">{profileErrors.newPassword.message}</small>
+                        )}
+                      </label>
+                      <label className={styles.profileField}>
+                        <span>Confirm new password</span>
+                        <input
+                          type="password"
+                          autoComplete="new-password"
+                          placeholder="Re-enter the new password"
+                          {...register("confirmPassword", {
+                            required: "Please confirm your new password.",
+                            deps: ["newPassword"],
+                            validate: (value, formValues) =>
+                              (!value && !formValues.newPassword) ||
+                              value === formValues.newPassword ||
+                              "Passwords do not match.",
+                          })}
+                          aria-invalid={Boolean(profileErrors.confirmPassword)}
+                        />
+                        {profileErrors.confirmPassword && (
+                          <small role="alert">{profileErrors.confirmPassword.message}</small>
+                        )}
+                      </label>
+                      {passwordError && <p className={styles.errorText} role="alert">{passwordError}</p>}
+                      {passwordSuccess && <p className={styles.profileNotice} role="status">{passwordSuccess}</p>}
+                      <button
+                        type="submit"
+                        className={styles.saveProfileButton}
+                        disabled={isChangingPassword}
+                      >
+                        {isChangingPassword ? "Updating..." : "Change password"}
+                      </button>
+                    </form>
+                  </section>
                 </section>
 
                 <section className={styles.drawerSection} aria-labelledby="trip-actions-title">
