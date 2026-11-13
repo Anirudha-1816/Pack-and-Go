@@ -73,7 +73,7 @@ export default function OperatorLogin() {
       </div>
 
       {/* ---------- Left: dark brand panel ---------- */}
-      <section className={styles.leftPanel}>
+      {/* <section className={styles.leftPanel}>
         <div className="relative">
           <Brand />
         </div>
@@ -91,7 +91,7 @@ export default function OperatorLogin() {
         <p className={styles.copyright}>
           © {new Date().getFullYear()} Pack&Go
         </p>
-      </section>
+      </section> */}
 
       {/* ---------- Right: the form ---------- */}
       <section className={styles.rightPanel}>
