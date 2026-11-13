@@ -62,6 +62,11 @@ const operatorSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    themePreference: {
+      type: String,
+      enum: ['light', 'dark', 'system'],
+      default: 'system'
+    }
   },
   { timestamps: true }
 );

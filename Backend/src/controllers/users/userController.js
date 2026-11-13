@@ -262,4 +262,58 @@ export const updatePassword = async (req, res, next) => {
   }
 };
 
+export const getThemePreference = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.userId).select('themePreference');
+
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = statusCode.UNAUTHORIZED;
+      error.extraDetails = "This user is no longer available";
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: { themePreference: user.themePreference || 'system' },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateThemePreference = async (req, res, next) => {
+  try {
+    const { themePreference } = req.body ?? {};
+
+    if (!themePreference || !['light', 'dark', 'system'].includes(themePreference)) {
+      const error = new Error("Invalid theme preference");
+      error.statusCode = statusCode.BAD_REQUEST;
+      error.extraDetails = "Theme preference must be 'light', 'dark', or 'system'";
+      return next(error);
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { themePreference },
+      { new: true, select: 'themePreference' }
+    );
+
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = statusCode.UNAUTHORIZED;
+      error.extraDetails = "This user is no longer available";
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Theme preference updated successfully",
+      data: { themePreference: user.themePreference },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 

@@ -12,6 +12,7 @@ import styles from "./AdminDashboard.module.css";
 import useAuthStore from "../../store/authStore";
 import baseApi from "../../api/baseApi";
 import UpComingTrips from "./components/UpComingTrips";
+import ThemeSwitcher from "../../Sources/ThemeSwitcher";
 const nav = [
   { to: "/admin-managePackages", label: "Manager packages", icon: <FaSuitcaseRolling /> },
   { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
@@ -97,7 +98,10 @@ export default function AdminDashboard() {
             <FaSearch />
             <input placeholder="Search trips, bookings..." aria-label="Search" />
           </label>
-          <button className={styles.bell} aria-label="Notifications"><FaBell /></button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ThemeSwitcher showLabels={false} variant="dropdown" />
+            <button className={styles.bell} aria-label="Notifications"><FaBell /></button>
+          </div>
         </header>
 
         {/* Slide-open sidebar */}

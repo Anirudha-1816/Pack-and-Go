@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import apiUsers from "../apis/apiUsers";
+import { useThemeStore } from "../Sources/themeStore";
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
@@ -20,6 +21,11 @@ const useAuthStore = create((set) => ({
         isAuthenticated: Boolean(currentUser),
       });
 
+      // Sync theme preference from backend if available
+      if (currentUser?.themePreference) {
+        useThemeStore.getState().setMode(currentUser.themePreference);
+      }
+
       return currentUser;
     } catch (err) {
       set({
@@ -36,6 +42,21 @@ const useAuthStore = create((set) => ({
       return null;
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  // Update theme preference on backend
+  updateThemePreference: async (themePreference) => {
+    try {
+      await apiUsers.put("/theme-preference", { themePreference });
+      set((state) => ({
+        user: state.user ? { ...state.user, themePreference } : null,
+      }));
+      useThemeStore.getState().setMode(themePreference);
+      return true;
+    } catch (err) {
+      console.error("Failed to update theme preference:", err);
+      return false;
     }
   },
 

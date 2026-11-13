@@ -401,3 +401,68 @@ export const logoutOperator = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const getOperatorThemePreference = async (req, res, next) => {
+  try {
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      const error = new Error("Operator not authorized");
+      error.status = statusCode.UNAUTHORIZED;
+      return next(error);
+    }
+
+    const operator = await Operator.findById(operatorId).select('themePreference');
+    if (!operator) {
+      const error = new Error("Operator not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: { themePreference: operator.themePreference || 'system' },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const updateOperatorThemePreference = async (req, res, next) => {
+  try {
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      const error = new Error("Operator not authorized");
+      error.status = statusCode.UNAUTHORIZED;
+      return next(error);
+    }
+
+    const { themePreference } = req.body ?? {};
+
+    if (!themePreference || !['light', 'dark', 'system'].includes(themePreference)) {
+      const error = new Error("Invalid theme preference");
+      error.status = statusCode.BAD_REQUEST;
+      error.extraDetails = "Theme preference must be 'light', 'dark', or 'system'";
+      return next(error);
+    }
+
+    const operator = await Operator.findByIdAndUpdate(
+      operatorId,
+      { themePreference },
+      { new: true, select: 'themePreference' }
+    );
+
+    if (!operator) {
+      const error = new Error("Operator not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Theme preference updated successfully",
+      data: { themePreference: operator.themePreference },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};

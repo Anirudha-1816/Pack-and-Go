@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema(
     terms:{
       type : Boolean,
       required: true,
+    },
+    themePreference: {
+      type: String,
+      enum: ['light', 'dark', 'system'],
+      default: 'system'
     }
   },
   {

@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import useAuthStore from "../Stores/authStore";
+import ThemeSwitcher from "../Sources/ThemeSwitcher";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
@@ -171,6 +172,7 @@ function TripCard({ trip, travelers, onPassengers }) {
 // =====================================================================
 
 export default function OperatorDashboard() {
+  // eslint-disable-next-line no-unused-vars
   const { user, isAuthenticated, isLoading, fetchUser } = useAuthStore();
   const navigate = useNavigate();
 
@@ -197,6 +199,7 @@ export default function OperatorDashboard() {
   // Fetch trips and bookings when user is available
   useEffect(() => {
     if (user?._id) {
+      // eslint-disable-next-line react-hooks/immutability
       fetchOperatorData();
     }
   }, [user]);
@@ -367,8 +370,10 @@ export default function OperatorDashboard() {
               />
             </div>
 
-            <div className="relative">
-              <button
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <ThemeSwitcher showLabels={false} variant="dropdown" />
+              <div className="relative">
+                <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-expanded={menuOpen}
                 aria-label="Account menu"
@@ -400,6 +405,7 @@ export default function OperatorDashboard() {
             </div>
           </div>
         </div>
+      </div>
       </header>
 
       <main className="mx-auto max-w-[1200px] px-5 py-8 animate-slide-up">

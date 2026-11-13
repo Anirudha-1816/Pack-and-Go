@@ -1,31 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,600;10..48,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
 
 .page {
-  --green: #2f6b8a;
-  --green-dark: #142b3b;
-  --green-deep: #0d202d;
-  --orange: #c49a55;
-  --bg: #fafaf7;
-  --text: #243746;
-  --muted: #61717b;
-  --line: #e8e5de;
-  --mint: #e8eff1;
+  --font-heading: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
 
   min-height: 100vh;
   box-sizing: border-box;
   /* full-width background, content centered up to 1240px */
-padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the floating navbar */
-  background: linear-gradient(180deg, #fafaf7 0%, #f3f0e9 100%);
+  padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the floating navbar */
+  background: var(--bg);
   color: var(--text);
-  font-family: "Figtree", sans-serif;
-  border-radius:2rem ;
-
+  font-family: var(--font-body);
+  border-radius: 2rem;
 }
 
 .page h1,
 .page h2,
 .page h3 {
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   margin: 0;
 }
 
@@ -36,13 +29,13 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   align-items: center;
   margin-bottom: 18px;
   padding: 22px 28px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
   border-radius: 28px;
   background:
-    radial-gradient(circle at 85% 15%, rgba(196, 154, 85, 0.2), transparent 28%),
-    linear-gradient(125deg, #142b3b, #20485e);
-  color: #fff;
-  box-shadow: 0 16px 40px rgba(20, 43, 59, 0.12);
+    radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--brand) 20%, transparent), transparent 28%),
+    linear-gradient(125deg, var(--text), var(--primary));
+  color: var(--on-primary);
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .welcomeIntro {
@@ -52,7 +45,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .eyebrow {
   display: block;
   margin-bottom: 8px;
-  color: #e2c78f;
+  color: var(--highlight);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -65,7 +58,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .welcomeIntro > p {
   margin: 6px 0 12px;
-  color: #d3e0e5;
+  color: color-mix(in srgb, var(--on-primary) 85%, transparent);
 }
 
 .avatar {
@@ -74,10 +67,10 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   height: 42px;
   flex: 0 0 42px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  border: 1px solid color-mix(in srgb, var(--on-primary) 32%, transparent);
   border-radius: 50%;
-  background: #e9d8b7;
-  color: #142b3b;
+  background: var(--highlight);
+  color: var(--on-accent);
   font-weight: 700;
 }
 
@@ -87,10 +80,10 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   gap: 8px;
   margin-top: 6px;
   padding: 9px 15px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
+  border: 1px solid color-mix(in srgb, var(--on-primary) 38%, transparent);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: color-mix(in srgb, var(--on-primary) 8%, transparent);
+  color: var(--on-primary);
   font: inherit;
   font-size: 0.88rem;
   font-weight: 600;
@@ -99,8 +92,8 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .settingsButton:hover {
-  border-color: #e2c78f;
-  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--highlight);
+  background: color-mix(in srgb, var(--on-primary) 16%, transparent);
 }
 
 .stats {
@@ -115,21 +108,21 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   flex-direction: column;
   justify-content: center;
   padding: 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid color-mix(in srgb, var(--on-primary) 14%, transparent);
   border-radius: 17px;
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--on-primary) 8%, transparent);
 }
 
 .stat strong {
-  color: #fff;
-  font-family: "Bricolage Grotesque", sans-serif;
+  color: var(--on-primary);
+  font-family: var(--font-heading);
   font-size: 1.4rem;
   line-height: 1.1;
 }
 
 .stat span {
   margin-top: 4px;
-  color: #d3e0e5;
+  color: color-mix(in srgb, var(--on-primary) 85%, transparent);
   font-size: 0.78rem;
 }
 
@@ -138,16 +131,18 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   padding: 13px 28px;
   border: none;
   border-radius: 999px;
-  background: var(--orange);
-  color: #142b3b;
+  background: var(--accent);
+  color: var(--on-accent);
   font: inherit;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn:hover {
-  background: #b48b48;
+  filter: brightness(1.1);
+  transform: translateY(-2px);
 }
 
 .btn:disabled {
@@ -156,7 +151,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .editorEyebrow {
-  color: var(--green);
+  color: var(--brand);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -166,8 +161,8 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   flex: 0 0 auto;
   padding: 6px 10px;
   border-radius: 999px;
-  background: #f3ead9;
-  color: #725627;
+  background: var(--surface-raised);
+  color: var(--text-muted);
   font-size: 0.76rem;
   font-weight: 600;
 }
@@ -187,25 +182,27 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid #d8dedc;
+  border: 1px solid var(--border);
   border-radius: 11px;
-  background: #fcfcfa;
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   font-weight: 400;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .profileField input:focus {
-  border-color: var(--green);
-  outline: 3px solid rgba(47, 107, 138, 0.12);
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .profileField input[aria-invalid="true"] {
-  border-color: #b3261e;
+  border-color: var(--danger);
 }
 
 .profileField small {
-  color: #b3261e;
+  color: var(--danger);
   font-size: 0.78rem;
   font-weight: 500;
 }
@@ -215,16 +212,17 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   padding: 10px 18px;
   border: 0;
   border-radius: 999px;
-  background: var(--green-dark);
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
   font: inherit;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .saveProfileButton:hover {
-  background: #20485e;
+  background: var(--primary-hover);
 }
 
 .saveProfileButton:disabled {
@@ -236,8 +234,8 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   margin: 0;
   padding: 10px 12px;
   border-radius: 10px;
-  background: #e8eff1;
-  color: var(--green-dark);
+  background: var(--surface-raised);
+  color: var(--text);
   font-size: 0.84rem;
 }
 
@@ -247,7 +245,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   inset: 0;
   display: flex;
   justify-content: flex-end;
-  background: rgba(13, 32, 45, 0.48);
+  background: color-mix(in srgb, var(--text) 48%, transparent);
   backdrop-filter: blur(3px);
   animation: fadeIn 0.18s ease-out;
 }
@@ -258,7 +256,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   height: 100%;
   flex-direction: column;
   background: var(--bg);
-  box-shadow: -18px 0 48px rgba(13, 32, 45, 0.2);
+  box-shadow: -18px 0 48px color-mix(in srgb, var(--text) 20%, transparent);
   animation: slideIn 0.24s ease-out;
 }
 
@@ -268,13 +266,13 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   justify-content: space-between;
   align-items: center;
   padding: 22px 24px 18px;
-  border-bottom: 1px solid var(--line);
-  background: #fff;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .drawerHeader h2 {
   margin-top: 3px;
-  color: var(--green-dark);
+  color: var(--text);
   font-size: 1.65rem;
 }
 
@@ -283,17 +281,18 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   width: 40px;
   height: 40px;
   place-items: center;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: 50%;
-  background: #fff;
-  color: var(--green-dark);
+  background: var(--surface);
+  color: var(--text);
   font-size: 1.6rem;
   line-height: 1;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .drawerClose:hover {
-  background: var(--mint);
+  background: var(--surface-raised);
 }
 
 .drawerContent {
@@ -306,9 +305,9 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   align-items: center;
   gap: 12px;
   padding: 16px;
-  border: 1px solid #dfe7e8;
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .drawerIdentity {
@@ -326,11 +325,11 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .drawerIdentity strong {
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .drawerIdentity span {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 0.86rem;
 }
 
@@ -348,17 +347,17 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   gap: 5px;
   padding: 11px 10px;
   border-radius: 13px;
-  background: #e8eff1;
+  background: var(--surface-raised);
 }
 
 .accountFacts span {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 0.72rem;
 }
 
 .accountFacts strong {
   overflow-wrap: anywhere;
-  color: var(--green-dark);
+  color: var(--text);
   font-size: 0.82rem;
   text-transform: capitalize;
 }
@@ -366,9 +365,9 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .drawerSection {
   margin-top: 14px;
   padding: 18px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .drawerSectionTitle {
@@ -380,7 +379,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .drawerSectionTitle h3 {
-  color: var(--green-dark);
+  color: var(--text);
   font-size: 1.08rem;
 }
 
@@ -397,7 +396,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .drawerHint {
   margin: 0;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 0.8rem;
   line-height: 1.5;
 }
@@ -414,12 +413,12 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .selectedTrip span,
 .selectedTrip small {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 0.78rem;
 }
 
 .selectedTrip strong {
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .drawerSection .cancelButton {
@@ -430,18 +429,19 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   width: 100%;
   margin-top: 16px;
   padding: 10px 14px;
-  border: 1px solid var(--green-dark);
+  border: 1px solid var(--primary);
   border-radius: 999px;
-  background: #fff;
-  color: var(--green-dark);
+  background: var(--surface);
+  color: var(--primary);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .drawerLogout:hover {
-  background: var(--green-dark);
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 @keyframes fadeIn {
@@ -458,7 +458,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .page a:focus-visible,
 .page textarea:focus-visible,
 .page summary:focus-visible {
-  outline: 3px solid rgba(47, 107, 138, 0.45);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -478,9 +478,9 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   gap: 12px;
   padding: 18px;
   border-radius: 24px;
-  background: #fff;
-  border: 1.5px solid var(--line);
-  box-shadow: 0 12px 32px rgba(20, 43, 59, 0.06);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 .sideHead {
@@ -491,7 +491,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .sideHead h2 {
   font-size: 1.5rem;
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .sideHead span {
@@ -501,6 +501,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   background: var(--bg);
   text-align: center;
   font-weight: 600;
+  color: var(--text);
 }
 
 .list {
@@ -523,17 +524,18 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   text-align: left;
   color: var(--text);
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 
 .item:hover {
-  border-color: var(--green);
+  border-color: var(--primary);
+  background: var(--surface-raised);
 }
 
 .itemActive {
-  background: var(--green-dark);
-  border-color: var(--green-dark);
-  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
 }
 
 .thumb {
@@ -541,7 +543,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   width: 58px;
   height: 58px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #c49a55, var(--green));
+  background: linear-gradient(135deg, var(--brand), var(--primary));
   background-size: cover;
   background-position: center;
 }
@@ -579,31 +581,34 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 }
 
 .upcoming {
-  background: var(--orange);
-  color: var(--text);
+  background: var(--warning);
+  color: var(--on-accent);
 }
 
 .running {
-  background: var(--green);
-  color: #fff;
+  background: var(--success);
+  color: white;
 }
 
 .completed {
-  background: #fff;
-  color: var(--green-dark);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 .cancelled {
-  background: #f5e5e3;
-  color: #8f332c;
+  background: color-mix(in srgb, var(--danger) 15%, var(--surface));
+  color: var(--danger);
 }
 
 .itemActive .completed {
-  background: var(--mint);
+  background: color-mix(in srgb, var(--on-primary) 15%, transparent);
+  color: var(--on-primary);
+  border-color: color-mix(in srgb, var(--on-primary) 30%, transparent);
 }
 
 .item:not(.itemActive) .completed {
-  background: #e8eff1;
+  background: var(--surface-raised);
 }
 
 /* ---------- Right side: details ---------- */
@@ -611,8 +616,8 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   min-width: 0;
   border-radius: 28px;
   overflow: hidden;
-  background: #fff;
-  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
 }
 
 .hero {
@@ -620,7 +625,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   min-height: 250px;
   display: flex;
   align-items: flex-end;
-  background: linear-gradient(135deg, #c49a55, var(--green));
+  background: linear-gradient(135deg, var(--brand), var(--primary));
   background-size: cover;
   background-position: center;
 }
@@ -628,13 +633,13 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .heroShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(13, 32, 45, 0) 30%, rgba(13, 32, 45, 0.85));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--on-primary) 0%, transparent) 30%, color-mix(in srgb, var(--on-primary) 85%, transparent));
 }
 
 .heroText {
   position: relative;
   padding: 24px;
-  color: #fff;
+  color: var(--on-primary);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -648,7 +653,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .heroText p {
   margin: 0;
-  color: var(--mint);
+  color: color-mix(in srgb, var(--on-primary) 85%, transparent);
 }
 
 .detailsBody {
@@ -661,29 +666,29 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .cancelButton {
   padding: 11px 20px;
-  border: 1px solid #d5aaa5;
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
   border-radius: 999px;
-  background: #fff;
-  color: #8f332c;
+  background: var(--surface);
+  color: var(--danger);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .cancelButton:hover {
-  border-color: #8f332c;
-  background: #fff4f2;
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
 }
 
 .localNotice {
   width: 100%;
   box-sizing: border-box;
   padding: 13px 16px;
-  border: 1px solid #e6c6c2;
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
   border-radius: 14px;
-  background: #fff4f2;
-  color: #78342e;
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  color: var(--danger);
   font-size: 0.92rem;
   line-height: 1.5;
 }
@@ -696,16 +701,16 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   gap: 2px;
   padding: 14px 18px;
   border-radius: 16px;
-  background: #f3ead9;
-  color: #725627;
+  background: color-mix(in srgb, var(--warning) 20%, var(--surface));
+  color: color-mix(in srgb, var(--warning) 80%, var(--text));
 }
 
 .countdown {
   margin: 0;
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.5rem;
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .progress {
@@ -721,14 +726,14 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .bar {
   height: 10px;
   border-radius: 999px;
-  background: #e8eff1;
+  background: var(--border);
   overflow: hidden;
 }
 
 .bar div {
   height: 100%;
   border-radius: 999px;
-  background: var(--orange);
+  background: var(--warning);
 }
 
 .facts {
@@ -746,7 +751,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .fact small {
   display: block;
-  color: var(--muted);
+  color: var(--text-muted);
   margin-bottom: 4px;
 }
 
@@ -760,8 +765,8 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   margin-top: 24px;
   padding: 40px;
   border-radius: 32px;
-  background: var(--green-dark);
-  color: #fff;
+  background: linear-gradient(135deg, var(--text), var(--primary));
+  color: var(--on-primary);
 }
 
 .feedbackHead h2 {
@@ -772,7 +777,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .feedbackHead p {
   margin: 0 0 28px;
-  color: var(--mint);
+  color: color-mix(in srgb, var(--on-primary) 85%, transparent);
 }
 
 .form {
@@ -797,6 +802,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
+  color: var(--on-primary);
 }
 
 .field {
@@ -809,10 +815,16 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   padding: 14px 16px;
   border: 1.5px solid transparent;
   border-radius: 18px;
-  background: #fafaf7;
+  background: var(--bg);
   color: var(--text);
   font: inherit;
   resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.field textarea:focus {
+  border-color: var(--primary);
+  outline: none;
 }
 
 .stars {
@@ -832,7 +844,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 .ratingText {
   margin-left: 12px;
   font-weight: 600;
-  color: var(--orange);
+  color: var(--highlight);
 }
 
 .drop {
@@ -841,21 +853,22 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   flex-direction: column;
   gap: 4px;
   padding: 28px 20px;
-  border: 2px dashed rgba(255, 255, 255, 0.4);
+  border: 2px dashed color-mix(in srgb, var(--on-primary) 40%, transparent);
   border-radius: 20px;
   background: transparent;
-  color: #fff;
+  color: var(--on-primary);
   font: inherit;
   cursor: pointer;
+  transition: border-color 0.2s ease;
 }
 
 .drop:hover {
-  border-color: var(--orange);
+  border-color: var(--brand);
 }
 
 .drop span {
   font-size: 0.9rem;
-  color: var(--mint);
+  color: color-mix(in srgb, var(--on-primary) 70%, transparent);
 }
 
 .previews {
@@ -870,7 +883,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   aspect-ratio: 1;
   border-radius: 14px;
   overflow: hidden;
-  background: var(--green-deep);
+  background: color-mix(in srgb, var(--text) 20%, var(--bg));
 }
 
 .preview img,
@@ -888,19 +901,19 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   height: 28px;
   border: none;
   border-radius: 50%;
-  background: rgba(13, 32, 45, 0.88);
-  color: #fff;
+  background: color-mix(in srgb, var(--text) 88%, transparent);
+  color: var(--on-primary);
   cursor: pointer;
 }
 
 .errorText {
   margin: 0;
-  color: #b3261e;
+  color: var(--danger);
   font-size: 0.92rem;
 }
 
 .feedback .errorText {
-  color: #ffb4a8;
+  color: color-mix(in srgb, var(--danger) 80%, var(--on-primary));
 }
 
 .thanks {
@@ -915,7 +928,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .thanks p {
   margin: 0;
-  color: var(--mint);
+  color: color-mix(in srgb, var(--on-primary) 70%, transparent);
 }
 
 /* ---------- Empty state ---------- */
@@ -924,15 +937,15 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   flex-wrap: wrap;
   border-radius: 32px;
   overflow: hidden;
-  background: #fff;
-  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
 }
 
 .emptyArt {
   position: relative;
   flex: 1 1 340px;
   min-height: 340px;
-  background: linear-gradient(180deg, #d2ad6f, #b48b48);
+  background: linear-gradient(180deg, var(--brand), var(--primary));
 }
 
 .emptyArt svg {
@@ -949,7 +962,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: var(--orange);
+  background: var(--brand);
 }
 
 .emptyText {
@@ -965,7 +978,7 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   font-weight: 800;
   font-size: clamp(2rem, 4vw, 2.8rem);
   line-height: 1.05;
-  color: var(--green-dark);
+  color: var(--text);
   margin-bottom: 12px;
 }
 
@@ -974,13 +987,13 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   max-width: 460px;
   font-size: 1.1rem;
   line-height: 1.6;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .howTitle {
   margin: 40px 0 16px !important;
   font-size: 1.6rem;
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .steps {
@@ -993,23 +1006,23 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   flex: 1 1 220px;
   padding: 20px 22px;
   border-radius: 22px;
-  background: #fff;
-  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
 }
 
 .step span {
   display: block;
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 2rem;
   line-height: 1;
-  color: var(--orange);
+  color: var(--brand);
   margin-bottom: 8px;
 }
 
 .step p {
   margin: 4px 0 0;
-  color: var(--muted);
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -1018,13 +1031,13 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
   padding: 56px 20px;
   text-align: center;
   border-radius: 28px;
-  background: #fff;
-  border: 1.5px solid var(--line);
-  color: var(--muted);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
 }
 
 .message h1 {
-  color: var(--green-dark);
+  color: var(--text);
   margin-bottom: 8px;
 }
 
@@ -1034,7 +1047,12 @@ padding: 40px max(20px, calc((100% - 1240px) / 2)) 80px;/* top space for the flo
 
 .skeleton {
   border-radius: 28px;
-  background: linear-gradient(90deg, #e8e5de 25%, #f8f7f2 50%, #e8e5de 75%);
+  background: linear-gradient(
+    90deg,
+    var(--surface-raised) 25%,
+    var(--border) 50%,
+    var(--surface-raised) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }

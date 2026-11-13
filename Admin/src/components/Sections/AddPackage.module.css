@@ -1,26 +1,25 @@
 /* ---------- Page ---------- */
 .page {
-  --green: #00483a;
-  --green-tint: #e6f0ed;
-  --coral: #f97316;
-  --border: #d9e4df;
+  --font-heading: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   width: min(1400px, 92%);
   margin: 2rem auto 4rem;
-  color: var(--green);
+  color: var(--text);
 }
 
 .title {
   margin: 0 0 24px;
   text-align: center;
+  font-family: var(--font-heading);
   font-size: clamp(28px, 4vw, 42px);
-  font-weight: 700;
+  font-weight: 800;
 }
 
-/* Big rounded box around everything (like your sketch) */
+/* Big rounded box around everything */
 .box {
   padding: 24px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 2rem;
 }
@@ -56,7 +55,7 @@
 /* ---------- Cards ---------- */
 .card {
   padding: 18px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 1.25rem;
 }
@@ -65,6 +64,7 @@
   margin: 0 0 12px;
   font-size: 16px;
   font-weight: 700;
+  color: var(--text);
 }
 
 .right {
@@ -90,6 +90,7 @@
 .label {
   font-size: 13px;
   font-weight: 600;
+  color: var(--text);
 }
 
 .input {
@@ -98,16 +99,17 @@
   padding: 12px 14px;
   font: inherit;
   font-size: 15px;
-  color: var(--green);
-  background: #fff;
+  color: var(--text);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--coral);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .textarea {
@@ -117,7 +119,7 @@
 
 .error {
   font-size: 12px;
-  color: #c62828;
+  color: var(--danger);
 }
 
 /* ---------- Pills (checkbox and radio buttons) ---------- */
@@ -143,24 +145,24 @@
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 600;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 999px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .pill:hover span {
-  background: var(--green-tint);
+  background: var(--surface-raised);
 }
 
 .pill input:checked + span {
-  color: #fff;
-  background: var(--green);
-  border-color: var(--green);
+  color: var(--on-primary);
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .pill input:focus-visible + span {
-  outline: 3px solid var(--coral);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -172,14 +174,16 @@
   justify-content: center;
   width: 100%;
   overflow: hidden;
-  background: var(--green-tint);
-  border: 2px dashed #9cc7b6;
+  background: var(--surface-raised);
+  border: 2px dashed var(--border);
   border-radius: 1.25rem;
   cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .picker:hover {
-  border-color: var(--coral);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 5%, var(--surface-raised));
 }
 
 .bannerShape {
@@ -198,16 +202,17 @@
 .plus {
   font-size: 36px;
   line-height: 1;
-  color: var(--coral);
+  color: var(--brand);
 }
 
 .placeholder p {
   margin: 6px 0 2px;
   font-weight: 700;
+  color: var(--text);
 }
 
 .placeholder small {
-  color: #6b7f78;
+  color: var(--text-muted);
 }
 
 .previewImg {
@@ -225,8 +230,8 @@
   padding: 5px 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
+  color: var(--on-primary);
+  background: var(--primary);
   border-radius: 20px;
 }
 
@@ -236,11 +241,12 @@
   font: inherit;
   font-size: 16px;
   font-weight: 700;
-  color: #fff;
-  background: var(--coral);
+  color: var(--on-primary);
+  background: var(--primary);
   border: none;
   border-radius: 30px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .submit:disabled {
@@ -254,8 +260,8 @@
   height: 14px;
   margin-right: 8px;
   vertical-align: -2px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-top-color: #fff;
+  border: 2px solid color-mix(in srgb, var(--on-primary) 45%, transparent);
+  border-top-color: var(--on-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -264,8 +270,8 @@
   to { transform: rotate(360deg); }
 }
 
-.submit:hover {
-  background: #ea6a0c;
+.submit:hover:not(:disabled) {
+  background: var(--primary-hover);
 }
 
 /* ---------- Tablet and mobile ---------- */
@@ -293,19 +299,20 @@
     grid-template-columns: 1fr;
   }
 }
-/* ---------- NEW: small image column (image + roadmap card) ---------- */
+
+/* ---------- Small image column (image + roadmap card) ---------- */
 .leftCol {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* ---------- NEW: roadmap card ---------- */
+/* ---------- Roadmap card ---------- */
 .summary {
   margin: 0 0 12px;
   font-size: 13px;
   line-height: 1.5;
-  color: #4b635b;
+  color: var(--text-muted);
 }
 
 .roadmapBtn {
@@ -314,27 +321,35 @@
   font: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
-  background: var(--green);
+  color: var(--on-primary);
+  background: var(--primary);
   border: none;
   border-radius: 999px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .roadmapBtn:hover {
-  background: #00372c;
+  background: var(--primary-hover);
 }
 
-/* ---------- NEW: pop-up ---------- */
+/* ---------- Pop-up ---------- */
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 100; /* above your navbar (z-index 50) */
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(0, 30, 22, 0.6);
+  background: color-mix(in srgb, var(--text) 60%, transparent);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal {
@@ -343,8 +358,15 @@
   width: min(640px, 100%);
   max-height: 88vh;
   overflow: hidden;
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.5rem;
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .modalHead {
@@ -355,12 +377,14 @@
 .modalTitle {
   margin: 0;
   font-size: 22px;
+  font-family: var(--font-heading);
+  color: var(--text);
 }
 
 .modalSub {
   margin: 4px 0 0;
   font-size: 14px;
-  color: #6b7f78;
+  color: var(--text-muted);
 }
 
 /* The list of places scrolls if it gets long */
@@ -379,6 +403,7 @@
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 1rem;
+  background: var(--surface);
 }
 
 .stopTop {
@@ -391,8 +416,8 @@
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
-  background: var(--green);
+  color: var(--on-primary);
+  background: var(--primary);
   border-radius: 999px;
 }
 
@@ -400,16 +425,18 @@
   width: 30px;
   height: 30px;
   font-size: 14px;
-  color: var(--green);
-  background: var(--green-tint);
-  border: none;
+  color: var(--text);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
   border-radius: 50%;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .remove:hover {
-  color: #fff;
-  background: #c62828;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  border-color: var(--danger);
 }
 
 .stopRow {
@@ -422,15 +449,17 @@
   padding: 12px;
   font: inherit;
   font-weight: 600;
-  color: var(--green);
-  background: var(--green-tint);
-  border: 1px dashed #9cc7b6;
+  color: var(--brand);
+  background: var(--surface-raised);
+  border: 1px dashed var(--border);
   border-radius: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .addPlace:hover {
-  border-color: var(--coral);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 5%, var(--surface-raised));
 }
 
 .modalFoot {
@@ -444,21 +473,23 @@
 .total {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text);
 }
 
 .done {
   padding: 12px 32px;
   font: inherit;
   font-weight: 700;
-  color: #fff;
-  background: var(--coral);
+  color: var(--on-primary);
+  background: var(--primary);
   border: none;
   border-radius: 30px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .done:hover {
-  background: #ea6a0c;
+  background: var(--primary-hover);
 }
 
 @media (max-width: 560px) {

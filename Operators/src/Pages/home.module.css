@@ -1,0 +1,266 @@
+/* ---------- Page ---------- */
+.page {
+  --font-heading: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  position: relative;
+  min-height: 100svh;
+  padding: 2rem 1.25rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page::before,
+.page::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.page::before {
+  top: -12rem;
+  right: -10rem;
+  width: 30rem;
+  height: 30rem;
+  background: var(--surface-raised);
+  opacity: 0.5;
+}
+
+.page::after {
+  bottom: -14rem;
+  left: -12rem;
+  width: 28rem;
+  height: 28rem;
+  border: 3rem solid color-mix(in srgb, var(--surface-raised) 70%, transparent);
+}
+
+/* ---------- Main card ---------- */
+.mainCard {
+  position: relative;
+  width: 100%;
+  max-width: 80rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  background: var(--surface);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--text) 12%, transparent);
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+}
+
+@media (max-width: 900px) {
+  .mainCard {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Left panel (brand) ---------- */
+.leftPanel {
+  padding: 1.75rem 2.5rem;
+  background: linear-gradient(145deg, var(--primary), var(--primary-hover));
+  color: var(--on-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (min-width: 900px) {
+  .leftPanel {
+    min-height: 36rem;
+  }
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brandLink img {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.brandName {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.brandName span {
+  color: var(--accent);
+}
+
+.brandDivider {
+  width: 3rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  margin: 1.5rem 0;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 85%, transparent);
+}
+
+.leftPanel h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.leftPanel p {
+  margin: 1.25rem 0 0;
+  max-width: 28rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--on-primary) 90%, transparent);
+}
+
+.copyright {
+  margin-top: auto;
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--on-primary) 60%, transparent);
+}
+
+/* ---------- Right panel (actions) ---------- */
+.rightPanel {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 2.5rem;
+}
+
+@media (min-width: 900px) {
+  .rightPanel {
+    padding: 2.5rem 3rem;
+  }
+}
+
+.rightInner {
+  width: 100%;
+  max-width: 24rem;
+  margin: 0 auto;
+}
+
+.welcomeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.welcomeBadge::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--brand);
+}
+
+.rightPanel h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 0 0 0.75rem;
+  color: var(--text);
+}
+
+.rightPanel > p {
+  margin: 0 0 2rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.buttonGroup {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.primaryBtn {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.primaryBtn:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 30%, transparent);
+  transform: translateY(-2px);
+}
+
+.secondaryBtn {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.secondaryBtn:hover {
+  background: var(--surface-raised);
+  border-color: var(--primary);
+}
+
+.note {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Focus states */
+.primaryBtn:focus-visible,
+.secondaryBtn:focus-visible,
+.brandLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .primaryBtn,
+  .secondaryBtn,
+  .brandLink {
+    transition: none;
+  }
+}
