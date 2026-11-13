@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useThemeStore } from "./themeStore";
+import "./ThemeSwitcher.css";
 
 const themeIcons = {
   light: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -16,12 +17,12 @@ const themeIcons = {
     </svg>
   ),
   dark: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
   system: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="2" y="3" width="20" height="14" rx="2" />
       <line x1="8" y1="21" x2="16" y2="21" />
       <line x1="12" y1="17" x2="12" y2="21" />
@@ -111,8 +112,8 @@ export default function ThemeSwitcher({ className = "", showLabels = true, varia
         aria-label={`Theme: ${themeLabels[mode]}. Click to change.`}
       >
         {themeIcons[resolvedTheme]}
-        {showLabels && <span>{themeLabels[mode]}</span>}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={`${isOpen ? "rotate-180" : ""} transition-transform duration-200`}>
+        {showLabels && <span className="theme-switcher-label">{themeLabels[mode]}</span>}
+        <svg className="theme-switcher-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
@@ -131,10 +132,10 @@ export default function ThemeSwitcher({ className = "", showLabels = true, varia
               <span className="theme-switcher-option-icon" aria-hidden="true">
                 {themeIcons[theme]}
               </span>
-              <span>{themeLabels[theme]}</span>
-              {showLabels && <span className="text-muted text-xs ml-auto">{themeDescriptions[theme]}</span>}
+              <span className="theme-switcher-option-label">{themeLabels[theme]}</span>
+              {showLabels && <span className="theme-switcher-option-desc">{themeDescriptions[theme]}</span>}
               {mode === theme && (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="ml-auto text-[var(--on-primary)]">
+                <svg className="theme-switcher-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
               )}
@@ -144,15 +145,4 @@ export default function ThemeSwitcher({ className = "", showLabels = true, varia
       )}
     </div>
   );
-}
-
-// Add rotate utility
-const style = document.createElement("style");
-style.textContent = `
-  .rotate-180 { transform: rotate(180deg); }
-  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-`;
-if (typeof document !== "undefined" && !document.head.querySelector('style[data-theme-switcher]')) {
-  style.setAttribute("data-theme-switcher", "");
-  document.head.appendChild(style);
 }

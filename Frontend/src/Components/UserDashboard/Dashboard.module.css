@@ -33,7 +33,7 @@
   border-radius: 28px;
   background:
     radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--brand) 20%, transparent), transparent 28%),
-    linear-gradient(125deg, var(--text), var(--primary));
+    linear-gradient(125deg, var(--primary), var(--primary-hover));
   color: var(--on-primary);
   box-shadow: 0 16px 40px color-mix(in srgb, var(--primary) 12%, transparent);
 }
@@ -765,7 +765,7 @@
   margin-top: 24px;
   padding: 40px;
   border-radius: 32px;
-  background: linear-gradient(135deg, var(--text), var(--primary));
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: var(--on-primary);
 }
 

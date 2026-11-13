@@ -1,25 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export type Portal = "traveler" | "operator" | "admin";
-export type ThemeMode = "light" | "dark" | "system";
-
-interface ThemeState {
-  mode: ThemeMode;
-  resolvedTheme: "light" | "dark";
-  portal: Portal;
-  setMode: (mode: ThemeMode) => void;
-  setPortal: (portal: Portal) => void;
-  initialize: () => void;
-  toggleTheme: () => void;
-}
-
-const getSystemTheme = (): "light" | "dark" => {
+const getSystemTheme = () => {
   if (typeof window === "undefined") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };
 
-const applyTheme = (portal: Portal, theme: "light" | "dark") => {
+const applyTheme = (portal, theme) => {
   if (typeof document === "undefined") return;
 
   const html = document.documentElement;
@@ -31,20 +18,20 @@ const applyTheme = (portal: Portal, theme: "light" | "dark") => {
   html.classList.add(theme);
 };
 
-export const useThemeStore = create<ThemeState>()(
+export const useThemeStore = create(
   persist(
     (set, get) => ({
       mode: "system",
       resolvedTheme: "light",
       portal: "traveler",
 
-      setMode: (mode: ThemeMode) => {
+      setMode: (mode) => {
         const resolved = mode === "system" ? getSystemTheme() : mode;
         set({ mode, resolvedTheme: resolved });
         applyTheme(get().portal, resolved);
       },
 
-      setPortal: (portal: Portal) => {
+      setPortal: (portal) => {
         const { mode, resolvedTheme } = get();
         set({ portal });
         applyTheme(portal, resolvedTheme);
@@ -70,7 +57,7 @@ export const useThemeStore = create<ThemeState>()(
           mediaQuery.addEventListener("change", handler);
 
           // Store cleanup function
-          (window as any).__themeCleanup = () => mediaQuery.removeEventListener("change", handler);
+          (window).__themeCleanup = () => mediaQuery.removeEventListener("change", handler);
         }
       },
 
