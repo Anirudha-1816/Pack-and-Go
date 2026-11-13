@@ -3,85 +3,199 @@
 
 ## 1. Purpose
 
-Pack & Go is a travel booking website. Travelers can browse trips, create an account, book a trip, and pay online. Staff use a separate admin app to manage trips and review bookings.
+Pack & Go is a travel booking platform with three distinct applications:
 
-Operators can signup and wait for there approval by admin when admin can check and approve the request they can login and add trips and there trips so they can start of there own 
+- **Traveler Website** — Public-facing site where visitors browse trips, create accounts, book trips, and pay online ,join the trips.
+- **Admin Dashboard** — Staff application for managing trips, reviewing bookings, approving operators, and overseeing the platform.
+- **Operator Portal** — Dedicated portal where approved operators create and manage their own trips, view bookings, and track their business.
 
-This document describes the current system, not planned features.
+This document describes the current system as implemented.
 
-## 2. People who use the system
+## 2. People Who Use the System
 
-- **Operators:** creates an account, views trips, books trips, pays, and checks its own bookings.
-- **Admin:** signs in to the admin app, creates , hides or delete trips, and reviews bookings.
-- **Visitor:** browses public trip and website content, and can request help through the contact form.
+| Role | Description |
+|------|-------------|
+| **Visitor** | Browses public trips and website content, submits contact requests. |
+| **Traveler** | Registered user who verifies email via OTP, browses trips, books trips, pays via Stripe, views their bookings and payment status. |
+| **Operator** | Applies for an account, waits for admin approval, then creates and manages their own trips, views bookings on their trips, tracks availability. |
+| **Admin** | Signs in to the admin dashboard, manages all trips (create/hide/delete), reviews all bookings, approves/rejects operator applications, manages operator status. |
 
-## 3. Main features
+## 3. Main Features
 
-### Accounts
+### 3.1 Accounts & Authentication
 
-- A new traveler verifies their email with a one-time code (OTP) before registration.
-- Travelers and admins sign in with email and password.
-- A secure, HTTP-only cookie keeps the user signed in. Admin access is based on the account role (Imitable).
-- A traveler can sign out and view their account details.
+**Traveler**
+- Registers with email, full name, gender, password, and terms acceptance.
+- Verifies email via a one-time passcode (OTP) sent by email before registration completes.
+- Signs in with email and password.
+- Session maintained via secure, HTTP-only cookie.
+- Can sign out and view account details.
 
-### Trips
+**Operator**
+- Applies with name, email, password, phone, location, experience, and optional profile photo.
+- Application stored with status `pending` until admin reviews.
+- Receives email notification when approved or rejected.
+- If rejected, sees rejection reason; if pending, sees waiting message.
+- After approval, signs in with email and password.
+- Session maintained via secure, HTTP-only cookie (separate from traveler/admin cookies).
+- Can sign out.
 
-- Visitors can view active trips and open a trip for its itinerary, dates, price, pickup and drop-off details, included services, and terms.
-- Admins can add trips with a banner and thumbnail, edit whether a trip is visible, and delete a trip.
-- Trip prices are set by the admin as a per-person amount.
+**Admin**
+- Signs in with email and password (pre-created admin account).
+- Role-based access control via `role: "admin"` on user document.
+- Session maintained via secure, HTTP-only cookie.
 
-### Bookings and payments
+### 3.2 Trips
 
-- A signed-in traveler chooses a trip and number of travelers.
-- The server calculates the total from the saved trip price. It does not trust a price sent by the browser.
-- A booking keeps a snapshot of its price and traveler count.
-- Payments use Stripe Checkout with card payments.
-- A booking is confirmed only after the backend verifies the payment. Stripe uses signed webhooks; returning from the Stripe page alone is not proof of payment.
-- Travelers can view their bookings and payment status. Admins can review all bookings.
-- Failed attempts can be retried. Refunds and duplicate payments are recorded for follow-up.
+**Public (Visitor/Traveler)**
+- Views only active trips (`isActive: true`) with future dates.
+- Trip detail page shows: banner, thumbnail, route (from/to), guide, date, duration, pickup/drop times and locations, price per person, trip type, included meals, accommodation tier, travel tier, terms, roadmap.
+- Can book available trips.
 
-### Website content and contact
+**Admin**
+- Creates trips with banner + thumbnail (uploaded to Cloudinary).
+- Sets all trip fields: route, guide, date, timings, duration, price, type, inclusions, terms, roadmap.
+- Toggles trip visibility (`isActive`) without deleting.
+- Deletes trips permanently.
+- Views all trips (active/inactive) in management list.
 
-- The site can load trip listings, navigation, cities, buttons, and content blocks from the backend.
-- Signed-in visitors can submit a contact message. The system stores it and emails the visitor and site contact address.
-- Email is also used to send account verification codes.
+**Operator**
+- Creates trips via 3-step form: basic info → pricing & details → images & roadmap.
+- Submits trip for admin approval; trip saved with `status: "pending"` and linked to operator.
+- Views only their own trips in dashboard, grouped by status (upcoming, running, completed).
+- Sees traveler count per trip.
+- Cannot edit or delete trips after submission; only admin can change status.
 
-## 4. System overview
+**Trip Statuses**
+- `pending` — Operator-submitted, awaiting admin review.
+- `approved` — Visible to public, bookable (default for admin-created trips).
+- `rejected` — Not visible, operator sees rejection reason.
+- `isActive` toggle — Admin can hide/show approved trips without deletion.
 
-- The traveler website and admin app are separate React applications.
-- The backend is an Express API. It stores users, trips, bookings, payments, and site content in MongoDB through Mongoose.
-- Trip images are stored with Cloudinary.
-- Email is sent through the configured mail service.
-- Stripe secret keys stay on the backend.
-- The apps are intended to be hosted separately. The frontend calls the backend URL configured for that deployment.
+### 3.3 Bookings & Payments
 
-## 5. Key rules
+**Booking Flow**
+- Signed-in traveler selects trip and number of travelers.
+- Server calculates total from stored `pricePerHead` (never trusts client-sent price).
+- Booking snapshot stores: trip, traveler count, amount (in paise), currency (INR), timestamps.
+- Stripe Checkout session created; traveler redirected to Stripe.
+- Payment verified via signed Stripe webhook (`checkout.session.completed`).
+- Booking confirmed only after webhook verification; returning from Stripe alone is not proof.
+- Payment statuses: `pending`, `paid`, `failed`, `refunded`.
+- Booking statuses: `pending`, `confirmed`, `cancelled`, `refunded` (separate from payment status).
 
-- Only active trips are shown to visitors and can be booked.
-- A trip date in the past cannot be booked.
-- Traveler count must be a positive whole number.
-- The saved booking price is used for payment retries; changing the trip price does not silently change an existing booking.
-- Payment status and booking status are separate. A pending, failed, or refunded payment must not be shown as a confirmed booking.
-- Payment provider credentials, webhook signing secrets, database credentials, and email credentials must not be placed in frontend variables or committed to source control.
-- Stripe test keys are used during development; the backend also accepts live keys for production payments.
+**Retry & Edge Cases**
+- Failed payments can be retried (new Stripe session).
+- Snapshot pricing protects against price changes mid-booking.
+- Duplicate payments and refunds recorded for manual follow-up.
+- `paymentReviewRequired` flag set if webhook amount differs from booking amount.
 
-## 6. Important quality requirements
+**Traveler View**
+- Sees own bookings with trip details, payment status, booking status.
 
-- The website should work on mobile and desktop screens.
-- Private account, booking, and admin actions require the appropriate signed-in user or admin role.
-- The server validates booking inputs and payment details before changing a booking.
-- Payment webhooks must be checked using the provider's signature and original request body.
-- Errors should be returned with an HTTP status and a clear message.
-- No uptime, traffic, or response-time target has been measured or promised yet.
+**Admin View**
+- Sees all bookings across all trips with traveler details, payment status, booking status.
 
-## 7. External services and setup
+**Operator View**
+- Sees bookings only for their own trips.
+- Passenger list per trip with traveler name, phone, seats, payment status, booked date.
+- Check-in button for upcoming/running trips (tracks checked-in travelers).
 
-The backend needs MongoDB, email, and Cloudinary settings. Payment features also need the relevant provider credentials and webhook configuration. Stripe Checkout needs a backend `CLIENT_URL` for its return links. See [PAYMENT_INTEGRATION.md](./PAYMENT_INTEGRATION.md) for payment setup and testing.
+### 3.4 Operator Dashboard
 
-## 8. API reference
+- **Overview**: Greeting, next trip card (countdown or "running now"), KPIs (active trips, travelers booked, completed trips, rating), upcoming trips list, availability toggle, profile card.
+- **My Trips**: Filterable list (upcoming/running/completed/all) with traveler counts, status badges, "View passenger list" action.
+- **My Bookings**: Trip selector dropdown → passenger list with check-in functionality, payment status badges, booking dates.
+- **Availability Toggle**: Operator sets themselves available/unavailable for new trip assignments.
+- **Profile**: Shows name, email, phone, location, experience, status, profile image.
+- **Logout**: Clears cookie and redirects to login.
 
-The backend API is documented in Swagger UI at **`/api-docs`** on the backend host. For local development, this is usually `http://localhost:8080/api-docs`. The reference lists the implemented endpoints, request formats, authentication, and common responses.
+### 3.5 Admin Dashboard
 
-## 9. Not included in the current version
+- **Sidebar Navigation**: Manage packages, check bookings, operator requests, gallery, messages, feedbacks, settings.
+- **KPIs**: Revenue, bookings count, active packages, average rating (with trend indicators).
+- **Quick Actions**: Add package, manage packages, review bookings.
+- **Upcoming Trips Panel**: Scrollable list with date, booking progress bar, fill status chips (open/filling/full).
+- **Operator Requests**: List of pending/approved/rejected operators with approve/reject actions and rejection reason field.
+- **Manage Packages**: Full CRUD for trips with image uploads.
 
-Trip reviews, loyalty points, multiple languages, AI recommendations, WhatsApp notifications, and live Stripe payments are not part of the current system.
+### 3.6 Website Content & Contact
+
+- Dynamic content loaded from backend: navigation links, cities, buttons, content blocks.
+- Contact form (signed-in travelers only) stores message and emails both visitor and site contact address.
+- Email service used for OTP verification, contact confirmations, operator status notifications.
+
+## 4. System Overview
+
+| Component | Technology |
+|-----------|------------|
+| Traveler Website | React 19 + Vite + React Router + Tailwind CSS |
+| Admin Dashboard | React 19 + Vite + React Router + Tailwind CSS |
+| Operator Portal | React 19 + Vite + React Router + Tailwind CSS |
+| Backend API | Node.js + Express + Mongoose (MongoDB) |
+| Image Storage | Cloudinary (banners, thumbnails, profile photos) |
+| Payments | Stripe Checkout + signed webhooks |
+| Email | Configured mail service (Nodemailer) |
+| Auth | JWT in HTTP-only cookies, bcrypt password hashing |
+| Apis | `axios` |
+
+- Three independent React apps, each deployed separately.
+- All apps share the same backend API URL (`VITE_API_URL`).
+- CORS configured for known frontend origins.
+- API documented via Swagger at `/api-docs`.
+
+## 5. Key Rules
+
+- Only active (`isActive: true`) and future-dated trips shown to visitors.
+- Past-dated trips cannot be booked.
+- Traveler count must be a positive integer (max defined by `MAX_TRAVELERS`).
+- Booking price snapshot used for retries; trip price changes don't affect existing bookings.
+- Payment status ≠ booking status; both tracked independently.
+- Secrets (Stripe keys, MongoDB URI, JWT secret, Cloudinary credentials, email credentials) never in frontend code or committed to source control.
+- Stripe test keys for development; live keys supported for production.
+- Operator-created trips require admin approval before going live.
+- Admin can only see/manage operator requests; operators cannot see other operators.
+- Check-in only allowed for upcoming/running trips.
+
+## 6. Important Quality Requirements
+
+- Responsive on mobile and desktop.
+- Role-based access enforced on all private routes (frontend + backend).
+- Server validates all booking and payment inputs before state changes.
+- Stripe webhooks verified via signature + raw body.
+- Errors returned with HTTP status code and clear message.
+- No SLA, uptime, or response-time targets defined yet.
+
+## 7. External Services & Setup
+
+Required environment variables:
+
+| Service | Variables |
+|---------|-----------|
+| MongoDB | `MONGO_URI` |
+| JWT | `JWT_SECRET` |
+| Cloudinary | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` |
+| Stripe | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `CLIENT_URL` |
+| Email | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM` |
+| Frontend | `VITE_API_URL` (points to backend) |
+
+
+this are the not the `actual url or secrets or any apis`
+
+See `PAYMENT_INTEGRATION.md` for Stripe setup and testing details.
+
+## 8. API Reference
+
+Backend API documented in Swagger UI at **`/api-docs`** on the backend host (e.g., `http://localhost:8080/api-docs`). Includes all endpoints, request/response schemas, authentication, and common error responses.
+
+## 9. Not Included in Current Version
+
+- Trip reviews and ratings from travelers
+- Loyalty points or referral programs
+- Multi-language support
+- AI-powered trip recommendations
+- WhatsApp / SMS notifications
+- Live Stripe payments (test mode only)
+- Operator trip editing after submission
+- Traveler trip cancellation by user
+- Automated refund processing
