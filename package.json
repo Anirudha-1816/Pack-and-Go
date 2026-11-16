@@ -10,6 +10,8 @@
     "stage": "npm run preview --prefix Frontend",
     "craftadmin": "npm run build --prefix Admin",
     "stageadmin": "npm run preview --prefix Admin",
+    "craftOperators": "npm run build --prefix Operators",
+    "stageOperators": "npm run preview --prefix Operators",
     "reveal": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\" \"npm run dev --prefix Operators\""
   },
   "dependencies": {
