@@ -209,7 +209,7 @@ export const updateOperatorRequestStatus = async (req, res, next) => {
           approvedAt: status === "approved" ? new Date() : null,
         },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true } 
     ).select("-password");
 
     if (!operator) {
