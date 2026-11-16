@@ -14,7 +14,7 @@ function OperatorHome() {
           </Link>
 
           <div className={styles.brandDivider} />
-          <p className={styles.eyebrow}>Pack&Go operator portal</p>
+          <p className={styles.eyebrow}>Pack&Go Operator </p>
           <h1 id="welcome-heading" className={styles.headline}>
             Make every trip worth remembering.
           </h1>
