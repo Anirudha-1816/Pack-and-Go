@@ -2,7 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import OperatorLogin from "./Pages/OperatorsLogin";
 import Signup from "./Pages/OperatorSignup";
 import OperatorHome from "./Pages/home";
-import OperatorDashboard from "./components/dashboard.jsx";
+
+import OperatorDashboard from './components/Dashboard.jsx' 
 import AddTrip from "./Pages/AddTrip";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./utils/notFound/NotFound.jsx";
