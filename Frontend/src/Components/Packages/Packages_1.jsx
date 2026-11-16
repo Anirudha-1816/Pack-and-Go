@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import apiComponents from "../../apis/apiComponents";
 import styles from "./Packages.module.css";
 import Navbar from "../Navbar/Navbar";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/components/get-trips`;
+const API_URL = "/get-trips";
 
 // If your Trip model uses different field names, change them ONLY here.
 function formatTrip(t) {
@@ -35,7 +35,7 @@ function Packages() {
   useEffect(() => {
     async function loadTrips() {
       try {
-        const res = await axios.get(API_URL);
+        const res = await apiComponents.get(API_URL);
         const list = Array.isArray(res.data)
           ? res.data
           : res.data.trips || res.data.data || [];

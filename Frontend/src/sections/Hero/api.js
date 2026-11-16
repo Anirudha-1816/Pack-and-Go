@@ -1,9 +1,4 @@
-import axios from "axios";
 import apiComponents from "../../apis/apiComponents";
-
-
-
-
 
 export const getButtons = async () => {
   const { data } = await apiComponents.get("/buttons");

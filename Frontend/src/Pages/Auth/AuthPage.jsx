@@ -2,15 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 
 import styles from "./Auth.module.css";
 import apiUsers from "../../apis/apiUsers";
+import apiOtp from "../../apis/apiOtp";
 import useAuthStore from "../../Stores/authStore";
 import OtpVerification from "./OtpVerification";
 import Navbar from "../../Components/Navbar/Navbar";
-
-const OTP_API = `${import.meta.env.VITE_API_URL}/otp`;
 
 const emailRe =
   /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
@@ -81,7 +79,7 @@ export default function AuthPage({ signup = true }) {
         const email = body.email.trim().toLowerCase();
 
         // Request OTP.
-        const response = await axios.post(`${OTP_API}/create`, {
+        const response = await apiOtp.post("/create", {
           email,
         });
 

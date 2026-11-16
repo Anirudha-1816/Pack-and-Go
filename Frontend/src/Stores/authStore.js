@@ -22,14 +22,21 @@ const useAuthStore = create((set, get) => ({
 
       return currentUser;
     } catch (err) {
-      set({
-        user: null,
-        isAuthenticated: false,
-      });
+      // Only clear auth state on genuine authentication failure (401/403)
+      // Network errors, timeouts, 5xx should NOT log the user out
+      const status = err.response?.status;
+      const isAuthError = status === 401 || status === 403;
+
+      if (isAuthError) {
+        set({
+          user: null,
+          isAuthenticated: false,
+        });
+      }
 
       console.error(
         "fetchUser failed:",
-        err.response?.status,
+        status,
         err.response?.data || err.message
       );
 

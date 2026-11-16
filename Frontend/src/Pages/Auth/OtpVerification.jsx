@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 import authStyles from "./Auth.module.css";
 import styles from "./OtpVerification.module.css";
-import axios from "axios";
+import apiOtp from "../../apis/apiOtp";
 
 
 const OTP_LENGTH = 6;
@@ -77,8 +77,8 @@ export default function OtpVerification({ email, onVerified,  onChangeEmail }) {
   let verificationToken;
 
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/otp/verify`,
+    const response = await apiOtp.post(
+      "/verify",
       { email, otp }
     );
 

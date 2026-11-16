@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CheckoutModal from "./CheckoutModal";
 import useAuthStore from "../../Stores/authStore";
+import apiTrip from "../../apis/apiTrip";
 // import Navbar from '../Navbar/Navbar'
 
-const API_URL = `${import.meta.env.VITE_API_URL}/trip/get`;
+const API_URL = "/get";
 
 // Used in the "Includes" pop-up to show what is included and what is not
 const ALL_MEALS = ["Breakfast", "Lunch", "Dinner", "Snacks", "Tea / Coffee"];
@@ -151,7 +151,7 @@ export default function TripDetails() {
 
   // Get this trip from the API
   useEffect(() => {
-    axios
+    apiTrip
       .get(`${API_URL}/${id}`)
       .then((res) => setTrip(res.data.data))
       .catch((err) => {

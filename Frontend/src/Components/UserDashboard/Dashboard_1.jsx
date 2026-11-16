@@ -2,19 +2,18 @@
 
 import { useEffect,  useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Navbar from "../Navbar/Navbar";
 import useAuthStore from "../../Stores/authStore";
+import apiUsers from "../../apis/apiUsers";
+import apiBooking from "../../apis/apiBooking";
 import styles from "./Dashboard.module.css";
 // ---------- Settings ----------
 
-const BOOKINGS_API = `${import.meta.env.VITE_API_URL}/booking/get`;
-
-// These two are my guesses. Change them to your real routes.
-const LOGOUT_API =`${import.meta.env.VITE_API_URL}/users/logout`;
-const UPDATE_PASSWORD_API = `${import.meta.env.VITE_API_URL}/users/update-password`;
+// These are the real routes
+const LOGOUT_API = `/logout`;
+const UPDATE_PASSWORD_API = `/update-password`;
 
 const LOGIN_PAGE = "/login";
 
@@ -295,7 +294,7 @@ export default function Dashboard() {
     // Load only bookings that still have a trip to display.
     async function loadBookings() {
       try {
-        const res = await axios.get(BOOKINGS_API, { withCredentials: true });
+        const res = await apiBooking.get("/get");
 
         const list = (res.data.bookings || [])
           .filter((b) => b.trip) // skip bookings whose trip was deleted
@@ -309,7 +308,9 @@ export default function Dashboard() {
         setSelectedId(list[0]?._id || null);
       } catch (err) {
         console.log(err);
-        if (err.response?.status === 401) setNeedsLogin(true);
+        const status = err.response?.status;
+        const isAuthError = status === 401 || status === 403;
+        if (isAuthError) setNeedsLogin(true);
         else setError("We could not load your trips. Please try again.");
       } finally {
         setLoading(false);
@@ -339,7 +340,7 @@ export default function Dashboard() {
   // Sign the user out and return them to the login page.
   async function handleLogout() {
     try {
-      await axios.post(LOGOUT_API, {}, { withCredentials: true });
+      await apiUsers.post(LOGOUT_API);
       navigate(LOGIN_PAGE);
     } catch (err) {
       console.log(err);
@@ -382,7 +383,7 @@ export default function Dashboard() {
     setIsChangingPassword(true);
 
     try {
-      const res = await axios.put(UPDATE_PASSWORD_API, { currentPassword, newPassword, confirmPassword }, { withCredentials: true });
+      const res = await apiUsers.put(UPDATE_PASSWORD_API, { currentPassword, newPassword, confirmPassword });
       if (res.data.success) {
         toast.success("Password updated successfully!");
         reset({ currentPassword: "", newPassword: "", confirmPassword: "" });

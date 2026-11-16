@@ -1,6 +1,6 @@
        import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import apiComponents from "../../apis/apiComponents";
 import {
   FaEnvelope,
   FaPhone,
@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 import styles from "./Footer.module.css";
 
-const TRIPS_API = `${import.meta.env.VITE_API_URL}/components/get-trips`;
+const TRIPS_API = "/get-trips";
 
 // ---------- Content (edit the text here) ----------
 
@@ -48,7 +48,7 @@ export default function Footer() {
 
   // Show the 3 trips leaving soonest, straight from the backend
   useEffect(() => {
-    axios
+    apiComponents
       .get(TRIPS_API)
       .then((res) => {
         const list = Array.isArray(res.data)

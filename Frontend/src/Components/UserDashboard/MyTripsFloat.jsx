@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
+import apiBooking from "../../apis/apiBooking";
 import styles from "./Mytripsfloat.module.css";
 
 // ---------- Settings ----------
 
-const BOOKINGS_API = `${import.meta.env.VITE_API_URL}/booking/get`;
 const DASHBOARD_PAGE = "/user-dashboard";
 
 // Pages where the button should not show (it is pointless on the dashboard itself)
@@ -30,7 +29,7 @@ export default function MyTripsFloat() {
 
     async function check() {
       try {
-        const res = await axios.get(BOOKINGS_API, { withCredentials: true });
+        const res = await apiBooking.get("/get");
         if (cancelled) return;
 
         const now = new Date();

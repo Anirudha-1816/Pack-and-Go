@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiComponents from "../../apis/apiComponents";
 import styles from "./heroSlider.module.css";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/components/get-trips`;
+const API_URL = "/get-trips";
 
 // Turns one Trip from the database into the shape this slider uses
 const toSlide = (trip) => ({
@@ -33,7 +33,7 @@ export default function HeroSlider() {
 
   // Get trips from the API and convert them into slides
   useEffect(() => {
-    axios
+    apiComponents
       .get(API_URL)
       .then((res) => setSlides(res.data.data.map(toSlide)))
       .catch((err) => console.error("Hero failed to load:", err));
