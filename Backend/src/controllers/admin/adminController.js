@@ -53,12 +53,12 @@ export const loginAdmin = async (req, res, next) => {
       { expiresIn: "1d" } // shorter than a normal user
     );
 
-    const isProd = true
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -78,3 +78,21 @@ export const approveOperators = async (req,res,next) => {
 
   
 } 
+export const logoutAdmin = async (req, res, next) => {
+  try {
+    const isProduction = process.env.NODE_ENV === "production";
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
+    });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};

@@ -1,15 +1,16 @@
 {
   "scripts": {
-    "dev": "concurrently -n FRONTEND,BACKEND,ADMIN \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\"",
+    "dev": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\" \"npm run dev --prefix Operators\"",
     "launch": "npm run dev",
     "frontend": "npm run dev --prefix Frontend",
     "server": "npm run dev --prefix Backend",
     "admin": "npm run dev --prefix Admin",
+    "operators": "npm run dev --prefix Operators",
     "craft": "npm run build --prefix Frontend",
     "stage": "npm run preview --prefix Frontend",
     "craftadmin": "npm run build --prefix Admin",
     "stageadmin": "npm run preview --prefix Admin",
-    "reveal": "concurrently -n FRONTEND,BACKEND,ADMIN \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\""
+    "reveal": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\" \"npm run dev --prefix Operators\""
   },
   "dependencies": {
     "axios": "^1.21.0",

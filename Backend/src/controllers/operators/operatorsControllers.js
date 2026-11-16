@@ -140,11 +140,11 @@ export const loginOperators = async (req, res, next) => {
       { expiresIn: "2d" }
     );
 
-    const isProd = true;
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -386,11 +386,13 @@ export const createOperatorTrip = async (req, res, next) => {
 
 export const logoutOperator = async (req, res, next) => {
   try {
-    // Clear the token cookie
+    const isProduction = process.env.NODE_ENV === "production";
+    // Clear the token cookie with SAME attributes as login
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
     });
 
     return res.status(statusCode.OK).json({
