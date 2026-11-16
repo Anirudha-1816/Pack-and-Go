@@ -1,7 +1,6 @@
 
 import { create } from "zustand";
 import axios from "axios";
-import { useThemeStore } from "../Sources/themeStore";
 
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:8080";
@@ -28,11 +27,6 @@ const useAuthStore = create((set, get) => ({
           user: currentUser,
           isAuthenticated: true,
         });
-
-        // Sync theme preference from backend if available
-        if (currentUser?.themePreference) {
-          useThemeStore.getState().setMode(currentUser.themePreference);
-        }
 
         return currentUser;
       }
@@ -69,30 +63,6 @@ const useAuthStore = create((set, get) => ({
       isAuthenticated: !!user,
       isLoading: false,
     });
-
-    // Sync theme preference from backend if available
-    if (user?.themePreference) {
-      useThemeStore.getState().setMode(user.themePreference);
-    }
-  },
-
-  // Update theme preference on backend
-  updateThemePreference: async (themePreference) => {
-    try {
-      await axios.put(
-        `${API_URL}/operator/theme-preference`,
-        { themePreference },
-        { withCredentials: true }
-      );
-      set((state) => ({
-        user: state.user ? { ...state.user, themePreference } : null,
-      }));
-      useThemeStore.getState().setMode(themePreference);
-      return true;
-    } catch (err) {
-      console.error("Failed to update theme preference:", err);
-      return false;
-    }
   },
 
   // Logout

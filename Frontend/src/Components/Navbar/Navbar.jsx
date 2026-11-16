@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { getNav } from "./api";
-import ThemeSwitcher from "../../Sources/ThemeSwitcher";
 
 export default function Navbar() {
   const [nav, setNav] = useState([]);
@@ -69,11 +68,6 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Theme switcher - desktop */}
-        <div className={styles.themeSwitcherContainer}>
-          <ThemeSwitcher showLabels={false} variant="dropdown" />
-        </div>
-
         {/* Mobile toggle */}
         <button
           type="button"
@@ -120,11 +114,7 @@ export default function Navbar() {
             </li>
           ))}
         </ul>
-        {/* Theme switcher - mobile */}
-        <div className={styles.mobileList} style={{ paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
-          <ThemeSwitcher showLabels={true} variant="dropdown" />
         </div>
-      </div>
     </header>
   );
 }

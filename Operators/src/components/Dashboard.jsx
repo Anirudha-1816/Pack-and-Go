@@ -12,7 +12,6 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import useAuthStore from "../Stores/authStore";
-import ThemeSwitcher from "../Sources/ThemeSwitcher";
 import styles from "./Dashboard.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
@@ -341,9 +340,7 @@ export default function OperatorDashboard() {
               />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <ThemeSwitcher showLabels={false} variant="dropdown" />
-              <div className="relative">
+            <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
                   aria-expanded={menuOpen}
@@ -373,8 +370,7 @@ export default function OperatorDashboard() {
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       <main className={styles.main}>
         {/* ================= OVERVIEW ================= */}
