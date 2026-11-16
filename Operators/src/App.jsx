@@ -6,7 +6,7 @@ import OperatorHome from "./Pages/home";
 import OperatorDashboard from './components/Dashboard.jsx' 
 import AddTrip from "./Pages/AddTrip";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
-import NotFound from "./utils/notFound/NotFound.jsx";
+import NotFound from './utils/notFound/NotFound.jsx'
 
 
 export default function App() {
