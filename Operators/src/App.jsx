@@ -6,7 +6,6 @@ import OperatorHome from "./Pages/home";
 import OperatorDashboard from './components/Dashboard'
 import AddTrip from "./Pages/AddTrip";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
-import NotFound from './utils/notFound/NotFound'
 
 
 export default function App() {
@@ -31,7 +30,6 @@ export default function App() {
           </OperatorProtectedRoute>
         }
       />
-      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
