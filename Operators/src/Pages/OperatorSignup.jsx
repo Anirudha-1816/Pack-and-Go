@@ -5,7 +5,7 @@ import axios from "axios";
 import styles from "./Auth.module.css";
 
 const MAX_PHOTO_MB = 5;
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = import.meta.env.VITE_API_URL ;
 
 const SUBMIT_STATUS_STYLES = {
   success: "statusSuccess",
