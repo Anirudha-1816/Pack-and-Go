@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
-import AdminLogin from "./pages/Auth/AdminLogin.jsx";
-import AdminDashboard from "./components/Dashboard/AdminDashboard.jsx";
-import AddPackage from "./components/Sections/AddPackage.jsx";
-import AdminBookings from "./components/Sections/AdminBookings.jsx";
+import AdminLogin from "./pages/Auth/AdminLogin";
+import AdminDashboard from "./components/Dashboard/AdminDashboard";
+import AddPackage from "./components/Sections/AddPackage";
+import AdminBookings from "./components/Sections/AdminBookings";
 
-import ProtectedRoutes from "./Routes/ProtectedRoutes.jsx";
+import ProtectedRoutes from "./Routes/ProtectedRoutes";
 
 import useAuthStore from "./store/authStore";
-import ManagePackages from "./components/x/ManagePackages.jsx";
+import ManagePackages from "./components/x/ManagePackages";
 import { Toaster } from "react-hot-toast";
-import OperatorRequests from "./components/x/Operatorrequests.jsx";
+import OperatorRequests from "./components/x/Operatorrequests";
 import NotFound from "./utils/notFound/NotFound";
 
 const App = () => {

@@ -6,11 +6,11 @@ import Footer from "../Components/Footer/Footer";
 
 import NetworkStatus from "../Utils/NetworkStatus";
 import ProtectedRoutes from "./ProtectedRoute";
-import Hero from "../sections/Hero/heroSection.jsx";
+import Hero from "../sections/Hero/heroSection";
 import HeroSlider from "../sections/Hero/HeroSlider";
 import Destinations from "../sections/Destinations/Destinations";
 import AboutHero from "../Components/AboutUs/AboutHero";
-import NotFound from "../Utils/notFound/NotFound.jsx";
+import NotFound from "../Utils/notFound/NotFound";
 
 
 const AuthPage = lazy(() => import("../Pages/Auth/AuthPage"));
