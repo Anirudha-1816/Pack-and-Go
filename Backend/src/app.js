@@ -33,8 +33,8 @@ connectToDataBase()
 const allowedOrigins = [
   "https://pack-and-go-eight.vercel.app",
   "https://pack-and-k839aye2k-singhanirudha1816-2385s-projects.vercel.app",
-  'https://pack-and-rde2ta65j-singhanirudha1816-2385s-projects.vercel.app/',
-  'https://pack-and-go-operators.vercel.app/',
+  'https://pack-and-rde2ta65j-singhanirudha1816-2385s-projects.vercel.app',
+  'https://pack-and-go-operators.vercel.app',
   'http://localhost:5173',
   'http://localhost:4173',
   'http://localhost:5174',
