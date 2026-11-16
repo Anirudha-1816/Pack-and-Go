@@ -73,6 +73,7 @@ export default function OperatorLogin() {
       </div>
 
       {/* ---------- Left: dark brand panel ---------- */}
+   
       {/* <section className={styles.leftPanel}>
         <div className="relative">
           <Brand />
