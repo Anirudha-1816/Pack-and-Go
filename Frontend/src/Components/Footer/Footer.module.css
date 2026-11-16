@@ -1,25 +1,23 @@
 .footer {
-  --green-dark: #142b3b;
-  --orange: #c49a55;
-  --mint: #d4e0e5;
-
-  background: linear-gradient(135deg, #142b3b 0%, #1d4055 100%);
-  color: var(--mint);
+  background: var(--bg);
+  color: var(--text);
   padding: 72px 20px 0;
-  font-family: "Figtree", sans-serif;
+  font-family: var(--font-body);
+  border-top: 1px solid var(--border);
 }
 
 .footer a {
-  color: var(--mint);
+  color: var(--text);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .footer a:hover {
-  color: #e0bd7f;
+  color: var(--brand);
 }
 
 .footer a:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--primary);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -35,9 +33,9 @@
 
 .grid h3 {
   margin: 0 0 18px;
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.15rem;
-  color: #fff;
+  color: var(--text);
 }
 
 .list {
@@ -54,10 +52,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.6rem;
-  color: #fff !important;
+  color: var(--text) !important;
 }
 
 .brand img {
@@ -67,13 +65,14 @@
 
 .brand em {
   font-style: normal;
-  color: #e0bd7f;
+  color: var(--brand);
 }
 
 .tagline {
   margin: 16px 0 20px;
   max-width: 300px;
   line-height: 1.6;
+  color: var(--text-muted);
 }
 
 .socials {
@@ -87,15 +86,15 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  transition: background 0.2s, border-color 0.2s;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .footer .socials a:hover {
-  background: var(--orange);
-  border-color: var(--orange);
-  color: var(--green-dark);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
 }
 
 /* ---------- Trips and contact rows ---------- */
@@ -108,7 +107,7 @@
 .date {
   min-width: 52px;
   font-weight: 700;
-  color: #e0bd7f;
+  color: var(--brand);
 }
 
 .contact {
@@ -116,12 +115,13 @@
   gap: 12px;
   align-items: flex-start;
   line-height: 1.4;
+  color: var(--text-muted);
 }
 
 .contact svg {
   flex-shrink: 0;
   margin-top: 3px;
-  color: #e0bd7f;
+  color: var(--brand);
 }
 
 /* ---------- Bottom bar ---------- */
@@ -129,13 +129,14 @@
   max-width: 1200px;
   margin: 56px auto 0;
   padding: 22px 0 28px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
   font-size: 0.92rem;
+  color: var(--text-muted);
 }
 
 .legal {

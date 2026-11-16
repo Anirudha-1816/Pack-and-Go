@@ -1,19 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,600;10..48,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
 .page {
-  --green: #2f6b8a;
-  --green-dark: #142b3b;
-  --orange: #c49a55;
-  --bg: #fafaf7;
-  --text: #243746;
-  --muted: #61717b;
+  --font-heading: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px 80px; /* top space for the floating navbar */
-  background: linear-gradient(180deg, var(--bg) 0%, #f3f0e9 100%);
+  background: var(--bg);
   color: var(--text);
-  font-family: "Figtree", sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ---------- Header ---------- */
@@ -27,17 +23,17 @@
 }
 
 .header h1 {
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: clamp(2.2rem, 5vw, 3.6rem);
   line-height: 1;
   margin: 0 0 10px;
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .header p {
   margin: 0;
-  color: var(--muted);
+  color: var(--text-muted);
   max-width: 460px;
 }
 
@@ -46,15 +42,22 @@
   max-width: 100%;
   padding: 13px 20px;
   border-radius: 999px;
-  border: 1px solid #e4e6e3;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   font: inherit;
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search::placeholder {
+  color: var(--text-muted);
 }
 
 .search:focus,
 .sort:focus {
-  outline: 3px solid rgba(47, 107, 138, 0.18);
-  border-color: var(--green);
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 /* ---------- Filters ---------- */
@@ -76,30 +79,41 @@
 .chip {
   padding: 9px 18px;
   border-radius: 999px;
-  border: 1px solid #e4e6e3;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   font: inherit;
   font-weight: 500;
+  color: var(--text);
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .chip:hover {
-  border-color: var(--green);
+  border-color: var(--primary);
+  background: var(--surface-raised);
 }
 
 .chip.active {
-  background: var(--green-dark);
-  border-color: var(--green-dark);
-  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
 }
 
 .sort {
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid #e4e6e3;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   font: inherit;
+  color: var(--text);
   cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sort:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 /* ---------- Grid ---------- */
@@ -111,26 +125,27 @@
 
 /* ---------- Card ---------- */
 .card {
-  background: #fff;
-  border: 1px solid rgba(232, 229, 222, 0.9);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 28px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px rgba(20, 43, 59, 0.06);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--text) 6%, transparent);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 24px 44px -20px rgba(20, 43, 59, 0.3);
+  box-shadow: 0 24px 44px -20px color-mix(in srgb, var(--primary) 30%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 50%, var(--border));
 }
 
 .image {
   position: relative;
   height: 250px;
   overflow: hidden;
-  background: #e8eff1;
+  background: var(--surface-raised);
 }
 
 .image img {
@@ -152,22 +167,23 @@
   width: 58px;
   padding: 8px 0;
   border-radius: 16px;
-  background: #fff;
+  background: var(--surface);
   text-align: center;
   line-height: 1.1;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .date strong {
   display: block;
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.5rem;
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .date span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #92703b;
+  color: var(--brand);
 }
 
 /* Seats badge */
@@ -179,16 +195,16 @@
   border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .seats.few {
-  background: #c49a55;
-  color: #142b3b;
+  background: var(--warning);
+  color: var(--on-accent);
 }
 
 .seats.sold {
-  background: #3b3b3b;
+  background: var(--text-muted);
 }
 
 /* Body */
@@ -203,23 +219,24 @@
   align-self: flex-start;
   padding: 4px 12px;
   border-radius: 999px;
-  background: #e8eff1;
-  color: var(--green);
+  background: var(--surface-raised);
+  color: var(--brand);
   font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 12px;
 }
 
 .body h2 {
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.45rem;
   line-height: 1.15;
   margin: 0 0 6px;
+  color: var(--text);
 }
 
 .route {
   margin: 0 0 22px;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 /* Footer of card */
@@ -232,42 +249,47 @@
 }
 
 .footer small {
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .price {
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.5rem;
-  color: var(--green-dark);
+  color: var(--text);
 }
 
 .price span {
-  font-family: "Figtree", sans-serif;
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 0.85rem;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 22px;
   border-radius: 999px;
-  background: #2f6b8a;
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 8px 18px rgba(47, 107, 138, 0.2);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--primary) 20%, transparent);
+  transition: all 0.2s ease;
 }
 
 .btn:hover {
-  background: #24566f;
-  box-shadow: 0 12px 24px rgba(47, 107, 138, 0.28);
+  background: var(--primary-hover);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--primary) 30%, transparent);
+  transform: translateY(-2px);
 }
 
 .btn:focus-visible,
 .chip:focus-visible {
-  outline: 3px solid rgba(47, 107, 138, 0.45);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -275,18 +297,27 @@
 .message {
   padding: 40px 20px;
   text-align: center;
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 24px;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .card.skeleton {
   height: 440px;
-  background: linear-gradient(90deg, #e8e5de 25%, #f8f7f2 50%, #e8e5de 75%);
+  background: linear-gradient(
+    90deg,
+    var(--surface-raised) 25%,
+    var(--border) 50%,
+    var(--surface-raised) 75%
+  );
   background-size: 200% 100%;
   animation: pk-shimmer 1.4s infinite;
   box-shadow: none;
+  border: 1px solid var(--border);
+  border-radius: 28px;
 }
+
 /* Make the whole card clickable (the Link stretches over the card) */
 .card {
   position: relative;
@@ -297,19 +328,13 @@
   cursor: default;
 }
 
-.btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
 /* Keyboard focus ring around the whole card */
 .btn:focus-visible {
   outline: none;
 }
 
 .btn:focus-visible::after {
-  outline: 3px solid rgba(47, 107, 138, 0.45);
+  outline: 2px solid var(--primary);
   outline-offset: -3px;
   border-radius: 28px;
 }

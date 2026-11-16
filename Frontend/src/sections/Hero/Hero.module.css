@@ -10,12 +10,12 @@
   padding: var(--nav-space) 0 40px;
   display: flex;
   align-items: center;
-  background-color: #fafaf7;
+  background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse at 82% 46%, rgba(47, 107, 138, 0.1), transparent 38%),
-    radial-gradient(#d7dfdf 1px, transparent 1px);
+    radial-gradient(ellipse at 82% 46%, color-mix(in srgb, var(--primary) 15%, transparent), transparent 38%),
+    radial-gradient(var(--border) 1px, transparent 1px);
   background-size: auto, 28px 28px;
-  color: #142b3b;
+  color: var(--text);
   overflow: hidden;
 }
 
@@ -41,7 +41,7 @@
   align-items: center;
   gap: 0.65rem;
   margin: 0 0 1.2rem;
-  color: #61717b;
+  color: var(--text-muted);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -54,20 +54,22 @@
   width: 1.8rem;
   height: 2px;
   border-radius: 2px;
-  background: #c49a55;
+  background: var(--brand);
 }
 
 .title {
   margin: 0;
   font-size: clamp(3.2rem, 6vw, 5.8rem);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 0.98;
   letter-spacing: -0.065em;
+  font-family: var(--font-heading);
+  color: var(--text);
   animation: title-reveal 900ms steps(22, end) 140ms both;
 }
 
 .go {
-  color: #92703b;
+  color: var(--brand);
 }
 
 .desc {
@@ -75,7 +77,7 @@
   margin: 1.4rem 0 0;
   font-size: 1.05rem;
   line-height: 1.75;
-  color: #61717b;
+  color: var(--text-muted);
   animation: landing-rise 700ms ease 240ms both;
 }
 
@@ -97,34 +99,36 @@
   transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+/* Primary button - uses accent color for CTA */
 .primary {
-  color: #fff;
-  background: #2f6b8a;
+  color: var(--on-accent);
+  background: var(--accent);
   border: none;
-  box-shadow: 0 10px 24px rgba(47, 107, 138, 0.24);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .primary:hover {
   transform: translateY(-2px);
-  background: #24566f;
-  box-shadow: 0 14px 28px rgba(47, 107, 138, 0.3);
+  filter: brightness(1.1);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 .primary:focus-visible,
 .ghost:focus-visible {
-  outline: 3px solid #c49a55;
+  outline: 2px solid var(--primary);
   outline-offset: 3px;
 }
 
+/* Ghost button */
 .ghost {
-  color: #142b3b;
+  color: var(--text);
   background: transparent;
-  border: 1px solid rgba(20, 43, 59, 0.3);
+  border: 1px solid var(--border);
 }
 
 .ghost:hover {
   transform: translateY(-2px);
-  background: rgba(47, 107, 138, 0.08);
+  background: var(--surface-raised);
 }
 
 .highlights {
@@ -133,7 +137,7 @@
   gap: 0.55rem 0.7rem;
   margin: 1.2rem 0 0;
   padding: 0;
-  color: #45545f;
+  color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 600;
   list-style: none;
@@ -150,7 +154,7 @@
   width: 0.35rem;
   height: 0.35rem;
   border-radius: 50%;
-  background: #c49a55;
+  background: var(--brand);
   content: "";
 }
 
@@ -161,10 +165,10 @@
   gap: 12px;
   margin-top: 1.2rem;
   padding: 10px 22px 10px 10px;
-  background: #fff;
-  border: 1px solid #e4e6e3;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 40px;
-  box-shadow: 0 14px 35px rgba(20, 43, 59, 0.1), 0 2px 6px rgba(20, 43, 59, 0.04);
+  box-shadow: 0 14px 35px color-mix(in srgb, var(--text) 10%, transparent), 0 2px 6px color-mix(in srgb, var(--text) 4%, transparent);
   animation: slideIn 0.5s ease;
 }
 
@@ -175,14 +179,15 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  color: #fff;
-  background: #c49a55;
+  color: var(--on-brand);
+  background: var(--brand);
   border-radius: 50%;
 }
 
 .feedText {
   margin: 0;
   font-size: 15px;
+  color: var(--text);
 }
 
 .feedTime {
@@ -191,13 +196,13 @@
   gap: 6px;
   margin: 2px 0 0;
   font-size: 12px;
-  color: #6b7f78;
+  color: var(--text-muted);
 }
 
 .liveDot {
   width: 7px;
   height: 7px;
-  background: #22c55e;
+  background: var(--success);
   border-radius: 50%;
   animation: blink 1.4s infinite;
 }
@@ -207,12 +212,12 @@
   min-width: 0;
   padding: 1.25rem 1.5rem 1rem;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--border);
   border-radius: 2rem;
   background:
-    radial-gradient(ellipse at 68% 46%, rgba(47, 107, 138, 0.13), transparent 50%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(241, 239, 231, 0.84));
-  box-shadow: 0 28px 70px rgba(20, 43, 59, 0.1), inset 0 1px 0 #fff;
+    radial-gradient(ellipse at 68% 46%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 50%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 90%, transparent), color-mix(in srgb, var(--surface-raised) 84%, transparent));
+  box-shadow: 0 28px 70px color-mix(in srgb, var(--text) 10%, transparent), inset 0 1px 0 color-mix(in srgb, var(--surface) 50%, transparent);
   animation: map-panel-enter 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 160ms both;
 }
 
@@ -220,7 +225,7 @@
 .mapPanel::after {
   position: absolute;
   z-index: 0;
-  border: 1px solid rgba(47, 107, 138, 0.09);
+  border: 1px solid color-mix(in srgb, var(--primary) 10%, transparent);
   border-radius: 50%;
   content: "";
   pointer-events: none;
@@ -250,8 +255,8 @@
   height: 2.5rem;
   place-items: center;
   border-radius: 50%;
-  background: #e8eff1;
-  color: #2f6b8a;
+  background: var(--surface-raised);
+  color: var(--brand);
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -262,14 +267,14 @@
 }
 
 .mapKicker {
-  color: #92703b;
+  color: var(--brand);
   font-size: 0.63rem;
   font-weight: 800;
   letter-spacing: 0.16em;
 }
 
 .mapHeading strong {
-  color: #142b3b;
+  color: var(--text);
   font-size: 0.9rem;
 }
 
@@ -286,14 +291,14 @@
   position: relative;
   z-index: 1;
   margin: -0.5rem 0 0;
-  color: #61717b;
+  color: var(--text-muted);
   font-size: 0.75rem;
   text-align: center;
 }
 
 .dotted {
   fill: none;
-  stroke: #b7c8ce;
+  stroke: var(--border);
   stroke-width: 3;
   stroke-dasharray: 2 10;
   stroke-linecap: round;
@@ -302,7 +307,7 @@
 /* pathLength="1" lets us draw the line with a simple 0 to 1 animation */
 .line {
   fill: none;
-  stroke: #c49a55;
+  stroke: var(--brand);
   stroke-width: 5;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -310,24 +315,24 @@
 }
 
 .pin {
-  fill: #142b3b;
+  fill: var(--text);
 }
 
 .ring {
   fill: none;
-  stroke: #c49a55;
+  stroke: var(--brand);
   stroke-width: 2;
 }
 
 .label {
   font-size: 18px;
   font-weight: 600;
-  fill: #142b3b;
+  fill: var(--text);
 }
 
 .bus {
-  fill: #fff;
-  stroke: #142b3b;
+  fill: var(--surface);
+  stroke: var(--text);
   stroke-width: 3;
 }
 

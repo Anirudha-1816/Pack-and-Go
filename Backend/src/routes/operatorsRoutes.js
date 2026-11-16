@@ -9,6 +9,8 @@ import {
   loginOperators,
   logoutOperator,
   updateOperatorRequestStatus,
+  getOperatorThemePreference,
+  updateOperatorThemePreference,
 } from '../controllers/operators/operatorsControllers.js'
 import { uploadOperatorImage } from '../middlewares/Uploads/operatorUploadMiddleware.js'
 import { uploadTripImages } from '../middlewares/Uploads/uploadMiddleware.js'
@@ -31,5 +33,7 @@ operatorsRouter.patch(
   checkForAdmin,
   updateOperatorRequestStatus
 )
+operatorsRouter.get('/theme-preference', checkForAuth, getOperatorThemePreference)
+operatorsRouter.put('/theme-preference', checkForAuth, updateOperatorThemePreference)
 
 export default operatorsRouter

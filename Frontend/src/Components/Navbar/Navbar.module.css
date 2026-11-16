@@ -1,9 +1,4 @@
 .header {
-  --green: #142b3b;
-  --green-dark: #142b3b;
-  --green-tint: #e8eff1;
-  --coral: #92703b;
-
   --font-brand: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
   --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -14,18 +9,18 @@
   max-width: 80rem;
   margin: 0.75rem auto 0;
   overflow: hidden;
-  background: rgba(250, 250, 247, 0.95);
-  border: 1px solid rgba(232, 229, 222, 0.9);
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
   border-radius: 2rem;
-  box-shadow: 0 8px 26px rgba(20, 43, 59, 0.08);
+  box-shadow: 0 8px 26px color-mix(in srgb, var(--text) 8%, transparent);
   backdrop-filter: blur(16px);
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   font-family: var(--font-body);
 }
 
 .scrolled {
-  background: rgba(250, 250, 247, 0.98);
-  box-shadow: 0 14px 36px rgba(20, 43, 59, 0.14);
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--text) 14%, transparent);
 }
 
 .nav {
@@ -55,11 +50,11 @@
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--green);
+  color: var(--text);
 }
 
 .amp {
-  color: var(--coral);
+  color: var(--brand);
 }
 
 /* ---------- Desktop links ---------- */
@@ -73,32 +68,40 @@
 }
 
 .link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.6rem 1.15rem;
   border-radius: 999px;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--green);
+  color: var(--text);
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .link:hover {
-  background: var(--green-tint);
-  color: #24566f;
+  background: var(--surface-raised);
+  color: var(--brand);
 }
 
 .active,
 .active:hover {
-  background: var(--green);
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 .link:focus-visible,
 .mobileLink:focus-visible,
 .toggle:focus-visible {
-  outline: 3px solid #c49a55;
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* ---------- Theme switcher in navbar ---------- */
+.themeSwitcherContainer {
+  display: none;
+  align-items: center;
 }
 
 /* ---------- Mobile toggle ---------- */
@@ -110,9 +113,14 @@
   height: 2.75rem;
   border: 0;
   border-radius: 999px;
-  background: var(--green-tint);
-  color: var(--green);
+  background: var(--surface-raised);
+  color: var(--text);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.toggle:hover {
+  background: var(--border);
 }
 
 .toggleIcon {
@@ -126,10 +134,12 @@
   overflow: hidden;
   visibility: hidden;
   transition: max-height 0.3s ease, visibility 0.3s;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 }
 
 .mobileMenuOpen {
-  max-height: 28rem;
+  max-height: 32rem;
   visibility: visible;
 }
 
@@ -148,18 +158,18 @@
   border-radius: 1rem;
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--green);
+  color: var(--text);
   text-decoration: none;
 }
 
 .mobileLink:hover {
-  background: var(--green-tint);
+  background: var(--surface-raised);
 }
 
 .mobileActive,
 .mobileActive:hover {
-  background: var(--green);
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 /* ---------- Breakpoints ---------- */
@@ -168,6 +178,9 @@
     padding: 0 1.5rem;
   }
   .links {
+    display: flex;
+  }
+  .themeSwitcherContainer {
     display: flex;
   }
   .toggle,
