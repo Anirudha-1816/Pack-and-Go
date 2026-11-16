@@ -232,6 +232,14 @@ function TripRow({ trip, busy, onToggle, onDelete }) {
         >
           Delete
         </button>
+
+        <button
+          className={btnDanger}
+          onClick={() => onDelete(trip)}
+          disabled={busy}
+        >
+          Archive
+        </button>
       </div>
     </div>
   );

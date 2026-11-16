@@ -5,7 +5,7 @@ import axios from "axios";
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:8080";
 
-const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
