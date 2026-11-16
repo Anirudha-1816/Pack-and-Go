@@ -123,7 +123,7 @@ export default function AuthPage({ signup = true }) {
         await logout();
 
         setAuthMessage(
-          "Only user accounts can log in here. Please use the admin portal."
+          "Authorized access !! "
         );
         return;
       }

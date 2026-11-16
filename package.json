@@ -2,17 +2,24 @@
   "scripts": {
     "dev": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run dev --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\" \"npm run dev --prefix Operators\"",
     "launch": "npm run dev",
+
     "frontend": "npm run dev --prefix Frontend",
     "server": "npm run dev --prefix Backend",
     "admin": "npm run dev --prefix Admin",
     "operators": "npm run dev --prefix Operators",
+
     "craft": "npm run build --prefix Frontend",
-    "stage": "npm run preview --prefix Frontend",
     "craftadmin": "npm run build --prefix Admin",
-    "stageadmin": "npm run preview --prefix Admin",
     "craftOperators": "npm run build --prefix Operators",
+
+    "stage": "npm run preview --prefix Frontend",
+    "stageadmin": "npm run preview --prefix Admin",
     "stageOperators": "npm run preview --prefix Operators",
-    "reveal": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run preview --prefix Frontend\" \"npm run dev --prefix Backend\" \"npm run dev --prefix Admin\" \"npm run dev --prefix Operators\""
+    
+    "craftAll": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run build --prefix Frontend\" \"npm run build --prefix Backend\" \"npm run build --prefix Admin\" \"npm run build --prefix Operators\"",
+    
+    "stageAll": "concurrently -n FRONTEND,BACKEND,ADMIN,OPERATORS \"npm run preview --prefix Frontend\" \"npm run preview --prefix Backend\" \"npm run preview --prefix Admin\" \"npm run preview --prefix Operators\""
+
   },
   "dependencies": {
     "axios": "^1.21.0",

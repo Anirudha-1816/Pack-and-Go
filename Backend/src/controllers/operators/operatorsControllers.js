@@ -141,11 +141,13 @@ export const loginOperators = async (req, res, next) => {
     );
 
     const isProduction = process.env.NODE_ENV === "production";
+    const cookieMaxAge = 2 * 24 * 60 * 60 * 1000; // 2 days to match JWT expiry
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: cookieMaxAge,
+      expires: new Date(Date.now() + cookieMaxAge),
     });
 
     const { password: _, ...operatorData } = operator.toObject();
@@ -393,6 +395,7 @@ export const logoutOperator = async (req, res, next) => {
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
       path: "/",
+      expires: new Date(0),
     });
 
     return res.status(statusCode.OK).json({
