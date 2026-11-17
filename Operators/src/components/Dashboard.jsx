@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaSuitcaseRolling,
@@ -16,19 +17,24 @@ import styles from "./Dashboard.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
+const DAY = 86400000;
+
 // =====================================================================
 // Helpers
 // =====================================================================
 
-const DAY = 86400000;
-
 const formatDate = (date) =>
-  new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  new Date(date).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
-// "06:30" -> "6:30 AM"
-const formatTime = (time) => {
-  const [hour, minute] = time.split(":");
-  return `${hour % 12 || 12}:${minute} ${hour >= 12 ? "PM" : "AM"}`;
+const formatTime = (time = "00:00") => {
+  const [hour, minute] = time.split(":").map(Number);
+  return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${
+    hour >= 12 ? "PM" : "AM"
+  }`;
 };
 
 const initials = (name = "") =>
@@ -41,38 +47,54 @@ const initials = (name = "") =>
 
 const greeting = () => {
   const hour = new Date().getHours();
+
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
+
   return "Good evening";
 };
 
-// upcoming, running or completed
 function getTripStatus(trip) {
   const start = new Date(trip.date);
   const end = new Date(start.getTime() + trip.duration * DAY);
   const now = new Date();
+
   if (now < start) return "upcoming";
   if (now < end) return "running";
+
   return "completed";
 }
 
-const STATUS_LABEL = { upcoming: "Upcoming", running: "Running now", completed: "Completed" };
+const STATUS_LABEL = {
+  upcoming: "Upcoming",
+  running: "Running now",
+  completed: "Completed",
+};
 
-// Running first, then upcoming (soonest first), then completed (latest first)
 function sortTrips(a, b) {
-  const order = { running: 0, upcoming: 1, completed: 2 };
-  if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+  const order = {
+    running: 0,
+    upcoming: 1,
+    completed: 2,
+  };
+
+  if (order[a.status] !== order[b.status]) {
+    return order[a.status] - order[b.status];
+  }
+
   const diff = new Date(a.date) - new Date(b.date);
+
   return a.status === "completed" ? -diff : diff;
 }
 
 // =====================================================================
-// Small pieces - use CSS module for theming
+// UI Components
 // =====================================================================
 
 function Switch({ on, onChange, label }) {
   return (
     <button
+      type="button"
       role="switch"
       aria-checked={on}
       aria-label={label}
@@ -87,7 +109,13 @@ function Switch({ on, onChange, label }) {
 
 function StatusPill({ status }) {
   return (
-    <span className={`${styles.statusPill} ${styles[`status${status.charAt(0).toUpperCase() + status.slice(1)}`]}`}>
+    <span
+      className={`${styles.statusPill} ${
+        styles[
+          `status${status.charAt(0).toUpperCase() + status.slice(1)}`
+        ]
+      }`}
+    >
       {STATUS_LABEL[status]}
     </span>
   );
@@ -104,15 +132,17 @@ function Kpi({ icon, value, label, note }) {
   );
 }
 
-// One trip as a card (used on the My trips tab)
 function TripCard({ trip, travelers, onPassengers }) {
   return (
     <article className={styles.tripCard}>
       <div className={styles.tripHeader}>
         <div>
-          <h3 className={styles.tripTitle}>{trip.from} to {trip.to}</h3>
+          <h3 className={styles.tripTitle}>
+            {trip.from} to {trip.to}
+          </h3>
           <p className={styles.tripType}>{trip.tripType}</p>
         </div>
+
         <StatusPill status={trip.status} />
       </div>
 
@@ -121,14 +151,19 @@ function TripCard({ trip, travelers, onPassengers }) {
           <p className={styles.detailLabel}>Starts on</p>
           <p className={styles.detailValue}>{formatDate(trip.date)}</p>
         </div>
+
         <div className={styles.detailItem}>
           <p className={styles.detailLabel}>Duration</p>
           <p className={styles.detailValue}>{trip.duration} days</p>
         </div>
+
         <div className={styles.detailItem}>
           <p className={styles.detailLabel}>Pickup</p>
-          <p className={styles.detailValue}>{formatTime(trip.pickupTime)}, {trip.pickupLocation}</p>
+          <p className={styles.detailValue}>
+            {formatTime(trip.pickupTime)}, {trip.pickupLocation}
+          </p>
         </div>
+
         <div className={styles.detailItem}>
           <p className={styles.detailLabel}>Travelers</p>
           <p className={styles.detailValue}>{travelers}</p>
@@ -143,12 +178,17 @@ function TripCard({ trip, travelers, onPassengers }) {
 }
 
 // =====================================================================
-// The page
+// Dashboard
 // =====================================================================
 
 export default function OperatorDashboard() {
-  // eslint-disable-next-line no-unused-vars
-  const { user, isAuthenticated, isLoading, fetchUser } = useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    isLoading: authLoading,
+    fetchUser,
+  } = useAuthStore();
+
   const navigate = useNavigate();
 
   const [tab, setTab] = useState("overview");
@@ -158,83 +198,205 @@ export default function OperatorDashboard() {
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [checkedIn, setCheckedIn] = useState({});
 
-  // Data state
+  // Dashboard data
   const [trips, setTrips] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch operator data on mount
-  useEffect(() => {
-    if (!isAuthenticated || !user) {
-      fetchUser();
-    }
-  }, [isAuthenticated, user, fetchUser]);
+  // Prevent duplicate authentication initialization
+  const [authInitialized, setAuthInitialized] = useState(
+    Boolean(user || isAuthenticated)
+  );
 
-  // Fetch trips and bookings when user is available
-  useEffect(() => {
-    if (user?._id) {
-      // eslint-disable-next-line react-hooks/immutability
-      fetchOperatorData();
-    }
-  }, [user]);
+  // ---------------------------------------------------------------
+  // Authentication initialization
+  // ---------------------------------------------------------------
 
-  const fetchOperatorData = async () => {
+  useEffect(() => {
+    let active = true;
+
+    const initializeAuth = async () => {
+      if (user && isAuthenticated) {
+        if (active) setAuthInitialized(true);
+        return;
+      }
+
+      if (!authLoading) {
+        try {
+          await fetchUser();
+        } catch (err) {
+          console.error("Authentication verification failed:", err);
+        } finally {
+          if (active) setAuthInitialized(true);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated, user?._id, authLoading, fetchUser]);
+
+  // ---------------------------------------------------------------
+  // Fetch operator dashboard data
+  // ---------------------------------------------------------------
+
+  const fetchOperatorData = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+
       const [tripsRes, bookingsRes] = await Promise.all([
-        axios.get(`${API_URL}/operator/trips`, { withCredentials: true }),
-        axios.get(`${API_URL}/operator/bookings`, { withCredentials: true }),
+        axios.get(`${API_URL}/operator/trips`, {
+          withCredentials: true,
+        }),
+
+        axios.get(`${API_URL}/operator/bookings`, {
+          withCredentials: true,
+        }),
       ]);
 
       const tripsData = tripsRes.data?.data || [];
       const bookingsData = bookingsRes.data?.data || [];
 
-      // Add computed status to trips
-      const tripsWithStatus = tripsData.map((t) => ({ ...t, status: getTripStatus(t) })).sort(sortTrips);
+      const tripsWithStatus = tripsData
+        .map((trip) => ({
+          ...trip,
+          status: getTripStatus(trip),
+        }))
+        .sort(sortTrips);
+
       setTrips(tripsWithStatus);
       setBookings(bookingsData);
 
-      // Set availability from operator data
       if (user?.availability) {
         setAvailable(user.availability === "available");
       }
     } catch (err) {
       console.error("Failed to fetch operator data:", err);
+
+      if (err.response?.status === 401) {
+        // The server says the authentication session is invalid.
+        useAuthStore.getState().logout();
+        navigate("/operator/login", { replace: true });
+        return;
+      }
+
       setError("Failed to load dashboard data. Please try again.");
     } finally {
       setLoading(false);
     }
+  }, [user?._id, user?.availability, navigate]);
+
+  // ---------------------------------------------------------------
+  // Load data only after authentication is initialized
+  // ---------------------------------------------------------------
+
+  useEffect(() => {
+    if (!authInitialized) return;
+
+    if (user?._id && isAuthenticated) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchOperatorData();
+    } else {
+      setLoading(false);
+    }
+  }, [authInitialized, user?._id, isAuthenticated, fetchOperatorData]);
+
+  // ---------------------------------------------------------------
+  // Logout
+  // ---------------------------------------------------------------
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+
+    try {
+      await axios.post(
+        `${API_URL}/operator/logout`,
+        {},
+        { withCredentials: true }
+      );
+    } catch (err) {
+      console.error("Server logout failed:", err);
+    } finally {
+      useAuthStore.getState().logout();
+      navigate("/operator/login", { replace: true });
+    }
   };
 
-  const travelersOn = (tripId) =>
-    bookings.filter((b) => b.trip === tripId).reduce((sum, b) => sum + b.travelers, 0);
+  // ---------------------------------------------------------------
+  // Derived data
+  // ---------------------------------------------------------------
 
-  const count = (status) => trips.filter((t) => t.status === status).length;
-  const activeTrips = trips.filter((t) => t.status !== "completed");
-  const travelersBooked = activeTrips.reduce((sum, t) => sum + travelersOn(t._id), 0);
+  const travelersOn = (tripId) =>
+    bookings
+      .filter((booking) => booking.trip === tripId)
+      .reduce((sum, booking) => sum + (booking.travelers || 0), 0);
+
+  const count = (status) =>
+    trips.filter((trip) => trip.status === status).length;
+
+  const activeTrips = trips.filter(
+    (trip) => trip.status !== "completed"
+  );
+
+  const travelersBooked = activeTrips.reduce(
+    (sum, trip) => sum + travelersOn(trip._id),
+    0
+  );
 
   const nextTrip = activeTrips[0];
-  const selectedTrip = trips.find((t) => t._id === selectedTripId) || nextTrip || trips[0];
+
+  const selectedTrip =
+    trips.find((trip) => trip._id === selectedTripId) ||
+    nextTrip ||
+    trips[0];
 
   const openPassengers = (tripId) => {
     setSelectedTripId(tripId);
     setTab("bookings");
   };
 
-  // ----- Bookings of the selected trip -----
-  const tripBookings = selectedTrip ? bookings.filter((b) => b.trip === selectedTrip._id) : [];
-  const totalTravelers = tripBookings.reduce((sum, b) => sum + b.travelers, 0);
-  const paidCount = tripBookings.filter((b) => b.payment === "paid").length;
-  const checkedCount = tripBookings.filter((b) => checkedIn[b._id]).length;
+  const tripBookings = selectedTrip
+    ? bookings.filter((booking) => booking.trip === selectedTrip._id)
+    : [];
 
-  const shownTrips = tripFilter === "all" ? trips : trips.filter((t) => t.status === tripFilter);
+  const totalTravelers = tripBookings.reduce(
+    (sum, booking) => sum + (booking.travelers || 0),
+    0
+  );
+
+  const paidCount = tripBookings.filter(
+    (booking) => booking.payment === "paid"
+  ).length;
+
+  const checkedCount = tripBookings.filter(
+    (booking) => checkedIn[booking._id]
+  ).length;
+
+  const shownTrips =
+    tripFilter === "all"
+      ? trips
+      : trips.filter((trip) => trip.status === tripFilter);
 
   const nextStart = nextTrip && new Date(nextTrip.date);
-  const dayNumber = nextTrip && Math.floor((new Date() - nextStart) / DAY) + 1;
-  const daysToGo = nextTrip && Math.ceil((nextStart - new Date()) / DAY);
 
-  const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
+  const dayNumber =
+    nextTrip &&
+    Math.floor((new Date() - nextStart) / DAY) + 1;
+
+  const daysToGo =
+    nextTrip &&
+    Math.ceil((nextStart - new Date()) / DAY);
+
+  const today = new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   const TABS = [
     ["overview", "Overview"],
@@ -242,55 +404,49 @@ export default function OperatorDashboard() {
     ["bookings", "My bookings"],
   ];
 
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${API_URL}/operator/logout`, {}, { withCredentials: true });
-      setMenuOpen(false);
-      // Reset auth store
-      useAuthStore.getState().logout();
-      navigate("/operator/login");
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
+  // ---------------------------------------------------------------
+  // Authentication loading
+  // ---------------------------------------------------------------
 
-  if (loading) {
+  if (!authInitialized || authLoading || loading) {
     return (
       <div className={styles.page}>
         <div className="text-center">
-          <div className="h-12 w-12 border-4 border-current border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: 'var(--brand)' }} />
-          <p className="mt-4" style={{ color: 'var(--text-muted)' }}>Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+          <div
+            className="h-12 w-12 border-4 border-current border-t-transparent rounded-full animate-spin mx-auto"
+            style={{ borderColor: "var(--brand)" }}
+          />
 
-  if (error) {
-    return (
-      <div className={styles.page}>
-        <div className="text-center p-8">
-          <p style={{ color: 'var(--danger)' }}>{error}</p>
-          <button
-            onClick={fetchOperatorData}
-            className="mt-4 inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-bold"
-            style={{ background: 'var(--primary)', color: 'var(--on-primary)' }}
+          <p
+            className="mt-4"
+            style={{ color: "var(--text-muted)" }}
           >
-            Retry
-          </button>
+            Loading your dashboard...
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!user) {
+  // ---------------------------------------------------------------
+  // Not authenticated
+  // ---------------------------------------------------------------
+
+  if (!user || !isAuthenticated) {
     return (
       <div className={styles.page}>
         <div className="text-center p-8">
-          <p style={{ color: 'var(--danger)' }}>Please log in to access your dashboard.</p>
+          <p style={{ color: "var(--danger)" }}>
+            Please log in to access your dashboard.
+          </p>
+
           <Link
             to="/operator/login"
             className="mt-4 inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-bold"
-            style={{ background: "var(--primary)", color: "var(--on-primary)" }}
+            style={{
+              background: "var(--primary)",
+              color: "var(--on-primary)",
+            }}
           >
             Sign In
           </Link>
@@ -299,27 +455,59 @@ export default function OperatorDashboard() {
     );
   }
 
+  // ---------------------------------------------------------------
+  // Error
+  // ---------------------------------------------------------------
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <div className="text-center p-8">
+          <p style={{ color: "var(--danger)" }}>{error}</p>
+
+          <button
+            onClick={fetchOperatorData}
+            className="mt-4 inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-bold"
+            style={{
+              background: "var(--primary)",
+              color: "var(--on-primary)",
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------
+  // Dashboard UI
+  // ---------------------------------------------------------------
+
   return (
     <div className={styles.page}>
-      {/* ================= TOP BAR ================= */}
       <header className={styles.header}>
         <div className={styles.headerInner}>
+
           {/* Logo */}
           <div className={styles.logo}>
             <span className={styles.logoText}>
               Pack<span className={styles.logoAmp}>&</span>Go
             </span>
+
             <span className={styles.logoBadge}>Operator</span>
           </div>
 
-          {/* Tabs */}
+          {/* Navigation */}
           <nav aria-label="Operator" className={styles.tabs}>
             {TABS.map(([key, label], i) => (
               <button
                 key={key}
                 onClick={() => setTab(key)}
                 aria-current={tab === key ? "page" : undefined}
-                className={`${styles.tab} ${tab === key ? styles.tabActive : ""}`}
+                className={`${styles.tab} ${
+                  tab === key ? styles.tabActive : ""
+                }`}
                 style={{ animationDelay: `${i * 80}ms` }}
               >
                 {label}
@@ -327,69 +515,85 @@ export default function OperatorDashboard() {
             ))}
           </nav>
 
-          {/* Availability and account */}
+          {/* Account */}
           <div className="ml-auto flex items-center gap-4 animate-slide-up">
+
             <div className="flex items-center gap-2.5">
               <span className={styles.availabilityLabel}>
                 {available ? "Available" : "Unavailable"}
               </span>
+
               <Switch
                 on={available}
-                onChange={() => setAvailable(!available)}
+                onChange={() => setAvailable((prev) => !prev)}
                 label="Available for new trips"
               />
             </div>
 
             <div className="relative">
-                <button
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  aria-expanded={menuOpen}
-                  aria-label="Account menu"
-                  className={styles.accountTrigger}
-                >
-                  {user?.profileImage ? (
-                    <img
-                      src={user.profileImage}
-                      alt={user.name}
-                      className="h-full w-full rounded-full object-cover"
-                    />
-                  ) : (
-                    initials(user.name)
-                  )}
-                </button>
-
-                {menuOpen && (
-                  <div className={styles.accountDropdown}>
-                    <p className={styles.accountName}>{user.name}</p>
-                    <p className={styles.accountEmail}>{user.email}</p>
-                    <button className={styles.accountLogoutBtn} onClick={handleLogout}>
-                      <FaSignOutAlt className="text-sm" /> Log out
-                    </button>
-                  </div>
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-expanded={menuOpen}
+                aria-label="Account menu"
+                className={styles.accountTrigger}
+              >
+                {user?.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt={user.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  initials(user.name)
                 )}
-              </div>
+              </button>
+
+              {menuOpen && (
+                <div className={styles.accountDropdown}>
+                  <p className={styles.accountName}>{user.name}</p>
+                  <p className={styles.accountEmail}>{user.email}</p>
+
+                  <button
+                    className={styles.accountLogoutBtn}
+                    onClick={handleLogout}
+                  >
+                    <FaSignOutAlt className="text-sm" />
+                    Log out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
       <main className={styles.main}>
-        {/* ================= OVERVIEW ================= */}
+
+        {/* =========================================================
+            OVERVIEW
+        ========================================================= */}
+
         {tab === "overview" && (
           <div className="flex flex-col gap-6 animate-slide-up">
+
             <div>
               <h1 className={styles.sectionTitle}>
                 {greeting()}, {user.name?.split(" ")[0] || "Operator"}
               </h1>
+
               <p className={styles.sectionSubtitle}>
                 {today}
+
                 {nextTrip?.status === "running" &&
                   `. Your ${nextTrip.to} trip is on, day ${dayNumber} of ${nextTrip.duration}.`}
               </p>
             </div>
 
-            {/* Next trip */}
+            {/* Next Trip */}
+
             {nextTrip ? (
               <section className={styles.nextTripCard}>
+
                 <span className={styles.nextTripBadge}>
                   {nextTrip.status === "running"
                     ? `Running now, day ${dayNumber} of ${nextTrip.duration}`
@@ -397,31 +601,44 @@ export default function OperatorDashboard() {
                       ? "Leaves tomorrow"
                       : `Leaves in ${daysToGo} days`}
                 </span>
+
                 <h2 className={styles.nextTripTitle}>
                   {nextTrip.from} to {nextTrip.to}
                 </h2>
 
                 <div className={styles.nextTripDetails}>
+
                   <div className={styles.nextTripDetailItem}>
                     <p className={styles.nextTripDetailLabel}>Starts on</p>
-                    <p className={styles.nextTripDetailValue}>{formatDate(nextTrip.date)}</p>
+                    <p className={styles.nextTripDetailValue}>
+                      {formatDate(nextTrip.date)}
+                    </p>
                   </div>
+
                   <div className={styles.nextTripDetailItem}>
                     <p className={styles.nextTripDetailLabel}>Pickup</p>
                     <p className={styles.nextTripDetailValue}>
                       {formatTime(nextTrip.pickupTime)}, {nextTrip.pickupLocation}
                     </p>
                   </div>
+
                   <div className={styles.nextTripDetailItem}>
                     <p className={styles.nextTripDetailLabel}>Travelers booked</p>
-                    <p className={styles.nextTripDetailValue}>{travelersOn(nextTrip._id)}</p>
+                    <p className={styles.nextTripDetailValue}>
+                      {travelersOn(nextTrip._id)}
+                    </p>
                   </div>
+
                 </div>
 
                 <div className={styles.nextTripActions}>
-                  <button className={styles.btnPrimary} onClick={() => openPassengers(nextTrip._id)}>
+                  <button
+                    className={styles.btnPrimary}
+                    onClick={() => openPassengers(nextTrip._id)}
+                  >
                     View passenger list
                   </button>
+
                   <button
                     onClick={() => setTab("trips")}
                     className={styles.btnGhost}
@@ -432,51 +649,108 @@ export default function OperatorDashboard() {
               </section>
             ) : (
               <section className={styles.emptyCard}>
-                <h2 className={styles.emptyTitle}>No trips assigned yet</h2>
-                <p>When the Pack&Go team assigns you a trip, it will show up here with its passenger list.</p>
+                <h2 className={styles.emptyTitle}>
+                  No trips assigned yet
+                </h2>
+
+                <p>
+                  When the Pack&Go team assigns you a trip, it will show up
+                  here with its passenger list.
+                </p>
               </section>
             )}
 
-            {/* Numbers */}
+            {/* Statistics */}
+
             <section className={styles.kpiGrid}>
-              <Kpi icon={<FaSuitcaseRolling />} value={count("upcoming") + count("running")} label="Active trips" note="Upcoming and running" />
-              <Kpi icon={<FaUsers />} value={travelersBooked} label="Travelers booked" note="On your active trips" />
-              <Kpi icon={<FaCalendarCheck />} value={count("completed")} label="Trips completed" />
-              <Kpi icon={<FaStar />} value={user?.rating?.average || 4.8} label="Traveler rating" note={`From ${user?.rating?.reviews || 24} reviews`} />
+              <Kpi
+                icon={<FaSuitcaseRolling />}
+                value={count("upcoming") + count("running")}
+                label="Active trips"
+                note="Upcoming and running"
+              />
+
+              <Kpi
+                icon={<FaUsers />}
+                value={travelersBooked}
+                label="Travelers booked"
+                note="On your active trips"
+              />
+
+              <Kpi
+                icon={<FaCalendarCheck />}
+                value={count("completed")}
+                label="Trips completed"
+              />
+
+              <Kpi
+                icon={<FaStar />}
+                value={user?.rating?.average || 4.8}
+                label="Traveler rating"
+                note={`From ${user?.rating?.reviews || 24} reviews`}
+              />
             </section>
 
-            {/* Upcoming list and profile */}
+            {/* Trips and Profile */}
+
             <div className={styles.gridSection}>
+
               <section className={styles.cardSection}>
                 <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionHeaderTitle}>Your next trips</h2>
-                  <button className={styles.sectionHeaderLink} onClick={() => setTab("trips")}>
+                  <h2 className={styles.sectionHeaderTitle}>
+                    Your next trips
+                  </h2>
+
+                  <button
+                    className={styles.sectionHeaderLink}
+                    onClick={() => setTab("trips")}
+                  >
                     See all
                   </button>
                 </div>
 
                 {activeTrips.length === 0 ? (
-                  <p className="py-6 text-center" style={{ color: 'var(--text-muted)' }}>No upcoming trips.</p>
+                  <p
+                    className="py-6 text-center"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    No upcoming trips.
+                  </p>
                 ) : (
                   <ul className={styles.tripList}>
                     {activeTrips.slice(0, 4).map((t) => (
                       <li key={t._id} className={styles.tripListItem}>
+
                         <div className={styles.tripListDate}>
-                          <b className={styles.tripListDateStrong}>{new Date(t.date).getDate()}</b>
-                          <span>{new Date(t.date).toLocaleDateString("en-IN", { month: "short" })}</span>
+                          <b className={styles.tripListDateStrong}>
+                            {new Date(t.date).getDate()}
+                          </b>
+
+                          <span>
+                            {new Date(t.date).toLocaleDateString("en-IN", {
+                              month: "short",
+                            })}
+                          </span>
                         </div>
+
                         <div className={styles.tripListInfo}>
-                          <p className={styles.tripListName}>{t.from} to {t.to}</p>
+                          <p className={styles.tripListName}>
+                            {t.from} to {t.to}
+                          </p>
+
                           <p className={styles.tripListMeta}>
                             {formatDate(t.date)}, {t.duration} days
                           </p>
                         </div>
+
                         <div className={styles.tripListTravelers}>
                           {travelersOn(t._id)} travelers
                         </div>
+
                         <div className="flex items-center gap-4">
                           <StatusPill status={t.status} />
                         </div>
+
                       </li>
                     ))}
                   </ul>
@@ -484,26 +758,29 @@ export default function OperatorDashboard() {
               </section>
 
               <div className="flex flex-col gap-6">
-                {/* Availability */}
+
                 <section className={styles.availabilityCard}>
                   <div className={styles.availabilityHeader}>
                     <div>
-                      <h3 className={styles.availabilityTitle}>Availability</h3>
+                      <h3 className={styles.availabilityTitle}>
+                        Availability
+                      </h3>
+
                       <p className={styles.availabilityText}>
                         {available
                           ? "You can take new trips."
                           : "You are not taking new trips right now."}
                       </p>
                     </div>
+
                     <Switch
                       on={available}
-                      onChange={() => setAvailable(!available)}
+                      onChange={() => setAvailable((prev) => !prev)}
                       label="Available for new trips"
                     />
                   </div>
                 </section>
 
-                {/* Profile */}
                 <section className={styles.profileCard}>
                   <div className={styles.profileHeader}>
                     <div className={styles.profileAvatar}>
@@ -513,34 +790,50 @@ export default function OperatorDashboard() {
                         initials(user.name)
                       )}
                     </div>
+
                     <div>
                       <p className={styles.profileName}>{user.name}</p>
-                      <span className={styles.profileStatus}>{user.status}</span>
+                      <span className={styles.profileStatus}>
+                        {user.status}
+                      </span>
                     </div>
                   </div>
+
                   <ul className={styles.profileDetails}>
                     <li className={styles.profileDetailItem}>
-                      <FaMapMarkerAlt className={styles.profileDetailIcon} /> {user.location}
+                      <FaMapMarkerAlt className={styles.profileDetailIcon} />
+                      {user.location}
                     </li>
+
                     <li className={styles.profileDetailItem}>
-                      <FaPhoneAlt className={styles.profileDetailIcon} /> {user.phone}
+                      <FaPhoneAlt className={styles.profileDetailIcon} />
+                      {user.phone}
                     </li>
+
                     <li className={styles.profileDetailItem}>
-                      <FaStar className={styles.profileDetailIcon} /> {user.experience} years of experience
+                      <FaStar className={styles.profileDetailIcon} />
+                      {user.experience} years of experience
                     </li>
                   </ul>
                 </section>
+
               </div>
             </div>
           </div>
         )}
 
-        {/* ================= MY TRIPS ================= */}
+        {/* =========================================================
+            MY TRIPS
+        ========================================================= */}
+
         {tab === "trips" && (
           <div className="flex flex-col gap-6">
+
             <div>
               <h1 className={styles.sectionTitle}>My trips</h1>
-              <p className={styles.sectionSubtitle}>Only the trips assigned to you.</p>
+              <p className={styles.sectionSubtitle}>
+                Only the trips assigned to you.
+              </p>
             </div>
 
             <div className={styles.tabsFilter}>
@@ -553,7 +846,9 @@ export default function OperatorDashboard() {
                 <button
                   key={key}
                   onClick={() => setTripFilter(key)}
-                  className={`${styles.tabFilterBtn} ${tripFilter === key ? styles.tabFilterActive : ""}`}
+                  className={`${styles.tabFilterBtn} ${
+                    tripFilter === key ? styles.tabFilterActive : ""
+                  }`}
                 >
                   {label} <span className="opacity-70">{n}</span>
                 </button>
@@ -579,23 +874,34 @@ export default function OperatorDashboard() {
           </div>
         )}
 
-        {/* ================= MY BOOKINGS ================= */}
+        {/* =========================================================
+            MY BOOKINGS
+        ========================================================= */}
+
         {tab === "bookings" && (
           <div className="flex flex-col gap-6">
+
             <div className={styles.bookingHeader}>
               <div>
                 <h1 className={styles.sectionTitle}>My bookings</h1>
-                <p className={styles.sectionSubtitle}>Travelers who booked your trips.</p>
+                <p className={styles.sectionSubtitle}>
+                  Travelers who booked your trips.
+                </p>
               </div>
 
               {trips.length > 0 && (
                 <div>
-                  <label htmlFor="trip" className="mb-1.5 block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                  <label
+                    htmlFor="trip"
+                    className="mb-1.5 block text-xs font-medium"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     Choose a trip
                   </label>
+
                   <select
                     id="trip"
-                    value={selectedTrip._id}
+                    value={selectedTrip?._id || ""}
                     onChange={(e) => setSelectedTripId(e.target.value)}
                     className={styles.tripSelect}
                   >
@@ -615,78 +921,129 @@ export default function OperatorDashboard() {
               </div>
             ) : (
               <>
-                {/* Summary of the chosen trip */}
+
                 <section className={styles.bookingSummaryGrid}>
                   {[
-                    ["Trip status", <StatusPill key="s" status={selectedTrip.status} />],
+                    [
+                      "Trip status",
+                      <StatusPill
+                        key="s"
+                        status={selectedTrip.status}
+                      />,
+                    ],
                     ["Travelers", totalTravelers],
-                    ["Payments", `${paidCount} paid, ${tripBookings.length - paidCount} pending`],
+                    [
+                      "Payments",
+                      `${paidCount} paid, ${
+                        tripBookings.length - paidCount
+                      } pending`,
+                    ],
                     [
                       "Checked in",
-                      selectedTrip.status === "completed" ? "Trip is over" : `${checkedCount} of ${tripBookings.length}`,
+                      selectedTrip.status === "completed"
+                        ? "Trip is over"
+                        : `${checkedCount} of ${tripBookings.length}`,
                     ],
                   ].map(([label, value]) => (
                     <div key={label} className={styles.bookingSummaryItem}>
-                      <p className={styles.bookingSummaryLabel}>{label}</p>
-                      <div className={styles.bookingSummaryValue}>{value}</div>
+                      <p className={styles.bookingSummaryLabel}>
+                        {label}
+                      </p>
+
+                      <div className={styles.bookingSummaryValue}>
+                        {value}
+                      </div>
                     </div>
                   ))}
                 </section>
 
-                {/* Passenger list */}
                 {tripBookings.length === 0 ? (
                   <div className={styles.emptyCard}>
                     No one has booked this trip yet.
                   </div>
                 ) : (
                   <section className={styles.bookingTable}>
+
                     <div className={styles.bookingTableHeader}>
                       <span>Traveler</span>
                       <span>Seats</span>
                       <span>Payment</span>
                       <span>Booked on</span>
-                      <span className={styles.checkInHeader}>Check-in</span>
+                      <span className={styles.checkInHeader}>
+                        Check-in
+                      </span>
                     </div>
 
                     <div className={styles.bookingTableBody}>
                       {tripBookings.map((b) => {
                         const done = checkedIn[b._id];
+
                         return (
                           <div key={b._id} className={styles.bookingRow}>
+
                             <div className={styles.travelerInfo}>
-                              <p className={styles.travelerName}>{b.traveler}</p>
+                              <p className={styles.travelerName}>
+                                {b.traveler}
+                              </p>
+
                               <a
-                                href={`tel:${b.phone.replace(/\s/g, "")}`}
+                                href={`tel:${(b.phone || "").replace(/\s/g, "")}`}
                                 className={styles.travelerPhone}
                               >
-                                <FaPhoneAlt className="text-xs" /> {b.phone}
+                                <FaPhoneAlt className="text-xs" />
+                                {b.phone}
                               </a>
                             </div>
 
-                            <p className={styles.seatsCell}>{b.travelers}</p>
+                            <p className={styles.seatsCell}>
+                              {b.travelers}
+                            </p>
 
                             <div>
                               <span
-                                className={`${styles.paymentBadge} ${b.payment === "paid" ? styles.paymentPaid : styles.paymentPending}`}
+                                className={`${styles.paymentBadge} ${
+                                  b.payment === "paid"
+                                    ? styles.paymentPaid
+                                    : styles.paymentPending
+                                }`}
                               >
                                 {b.payment}
                               </span>
                             </div>
 
-                            <p className={styles.bookedDate}>{formatDate(b.bookedOn)}</p>
+                            <p className={styles.bookedDate}>
+                              {formatDate(b.bookedOn)}
+                            </p>
 
                             <div className="md:text-right">
                               {selectedTrip.status === "completed" ? (
-                                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Completed</span>
+                                <span
+                                  style={{
+                                    fontSize: "var(--text-sm)",
+                                    color: "var(--text-muted)",
+                                  }}
+                                >
+                                  Completed
+                                </span>
                               ) : (
                                 <button
-                                  onClick={() => setCheckedIn({ ...checkedIn, [b._id]: !done })}
+                                  onClick={() =>
+                                    setCheckedIn((prev) => ({
+                                      ...prev,
+                                      [b._id]: !prev[b._id],
+                                    }))
+                                  }
                                   aria-pressed={!!done}
-                                  className={`${styles.checkInBtn} ${done ? styles.checkInBtnChecked : styles.checkInBtnUnchecked}`}
+                                  className={`${styles.checkInBtn} ${
+                                    done
+                                      ? styles.checkInBtnChecked
+                                      : styles.checkInBtnUnchecked
+                                  }`}
                                 >
                                   {done ? (
                                     <>
-                                      <FaCheck className="text-xs" /> Checked in
+                                      <FaCheck className="text-xs" />
+                                      Checked in
                                     </>
                                   ) : (
                                     "Check in"
@@ -694,6 +1051,7 @@ export default function OperatorDashboard() {
                                 </button>
                               )}
                             </div>
+
                           </div>
                         );
                       })}
@@ -705,9 +1063,16 @@ export default function OperatorDashboard() {
           </div>
         )}
 
-        <p className="mt-10 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
-          Need help? Contact the Pack&Go team from your <Link to="/" className="underline">account</Link>.
+        <p
+          className="mt-10 text-center text-xs"
+          style={{ color: "var(--text-muted)" }}
+        >
+          Need help? Contact the Pack&Go team from your{" "}
+          <Link to="/" className="underline">
+            account
+          </Link>.
         </p>
+
       </main>
     </div>
   );
