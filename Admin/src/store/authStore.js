@@ -1,5 +1,9 @@
+
 import { create } from "zustand";
 import apiUsers from "../api/getadmin";
+
+// Prevent duplicate authentication requests
+let fetchUserRequest = null;
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -8,43 +12,52 @@ const useAuthStore = create((set) => ({
 
   // Get currently logged-in admin
   fetchUser: async () => {
+    if (fetchUserRequest) {
+      return fetchUserRequest;
+    }
+
     set({ isLoading: true });
 
-    try {
-      const { data } = await apiUsers.get("/get-current-user");
+    fetchUserRequest = (async () => {
+      try {
+        const { data } = await apiUsers.get("/get-current-user");
 
-      const currentUser = data?.data;
+        const currentUser = data?.data;
 
-      if (currentUser?.role === "admin") {
+        if (currentUser?.role === "admin") {
+          set({
+            user: currentUser,
+            isAuthenticated: true,
+          });
+
+          return currentUser;
+        }
+
         set({
-          user: currentUser,
-          isAuthenticated: true,
+          user: null,
+          isAuthenticated: false,
         });
 
-        return currentUser;
+        return null;
+      } catch (error) {
+        console.error(
+          "Authentication failed:",
+          error.response?.data || error.message
+        );
+
+        set({
+          user: null,
+          isAuthenticated: false,
+        });
+
+        return null;
+      } finally {
+        set({ isLoading: false });
+        fetchUserRequest = null;
       }
+    })();
 
-      set({
-        user: null,
-        isAuthenticated: false,
-      });
-
-      return null;
-    } catch (error) {
-      set({
-        user: null,
-        isAuthenticated: false,
-      });
-
-      console.error(
-        "Authentication failed:",
-        error.response?.data || error.message
-      );
-
-      return null;
-    } finally {
-      set({ isLoading: false });
-    }
+    return fetchUserRequest;
   },
 
   // Set admin after successful login
@@ -64,20 +77,28 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // Clear local authentication state
+  clearUser: () => {
+    set({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+  },
+
   // Logout
   logout: async () => {
     try {
-      await apiUsers.post(
-        "/logout",
-        {},
-        { withCredentials: true }
-      );
+      await apiUsers.post("/logout", {});
     } catch (error) {
       console.error(
-        "Logout failed:",
+        "Backend logout failed:",
         error.response?.data || error.message
       );
     } finally {
+      // Always clear local state, even if the API fails
+      fetchUserRequest = null;
+
       set({
         user: null,
         isAuthenticated: false,

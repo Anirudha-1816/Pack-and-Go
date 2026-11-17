@@ -13,6 +13,7 @@ const tierOptions = ["Not included", "Budget", "Deluxe", "Premium"];
 
 // Duration: 2 days / 1 night up to 15 days / 14 nights
 const durations = [];
+
 for (let days = 2; days <= 15; days++) {
   durations.push({ value: days, label: `${days} Days / ${days - 1} Nights` });
 }
