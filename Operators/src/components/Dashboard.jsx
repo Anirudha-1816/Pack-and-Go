@@ -189,6 +189,7 @@ export default function OperatorDashboard() {
     fetchUser,
   } = useAuthStore();
 
+
   const navigate = useNavigate();
 
   const [tab, setTab] = useState("overview");
@@ -221,6 +222,7 @@ export default function OperatorDashboard() {
         if (active) setAuthInitialized(true);
         return;
       }
+      console.log('check test ')
 
       if (!authLoading) {
         try {
