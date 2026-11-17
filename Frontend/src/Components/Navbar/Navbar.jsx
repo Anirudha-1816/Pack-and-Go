@@ -52,7 +52,7 @@ export default function Navbar() {
                   href={l.path}
                   className={styles.link}
                 >
-                  {l.label}
+                  {l.label === "Singnup" ? "Sign up" : l.label}
                 </a>
               ) : (
                 <NavLink
@@ -61,7 +61,7 @@ export default function Navbar() {
                   className={({ isActive }) =>
                     `${styles.link} ${isActive ? styles.active : ""}`}
                 >
-                  {l.label}
+                  {l.label === "Singnup" ? "Sign up" : l.label}
                 </NavLink>
               )}
             </li>
@@ -109,7 +109,7 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   `${styles.mobileLink} ${isActive ? styles.mobileActive : ""}`}
               >
-                {l.label}
+                {l.label === "Singnup" ? "Sign up" : l.label}
               </NavLink>
             </li>
           ))}

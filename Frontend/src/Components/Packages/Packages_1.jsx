@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import apiComponents from "../../apis/apiComponents";
 import styles from "./Packages.module.css";
 import Navbar from "../Navbar/Navbar";
+import MyTripsFloat from "../UserDashboard/MyTripsFloat";
 
 const API_URL = "/get-trips";
 
@@ -73,6 +74,7 @@ function Packages() {
   return (
     <>
     <Navbar/>
+    <MyTripsFloat />
     <main className={styles.page}>
       {/* Top section */}
       <header className={styles.header}>
@@ -85,12 +87,17 @@ function Packages() {
           </p>
         </div>
 
+        <label htmlFor="trip-search" className={styles.searchLabel}>
+          Search trips
+        </label>
         <input
+          id="trip-search"
           className={styles.search}
-          type="text"
-          placeholder="Search by place"
+          type="search"
+          placeholder="Search destinations or trips..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search destinations or trips"
         />
       </header>
 
@@ -153,9 +160,15 @@ function TripCard({ trip }) {
   const date = new Date(trip.date);
   const day = date.getDate();
   const month = date.toLocaleString("en-IN", { month: "short" });
+  const year = date.getFullYear();
+  const currentYear = new Date().getFullYear();
+  const showYear = year !== currentYear;
 
   const soldOut = trip.seatsLeft === 0;
   const fewSeats = trip.seatsLeft > 0 && trip.seatsLeft <= 5;
+
+  // The title already contains the destination, so we don't duplicate it in the route
+  // trip.title is already formatted as "${from} to ${to}" or a custom title
 
   return (
     <article className={styles.card}>
@@ -165,7 +178,7 @@ function TripCard({ trip }) {
         {/* Date badge */}
         <div className={styles.date}>
           <strong>{day}</strong>
-          <span>{month}</span>
+          <span>{month}{showYear ? ` ${year}` : ""}</span>
         </div>
 
         {/* Seats badge */}
@@ -178,9 +191,6 @@ function TripCard({ trip }) {
       <div className={styles.body}>
         {trip.type && <span className={styles.type}>{trip.type}</span>}
         <h2>{trip.title}</h2>
-        <p className={styles.route}>
-          {trip.from} to {trip.to}
-        </p>
 
         <div className={styles.footer}>
           <div>
