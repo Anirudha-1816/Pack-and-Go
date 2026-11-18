@@ -10,7 +10,7 @@ import OperatorDashboard from "./components/Dashboard";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
 import OperatorAddPackage from "./components/Sections/AddPackages";
 
-import NotFound from "./utils/notFound/NotFound";
+import NotFound from "./utils/NotFound";
 import useAuthStore from "./Stores/authStore";
 
 // Decide where the operator should go
