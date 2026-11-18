@@ -315,11 +315,19 @@
   box-shadow: 0 10px 28px rgba(20, 43, 59, 0.05);
 }
 
-.avatar {
+.person img {
   width: 96px;
   height: 96px;
   border-radius: 50%;
+  object-fit: cover;
+  object-position: center 65%;
+  display: block;
   margin-bottom: 20px;
+  rotate: -90deg;
+}
+
+.avatar {
+  display: none;
 }
 
 .person h3 {

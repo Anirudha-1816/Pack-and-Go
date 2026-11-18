@@ -75,13 +75,12 @@ export default function MyTripsFloat() {
           strokeLinejoin="round"
           aria-hidden="true"
         >
-          <rect x="3" y="7" width="18" height="13" rx="3" />
           <path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
           <path d="M3 13h18" />
         </svg>
       </span>
 
-      <span className={styles.text}>{running ? "Trip in progress" : "My trips"}</span>
+      <span className={styles.text}>{running ? "Trip in progress" : "Dashboard"}</span>
 
       {activeCount > 0 && <span className={styles.badge}>{activeCount}</span>}
     </Link>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -10,6 +9,14 @@ import {
   FaMapMarkerAlt,
   FaCheck,
   FaSignOutAlt,
+  FaThLarge,
+  FaClipboardList,
+  FaPlusCircle,
+  FaEnvelope,
+  FaCommentDots,
+  FaCog,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 import axios from "axios";
 import useAuthStore from "../Stores/authStore";
@@ -18,6 +25,31 @@ import styles from "./Dashboard.module.css";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 const DAY = 86400000;
+
+// =====================================================================
+// Sidebar links
+// `key` links switch a tab on this page, `to` links go to another page.
+// Change the `to` paths to match your router.
+// =====================================================================
+
+const NAV_MAIN = [
+  { key: "overview", label: "Overview", icon: FaThLarge },
+  { key: "trips", label: "My trips", icon: FaSuitcaseRolling },
+  { key: "bookings", label: "My bookings", icon: FaClipboardList },
+];
+
+const NAV_MORE = [
+  { id: "add", to: "/operator/add-package", label: "Add package", icon: FaPlusCircle },
+  { id: "messages", to: "/operator/messages", label: "Messages", icon: FaEnvelope },
+  { id: "feedbacks", to: "/operator/feedbacks", label: "Feedbacks", icon: FaCommentDots },
+  { id: "settings", to: "/operator/settings", label: "Settings", icon: FaCog },
+];
+
+const STATUS_LABEL = {
+  upcoming: "Upcoming",
+  running: "Running now",
+  completed: "Completed",
+};
 
 // =====================================================================
 // Helpers
@@ -32,9 +64,7 @@ const formatDate = (date) =>
 
 const formatTime = (time = "00:00") => {
   const [hour, minute] = time.split(":").map(Number);
-  return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${
-    hour >= 12 ? "PM" : "AM"
-  }`;
+  return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${hour >= 12 ? "PM" : "AM"}`;
 };
 
 const initials = (name = "") =>
@@ -65,18 +95,8 @@ function getTripStatus(trip) {
   return "completed";
 }
 
-const STATUS_LABEL = {
-  upcoming: "Upcoming",
-  running: "Running now",
-  completed: "Completed",
-};
-
 function sortTrips(a, b) {
-  const order = {
-    running: 0,
-    upcoming: 1,
-    completed: 2,
-  };
+  const order = { running: 0, upcoming: 1, completed: 2 };
 
   if (order[a.status] !== order[b.status]) {
     return order[a.status] - order[b.status];
@@ -88,7 +108,7 @@ function sortTrips(a, b) {
 }
 
 // =====================================================================
-// UI Components
+// Small UI components
 // =====================================================================
 
 function Switch({ on, onChange, label }) {
@@ -111,13 +131,34 @@ function StatusPill({ status }) {
   return (
     <span
       className={`${styles.statusPill} ${
-        styles[
-          `status${status.charAt(0).toUpperCase() + status.slice(1)}`
-        ]
+        styles[`status${status.charAt(0).toUpperCase() + status.slice(1)}`]
       }`}
     >
       {STATUS_LABEL[status]}
     </span>
+  );
+}
+
+function Avatar({ user, large }) {
+  return (
+    <span className={`${styles.avatar} ${large ? styles.avatarLg : ""}`}>
+      {user?.profileImage ? (
+        <img src={user.profileImage} alt={user.name} />
+      ) : (
+        initials(user?.name)
+      )}
+    </span>
+  );
+}
+
+function Logo() {
+  return (
+    <div className={styles.logo}>
+      <span className={styles.logoText}>
+        Pack<span className={styles.logoAmp}>&</span>Go
+      </span>
+      <span className={styles.logoBadge}>Operator</span>
+    </div>
   );
 }
 
@@ -133,6 +174,13 @@ function Kpi({ icon, value, label, note }) {
 }
 
 function TripCard({ trip, travelers, onPassengers }) {
+  const details = [
+    ["Starts on", formatDate(trip.date)],
+    ["Duration", `${trip.duration} days`],
+    ["Pickup", `${formatTime(trip.pickupTime)}, ${trip.pickupLocation}`],
+    ["Travelers", travelers],
+  ];
+
   return (
     <article className={styles.tripCard}>
       <div className={styles.tripHeader}>
@@ -147,33 +195,110 @@ function TripCard({ trip, travelers, onPassengers }) {
       </div>
 
       <div className={styles.tripDetails}>
-        <div className={styles.detailItem}>
-          <p className={styles.detailLabel}>Starts on</p>
-          <p className={styles.detailValue}>{formatDate(trip.date)}</p>
-        </div>
-
-        <div className={styles.detailItem}>
-          <p className={styles.detailLabel}>Duration</p>
-          <p className={styles.detailValue}>{trip.duration} days</p>
-        </div>
-
-        <div className={styles.detailItem}>
-          <p className={styles.detailLabel}>Pickup</p>
-          <p className={styles.detailValue}>
-            {formatTime(trip.pickupTime)}, {trip.pickupLocation}
-          </p>
-        </div>
-
-        <div className={styles.detailItem}>
-          <p className={styles.detailLabel}>Travelers</p>
-          <p className={styles.detailValue}>{travelers}</p>
-        </div>
+        {details.map(([label, value]) => (
+          <div key={label} className={styles.detailItem}>
+            <p className={styles.detailLabel}>{label}</p>
+            <p className={styles.detailValue}>{value}</p>
+          </div>
+        ))}
       </div>
 
       <button className={styles.btnSecondary} onClick={onPassengers}>
         View passenger list
       </button>
     </article>
+  );
+}
+
+// ---------- Sidebar ----------
+
+function SidebarItem({ icon: Icon, label, active, badge = 0, to, onClick }) {
+  const className = `${styles.navItem} ${active ? styles.navItemActive : ""}`;
+
+  const content = (
+    <>
+      <Icon className={styles.navIcon} />
+      <span className={styles.navLabel}>{label}</span>
+      {badge > 0 && <span className={styles.navBadge}>{badge}</span>}
+    </>
+  );
+
+  // Links go to another page, buttons switch the tab on this page
+  if (to) {
+    return (
+      <Link to={to} onClick={onClick} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={className}
+    >
+      {content}
+    </button>
+  );
+}
+
+function Sidebar({ open, tab, user, unreadMessages, onTab, onClose, onLogout }) {
+  return (
+    <>
+      {/* Dark backdrop behind the sidebar on mobile */}
+      {open && <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />}
+
+      <aside className={`${styles.sidebar} ${open ? styles.sidebarOpen : ""}`}>
+        <div className={styles.sidebarHead}>
+          <Logo />
+          <button onClick={onClose} aria-label="Close menu" className={styles.closeBtn}>
+            <FaTimes />
+          </button>
+        </div>
+
+        <nav aria-label="Operator" className={styles.sidebarNav}>
+          {NAV_MAIN.map((item) => (
+            <SidebarItem
+              key={item.key}
+              icon={item.icon}
+              label={item.label}
+              active={tab === item.key}
+              onClick={() => onTab(item.key)}
+            />
+          ))}
+
+          <hr className={styles.navDivider} />
+
+          {NAV_MORE.map((item) => (
+            <SidebarItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              to={item.to}
+              badge={item.id === "messages" ? unreadMessages : 0}
+              onClick={onClose}
+            />
+          ))}
+        </nav>
+
+        {/* Account + logout */}
+        <div className={styles.sidebarFooter}>
+          <div className={styles.userRow}>
+            <Avatar user={user} />
+            <div className={styles.userText}>
+              <p className={styles.userName}>{user.name}</p>
+              <p className={styles.userEmail}>{user.email}</p>
+            </div>
+          </div>
+
+          <button onClick={onLogout} className={styles.logoutBtn}>
+            <FaSignOutAlt /> Log out
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
 
@@ -189,12 +314,11 @@ export default function OperatorDashboard() {
     fetchUser,
   } = useAuthStore();
 
-
   const navigate = useNavigate();
 
   const [tab, setTab] = useState("overview");
   const [available, setAvailable] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tripFilter, setTripFilter] = useState("upcoming");
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [checkedIn, setCheckedIn] = useState({});
@@ -206,9 +330,7 @@ export default function OperatorDashboard() {
   const [error, setError] = useState(null);
 
   // Prevent duplicate authentication initialization
-  const [authInitialized, setAuthInitialized] = useState(
-    Boolean(user || isAuthenticated)
-  );
+  const [authInitialized, setAuthInitialized] = useState(Boolean(user || isAuthenticated));
 
   // ---------------------------------------------------------------
   // Authentication initialization
@@ -222,7 +344,6 @@ export default function OperatorDashboard() {
         if (active) setAuthInitialized(true);
         return;
       }
-      console.log('check test ')
 
       if (!authLoading) {
         try {
@@ -252,23 +373,15 @@ export default function OperatorDashboard() {
       setError(null);
 
       const [tripsRes, bookingsRes] = await Promise.all([
-        axios.get(`${API_URL}/operator/trips`, {
-          withCredentials: true,
-        }),
-
-        axios.get(`${API_URL}/operator/bookings`, {
-          withCredentials: true,
-        }),
+        axios.get(`${API_URL}/operator/trips`, { withCredentials: true }),
+        axios.get(`${API_URL}/operator/bookings`, { withCredentials: true }),
       ]);
 
       const tripsData = tripsRes.data?.data || [];
       const bookingsData = bookingsRes.data?.data || [];
 
       const tripsWithStatus = tripsData
-        .map((trip) => ({
-          ...trip,
-          status: getTripStatus(trip),
-        }))
+        .map((trip) => ({ ...trip, status: getTripStatus(trip) }))
         .sort(sortTrips);
 
       setTrips(tripsWithStatus);
@@ -313,14 +426,10 @@ export default function OperatorDashboard() {
   // ---------------------------------------------------------------
 
   const handleLogout = async () => {
-    setMenuOpen(false);
+    setSidebarOpen(false);
 
     try {
-      await axios.post(
-        `${API_URL}/operator/logout`,
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${API_URL}/operator/logout`, {}, { withCredentials: true });
     } catch (err) {
       console.error("Server logout failed:", err);
     } finally {
@@ -338,61 +447,44 @@ export default function OperatorDashboard() {
       .filter((booking) => booking.trip === tripId)
       .reduce((sum, booking) => sum + (booking.travelers || 0), 0);
 
-  const count = (status) =>
-    trips.filter((trip) => trip.status === status).length;
+  const count = (status) => trips.filter((trip) => trip.status === status).length;
 
-  const activeTrips = trips.filter(
-    (trip) => trip.status !== "completed"
-  );
+  const activeTrips = trips.filter((trip) => trip.status !== "completed");
 
-  const travelersBooked = activeTrips.reduce(
-    (sum, trip) => sum + travelersOn(trip._id),
-    0
-  );
+  const travelersBooked = activeTrips.reduce((sum, trip) => sum + travelersOn(trip._id), 0);
 
   const nextTrip = activeTrips[0];
 
-  const selectedTrip =
-    trips.find((trip) => trip._id === selectedTripId) ||
-    nextTrip ||
-    trips[0];
+  const selectedTrip = trips.find((trip) => trip._id === selectedTripId) || nextTrip || trips[0];
 
   const openPassengers = (tripId) => {
     setSelectedTripId(tripId);
     setTab("bookings");
   };
 
+  const goToTab = (key) => {
+    setTab(key);
+    setSidebarOpen(false); // close the sidebar on mobile
+  };
+
   const tripBookings = selectedTrip
     ? bookings.filter((booking) => booking.trip === selectedTrip._id)
     : [];
 
-  const totalTravelers = tripBookings.reduce(
-    (sum, booking) => sum + (booking.travelers || 0),
-    0
-  );
+  const totalTravelers = tripBookings.reduce((sum, booking) => sum + (booking.travelers || 0), 0);
 
-  const paidCount = tripBookings.filter(
-    (booking) => booking.payment === "paid"
-  ).length;
+  const paidCount = tripBookings.filter((booking) => booking.payment === "paid").length;
 
-  const checkedCount = tripBookings.filter(
-    (booking) => checkedIn[booking._id]
-  ).length;
+  const checkedCount = tripBookings.filter((booking) => checkedIn[booking._id]).length;
 
   const shownTrips =
-    tripFilter === "all"
-      ? trips
-      : trips.filter((trip) => trip.status === tripFilter);
+    tripFilter === "all" ? trips : trips.filter((trip) => trip.status === tripFilter);
 
   const nextStart = nextTrip && new Date(nextTrip.date);
 
-  const dayNumber =
-    nextTrip &&
-    Math.floor((new Date() - nextStart) / DAY) + 1;
+  const dayNumber = nextTrip && Math.floor((new Date() - nextStart) / DAY) + 1;
 
-  const daysToGo =
-    nextTrip &&
-    Math.ceil((nextStart - new Date()) / DAY);
+  const daysToGo = nextTrip && Math.ceil((nextStart - new Date()) / DAY);
 
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
@@ -400,31 +492,19 @@ export default function OperatorDashboard() {
     month: "long",
   });
 
-  const TABS = [
-    ["overview", "Overview"],
-    ["trips", "My trips"],
-    ["bookings", "My bookings"],
-  ];
+  // TODO: replace with the real unread count from your API
+  const unreadMessages = user?.unreadMessages ?? 0;
 
   // ---------------------------------------------------------------
-  // Authentication loading
+  // Loading
   // ---------------------------------------------------------------
 
   if (!authInitialized || authLoading || loading) {
     return (
-      <div className={styles.page}>
-        <div className="text-center">
-          <div
-            className="h-12 w-12 border-4 border-current border-t-transparent rounded-full animate-spin mx-auto"
-            style={{ borderColor: "var(--brand)" }}
-          />
-
-          <p
-            className="mt-4"
-            style={{ color: "var(--text-muted)" }}
-          >
-            Loading your dashboard...
-          </p>
+      <div className={`${styles.page} ${styles.centerScreen}`}>
+        <div>
+          <div className={styles.spinner} />
+          <p className={styles.mutedText}>Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -436,21 +516,11 @@ export default function OperatorDashboard() {
 
   if (!user || !isAuthenticated) {
     return (
-      <div className={styles.page}>
-        <div className="text-center p-8">
-          <p style={{ color: "var(--danger)" }}>
-            Please log in to access your dashboard.
-          </p>
-
-          <Link
-            to="/operator/login"
-            className="mt-4 inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-bold"
-            style={{
-              background: "var(--primary)",
-              color: "var(--on-primary)",
-            }}
-          >
-            Sign In
+      <div className={`${styles.page} ${styles.centerScreen}`}>
+        <div>
+          <p className={styles.errorText}>Please log in to access your dashboard.</p>
+          <Link to="/operator/login" className={styles.btnSolid}>
+            Sign in
           </Link>
         </div>
       </div>
@@ -463,18 +533,10 @@ export default function OperatorDashboard() {
 
   if (error) {
     return (
-      <div className={styles.page}>
-        <div className="text-center p-8">
-          <p style={{ color: "var(--danger)" }}>{error}</p>
-
-          <button
-            onClick={fetchOperatorData}
-            className="mt-4 inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-bold"
-            style={{
-              background: "var(--primary)",
-              color: "var(--on-primary)",
-            }}
-          >
+      <div className={`${styles.page} ${styles.centerScreen}`}>
+        <div>
+          <p className={styles.errorText}>{error}</p>
+          <button onClick={fetchOperatorData} className={styles.btnSolid}>
             Retry
           </button>
         </div>
@@ -486,596 +548,439 @@ export default function OperatorDashboard() {
   // Dashboard UI
   // ---------------------------------------------------------------
 
+  const currentLabel = NAV_MAIN.find((item) => item.key === tab)?.label;
+
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
+      <Sidebar
+        open={sidebarOpen}
+        tab={tab}
+        user={user}
+        unreadMessages={unreadMessages}
+        onTab={goToTab}
+        onClose={() => setSidebarOpen(false)}
+        onLogout={handleLogout}
+      />
 
-          {/* Logo */}
-          <div className={styles.logo}>
-            <span className={styles.logoText}>
-              Pack<span className={styles.logoAmp}>&</span>Go
+      {/* Everything to the right of the sidebar */}
+      <div className={styles.content}>
+        {/* ---------- Top bar ---------- */}
+        <header className={styles.topbar}>
+          <button onClick={() => setSidebarOpen(true)} aria-label="Open menu" className={styles.menuBtn}>
+            <FaBars />
+          </button>
+
+          <div className={styles.mobileLogo}>
+            <Logo />
+          </div>
+
+          <p className={styles.breadcrumb}>
+            Operator /<span className={styles.breadcrumbCurrent}>{currentLabel}</span>
+          </p>
+
+          <div className={styles.availabilityRow}>
+            <span className={styles.availabilityLabel}>
+              {available ? "Available" : "Unavailable"}
             </span>
 
-            <span className={styles.logoBadge}>Operator</span>
+            <Switch
+              on={available}
+              onChange={() => setAvailable((prev) => !prev)}
+              label="Available for new trips"
+            />
           </div>
+        </header>
 
-          {/* Navigation */}
-          <nav aria-label="Operator" className={styles.tabs}>
-            {TABS.map(([key, label], i) => (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                aria-current={tab === key ? "page" : undefined}
-                className={`${styles.tab} ${
-                  tab === key ? styles.tabActive : ""
-                }`}
-                style={{ animationDelay: `${i * 80}ms` }}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
+        <main className={styles.main}>
+          {/* =========================================================
+              OVERVIEW
+          ========================================================= */}
 
-          {/* Account */}
-          <div className="ml-auto flex items-center gap-4 animate-slide-up">
+          {tab === "overview" && (
+            <div className={styles.stack}>
+              <div>
+                <h1 className={styles.sectionTitle}>
+                  {greeting()}, {user.name?.split(" ")[0] || "Operator"}
+                </h1>
 
-            <div className="flex items-center gap-2.5">
-              <span className={styles.availabilityLabel}>
-                {available ? "Available" : "Unavailable"}
-              </span>
-
-              <Switch
-                on={available}
-                onChange={() => setAvailable((prev) => !prev)}
-                label="Available for new trips"
-              />
-            </div>
-
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen((prev) => !prev)}
-                aria-expanded={menuOpen}
-                aria-label="Account menu"
-                className={styles.accountTrigger}
-              >
-                {user?.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    alt={user.name}
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  initials(user.name)
-                )}
-              </button>
-
-              {menuOpen && (
-                <div className={styles.accountDropdown}>
-                  <p className={styles.accountName}>{user.name}</p>
-                  <p className={styles.accountEmail}>{user.email}</p>
-
-                  <button
-                    className={styles.accountLogoutBtn}
-                    onClick={handleLogout}
-                  >
-                    <FaSignOutAlt className="text-sm" />
-                    Log out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className={styles.main}>
-
-        {/* =========================================================
-            OVERVIEW
-        ========================================================= */}
-
-        {tab === "overview" && (
-          <div className="flex flex-col gap-6 animate-slide-up">
-
-            <div>
-              <h1 className={styles.sectionTitle}>
-                {greeting()}, {user.name?.split(" ")[0] || "Operator"}
-              </h1>
-
-              <p className={styles.sectionSubtitle}>
-                {today}
-
-                {nextTrip?.status === "running" &&
-                  `. Your ${nextTrip.to} trip is on, day ${dayNumber} of ${nextTrip.duration}.`}
-              </p>
-            </div>
-
-            {/* Next Trip */}
-
-            {nextTrip ? (
-              <section className={styles.nextTripCard}>
-
-                <span className={styles.nextTripBadge}>
-                  {nextTrip.status === "running"
-                    ? `Running now, day ${dayNumber} of ${nextTrip.duration}`
-                    : daysToGo <= 1
-                      ? "Leaves tomorrow"
-                      : `Leaves in ${daysToGo} days`}
-                </span>
-
-                <h2 className={styles.nextTripTitle}>
-                  {nextTrip.from} to {nextTrip.to}
-                </h2>
-
-                <div className={styles.nextTripDetails}>
-
-                  <div className={styles.nextTripDetailItem}>
-                    <p className={styles.nextTripDetailLabel}>Starts on</p>
-                    <p className={styles.nextTripDetailValue}>
-                      {formatDate(nextTrip.date)}
-                    </p>
-                  </div>
-
-                  <div className={styles.nextTripDetailItem}>
-                    <p className={styles.nextTripDetailLabel}>Pickup</p>
-                    <p className={styles.nextTripDetailValue}>
-                      {formatTime(nextTrip.pickupTime)}, {nextTrip.pickupLocation}
-                    </p>
-                  </div>
-
-                  <div className={styles.nextTripDetailItem}>
-                    <p className={styles.nextTripDetailLabel}>Travelers booked</p>
-                    <p className={styles.nextTripDetailValue}>
-                      {travelersOn(nextTrip._id)}
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className={styles.nextTripActions}>
-                  <button
-                    className={styles.btnPrimary}
-                    onClick={() => openPassengers(nextTrip._id)}
-                  >
-                    View passenger list
-                  </button>
-
-                  <button
-                    onClick={() => setTab("trips")}
-                    className={styles.btnGhost}
-                  >
-                    All my trips
-                  </button>
-                </div>
-              </section>
-            ) : (
-              <section className={styles.emptyCard}>
-                <h2 className={styles.emptyTitle}>
-                  No trips assigned yet
-                </h2>
-
-                <p>
-                  When the Pack&Go team assigns you a trip, it will show up
-                  here with its passenger list.
+                <p className={styles.sectionSubtitle}>
+                  {today}
+                  {nextTrip?.status === "running" &&
+                    `. Your ${nextTrip.to} trip is on, day ${dayNumber} of ${nextTrip.duration}.`}
                 </p>
-              </section>
-            )}
+              </div>
 
-            {/* Statistics */}
+              {/* Next trip */}
+              {nextTrip ? (
+                <section className={styles.nextTripCard}>
+                  <span className={styles.nextTripBadge}>
+                    {nextTrip.status === "running"
+                      ? `Running now, day ${dayNumber} of ${nextTrip.duration}`
+                      : daysToGo <= 1
+                        ? "Leaves tomorrow"
+                        : `Leaves in ${daysToGo} days`}
+                  </span>
 
-            <section className={styles.kpiGrid}>
-              <Kpi
-                icon={<FaSuitcaseRolling />}
-                value={count("upcoming") + count("running")}
-                label="Active trips"
-                note="Upcoming and running"
-              />
-
-              <Kpi
-                icon={<FaUsers />}
-                value={travelersBooked}
-                label="Travelers booked"
-                note="On your active trips"
-              />
-
-              <Kpi
-                icon={<FaCalendarCheck />}
-                value={count("completed")}
-                label="Trips completed"
-              />
-
-              <Kpi
-                icon={<FaStar />}
-                value={user?.rating?.average || 4.8}
-                label="Traveler rating"
-                note={`From ${user?.rating?.reviews || 24} reviews`}
-              />
-            </section>
-
-            {/* Trips and Profile */}
-
-            <div className={styles.gridSection}>
-
-              <section className={styles.cardSection}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionHeaderTitle}>
-                    Your next trips
+                  <h2 className={styles.nextTripTitle}>
+                    {nextTrip.from} to {nextTrip.to}
                   </h2>
 
-                  <button
-                    className={styles.sectionHeaderLink}
-                    onClick={() => setTab("trips")}
-                  >
-                    See all
-                  </button>
-                </div>
-
-                {activeTrips.length === 0 ? (
-                  <p
-                    className="py-6 text-center"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    No upcoming trips.
-                  </p>
-                ) : (
-                  <ul className={styles.tripList}>
-                    {activeTrips.slice(0, 4).map((t) => (
-                      <li key={t._id} className={styles.tripListItem}>
-
-                        <div className={styles.tripListDate}>
-                          <b className={styles.tripListDateStrong}>
-                            {new Date(t.date).getDate()}
-                          </b>
-
-                          <span>
-                            {new Date(t.date).toLocaleDateString("en-IN", {
-                              month: "short",
-                            })}
-                          </span>
-                        </div>
-
-                        <div className={styles.tripListInfo}>
-                          <p className={styles.tripListName}>
-                            {t.from} to {t.to}
-                          </p>
-
-                          <p className={styles.tripListMeta}>
-                            {formatDate(t.date)}, {t.duration} days
-                          </p>
-                        </div>
-
-                        <div className={styles.tripListTravelers}>
-                          {travelersOn(t._id)} travelers
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          <StatusPill status={t.status} />
-                        </div>
-
-                      </li>
+                  <div className={styles.nextTripDetails}>
+                    {[
+                      ["Starts on", formatDate(nextTrip.date)],
+                      ["Pickup", `${formatTime(nextTrip.pickupTime)}, ${nextTrip.pickupLocation}`],
+                      ["Travelers booked", travelersOn(nextTrip._id)],
+                    ].map(([label, value]) => (
+                      <div key={label} className={styles.nextTripDetailItem}>
+                        <p className={styles.nextTripDetailLabel}>{label}</p>
+                        <p className={styles.nextTripDetailValue}>{value}</p>
+                      </div>
                     ))}
-                  </ul>
-                )}
+                  </div>
+
+                  <div className={styles.nextTripActions}>
+                    <button className={styles.btnPrimary} onClick={() => openPassengers(nextTrip._id)}>
+                      View passenger list
+                    </button>
+
+                    <button onClick={() => setTab("trips")} className={styles.btnGhost}>
+                      All my trips
+                    </button>
+                  </div>
+                </section>
+              ) : (
+                <section className={styles.emptyCard}>
+                  <span className={styles.emptyIcon}>
+                    <FaSuitcaseRolling />
+                  </span>
+                  <h2 className={styles.emptyTitle}>No trips assigned yet</h2>
+                  <p>
+                    When the Pack&Go team assigns you a trip, it will show up here with its passenger
+                    list.
+                  </p>
+                </section>
+              )}
+
+              {/* Statistics */}
+              <section className={styles.kpiGrid}>
+                <Kpi
+                  icon={<FaSuitcaseRolling />}
+                  value={count("upcoming") + count("running")}
+                  label="Active trips"
+                  note="Upcoming and running"
+                />
+                <Kpi
+                  icon={<FaUsers />}
+                  value={travelersBooked}
+                  label="Travelers booked"
+                  note="On your active trips"
+                />
+                <Kpi icon={<FaCalendarCheck />} value={count("completed")} label="Trips completed" />
+                <Kpi
+                  icon={<FaStar />}
+                  value={user?.rating?.average || 4.8}
+                  label="Traveler rating"
+                  note={`From ${user?.rating?.reviews || 24} reviews`}
+                />
               </section>
 
-              <div className="flex flex-col gap-6">
+              {/* Trips and profile */}
+              <div className={styles.gridSection}>
+                <section className={styles.cardSection}>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionHeaderTitle}>Your next trips</h2>
 
-                <section className={styles.availabilityCard}>
-                  <div className={styles.availabilityHeader}>
-                    <div>
-                      <h3 className={styles.availabilityTitle}>
-                        Availability
-                      </h3>
-
-                      <p className={styles.availabilityText}>
-                        {available
-                          ? "You can take new trips."
-                          : "You are not taking new trips right now."}
-                      </p>
-                    </div>
-
-                    <Switch
-                      on={available}
-                      onChange={() => setAvailable((prev) => !prev)}
-                      label="Available for new trips"
-                    />
-                  </div>
-                </section>
-
-                <section className={styles.profileCard}>
-                  <div className={styles.profileHeader}>
-                    <div className={styles.profileAvatar}>
-                      {user?.profileImage ? (
-                        <img src={user.profileImage} alt={user.name} />
-                      ) : (
-                        initials(user.name)
-                      )}
-                    </div>
-
-                    <div>
-                      <p className={styles.profileName}>{user.name}</p>
-                      <span className={styles.profileStatus}>
-                        {user.status}
-                      </span>
-                    </div>
+                    <button className={styles.sectionHeaderLink} onClick={() => setTab("trips")}>
+                      See all
+                    </button>
                   </div>
 
-                  <ul className={styles.profileDetails}>
-                    <li className={styles.profileDetailItem}>
-                      <FaMapMarkerAlt className={styles.profileDetailIcon} />
-                      {user.location}
-                    </li>
+                  {activeTrips.length === 0 ? (
+                    <p className={styles.mutedText} style={{ padding: "1.5rem 0", textAlign: "center" }}>
+                      No upcoming trips.
+                    </p>
+                  ) : (
+                    <ul className={styles.tripList}>
+                      {activeTrips.slice(0, 4).map((t) => (
+                        <li key={t._id} className={styles.tripListItem}>
+                          <div className={styles.tripListDate}>
+                            <b className={styles.tripListDateStrong}>{new Date(t.date).getDate()}</b>
+                            <span>
+                              {new Date(t.date).toLocaleDateString("en-IN", { month: "short" })}
+                            </span>
+                          </div>
 
-                    <li className={styles.profileDetailItem}>
-                      <FaPhoneAlt className={styles.profileDetailIcon} />
-                      {user.phone}
-                    </li>
+                          <div className={styles.tripListInfo}>
+                            <p className={styles.tripListName}>
+                              {t.from} to {t.to}
+                            </p>
+                            <p className={styles.tripListMeta}>
+                              {formatDate(t.date)}, {t.duration} days
+                            </p>
+                          </div>
 
-                    <li className={styles.profileDetailItem}>
-                      <FaStar className={styles.profileDetailIcon} />
-                      {user.experience} years of experience
-                    </li>
-                  </ul>
+                          <div className={styles.tripListTravelers}>{travelersOn(t._id)} travelers</div>
+
+                          <StatusPill status={t.status} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </section>
 
+                <div className={styles.stack}>
+                  <section className={styles.availabilityCard}>
+                    <div className={styles.availabilityHeader}>
+                      <div>
+                        <h3 className={styles.availabilityTitle}>Availability</h3>
+                        <p className={styles.availabilityText}>
+                          {available
+                            ? "You can take new trips."
+                            : "You are not taking new trips right now."}
+                        </p>
+                      </div>
+
+                      <Switch
+                        on={available}
+                        onChange={() => setAvailable((prev) => !prev)}
+                        label="Available for new trips"
+                      />
+                    </div>
+                  </section>
+
+                  <section className={styles.profileCard}>
+                    <div className={styles.profileHeader}>
+                      <Avatar user={user} large />
+
+                      <div>
+                        <p className={styles.profileName}>{user.name}</p>
+                        <span className={styles.profileStatus}>{user.status}</span>
+                      </div>
+                    </div>
+
+                    <ul className={styles.profileDetails}>
+                      <li className={styles.profileDetailItem}>
+                        <FaMapMarkerAlt className={styles.profileDetailIcon} />
+                        {user.location}
+                      </li>
+                      <li className={styles.profileDetailItem}>
+                        <FaPhoneAlt className={styles.profileDetailIcon} />
+                        {user.phone}
+                      </li>
+                      <li className={styles.profileDetailItem}>
+                        <FaStar className={styles.profileDetailIcon} />
+                        {user.experience} years of experience
+                      </li>
+                    </ul>
+                  </section>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* =========================================================
-            MY TRIPS
-        ========================================================= */}
+          {/* =========================================================
+              MY TRIPS
+          ========================================================= */}
 
-        {tab === "trips" && (
-          <div className="flex flex-col gap-6">
-
-            <div>
-              <h1 className={styles.sectionTitle}>My trips</h1>
-              <p className={styles.sectionSubtitle}>
-                Only the trips assigned to you.
-              </p>
-            </div>
-
-            <div className={styles.tabsFilter}>
-              {[
-                ["upcoming", "Upcoming", count("upcoming")],
-                ["running", "Running", count("running")],
-                ["completed", "Completed", count("completed")],
-                ["all", "All", trips.length],
-              ].map(([key, label, n]) => (
-                <button
-                  key={key}
-                  onClick={() => setTripFilter(key)}
-                  className={`${styles.tabFilterBtn} ${
-                    tripFilter === key ? styles.tabFilterActive : ""
-                  }`}
-                >
-                  {label} <span className="opacity-70">{n}</span>
-                </button>
-              ))}
-            </div>
-
-            {shownTrips.length === 0 ? (
-              <div className={styles.emptyCard}>
-                No {tripFilter === "all" ? "" : tripFilter} trips to show.
+          {tab === "trips" && (
+            <div className={styles.stack}>
+              <div>
+                <h1 className={styles.sectionTitle}>My trips</h1>
+                <p className={styles.sectionSubtitle}>Only the trips assigned to you.</p>
               </div>
-            ) : (
-              <div className={styles.tripsGrid}>
-                {shownTrips.map((t) => (
-                  <TripCard
-                    key={t._id}
-                    trip={t}
-                    travelers={travelersOn(t._id)}
-                    onPassengers={() => openPassengers(t._id)}
-                  />
+
+              <div className={styles.tabsFilter}>
+                {[
+                  ["upcoming", "Upcoming", count("upcoming")],
+                  ["running", "Running", count("running")],
+                  ["completed", "Completed", count("completed")],
+                  ["all", "All", trips.length],
+                ].map(([key, label, n]) => (
+                  <button
+                    key={key}
+                    onClick={() => setTripFilter(key)}
+                    className={`${styles.tabFilterBtn} ${
+                      tripFilter === key ? styles.tabFilterActive : ""
+                    }`}
+                  >
+                    {label} <span className={styles.tabFilterCount}>{n}</span>
+                  </button>
                 ))}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* =========================================================
-            MY BOOKINGS
-        ========================================================= */}
-
-        {tab === "bookings" && (
-          <div className="flex flex-col gap-6">
-
-            <div className={styles.bookingHeader}>
-              <div>
-                <h1 className={styles.sectionTitle}>My bookings</h1>
-                <p className={styles.sectionSubtitle}>
-                  Travelers who booked your trips.
-                </p>
-              </div>
-
-              {trips.length > 0 && (
-                <div>
-                  <label
-                    htmlFor="trip"
-                    className="mb-1.5 block text-xs font-medium"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    Choose a trip
-                  </label>
-
-                  <select
-                    id="trip"
-                    value={selectedTrip?._id || ""}
-                    onChange={(e) => setSelectedTripId(e.target.value)}
-                    className={styles.tripSelect}
-                  >
-                    {trips.map((t) => (
-                      <option key={t._id} value={t._id}>
-                        {t.from} to {t.to}, {formatDate(t.date)}
-                      </option>
-                    ))}
-                  </select>
+              {shownTrips.length === 0 ? (
+                <div className={styles.emptyCard}>
+                  No {tripFilter === "all" ? "" : tripFilter} trips to show.
+                </div>
+              ) : (
+                <div className={styles.tripsGrid}>
+                  {shownTrips.map((t) => (
+                    <TripCard
+                      key={t._id}
+                      trip={t}
+                      travelers={travelersOn(t._id)}
+                      onPassengers={() => openPassengers(t._id)}
+                    />
+                  ))}
                 </div>
               )}
             </div>
+          )}
 
-            {!selectedTrip ? (
-              <div className={styles.emptyCard}>
-                You have no trips yet, so there are no bookings to show.
-              </div>
-            ) : (
-              <>
+          {/* =========================================================
+              MY BOOKINGS
+          ========================================================= */}
 
-                <section className={styles.bookingSummaryGrid}>
-                  {[
-                    [
-                      "Trip status",
-                      <StatusPill
-                        key="s"
-                        status={selectedTrip.status}
-                      />,
-                    ],
-                    ["Travelers", totalTravelers],
-                    [
-                      "Payments",
-                      `${paidCount} paid, ${
-                        tripBookings.length - paidCount
-                      } pending`,
-                    ],
-                    [
-                      "Checked in",
-                      selectedTrip.status === "completed"
-                        ? "Trip is over"
-                        : `${checkedCount} of ${tripBookings.length}`,
-                    ],
-                  ].map(([label, value]) => (
-                    <div key={label} className={styles.bookingSummaryItem}>
-                      <p className={styles.bookingSummaryLabel}>
-                        {label}
-                      </p>
+          {tab === "bookings" && (
+            <div className={styles.stack}>
+              <div className={styles.bookingHeader}>
+                <div>
+                  <h1 className={styles.sectionTitle}>My bookings</h1>
+                  <p className={styles.sectionSubtitle}>Travelers who booked your trips.</p>
+                </div>
 
-                      <div className={styles.bookingSummaryValue}>
-                        {value}
-                      </div>
-                    </div>
-                  ))}
-                </section>
+                {trips.length > 0 && (
+                  <div>
+                    <label htmlFor="trip" className={styles.tripSelectLabel}>
+                      Choose a trip
+                    </label>
 
-                {tripBookings.length === 0 ? (
-                  <div className={styles.emptyCard}>
-                    No one has booked this trip yet.
+                    <select
+                      id="trip"
+                      value={selectedTrip?._id || ""}
+                      onChange={(e) => setSelectedTripId(e.target.value)}
+                      className={styles.tripSelect}
+                    >
+                      {trips.map((t) => (
+                        <option key={t._id} value={t._id}>
+                          {t.from} to {t.to}, {formatDate(t.date)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                ) : (
-                  <section className={styles.bookingTable}>
+                )}
+              </div>
 
-                    <div className={styles.bookingTableHeader}>
-                      <span>Traveler</span>
-                      <span>Seats</span>
-                      <span>Payment</span>
-                      <span>Booked on</span>
-                      <span className={styles.checkInHeader}>
-                        Check-in
-                      </span>
-                    </div>
+              {!selectedTrip ? (
+                <div className={styles.emptyCard}>
+                  You have no trips yet, so there are no bookings to show.
+                </div>
+              ) : (
+                <>
+                  <section className={styles.bookingSummaryGrid}>
+                    {[
+                      ["Trip status", <StatusPill key="s" status={selectedTrip.status} />],
+                      ["Travelers", totalTravelers],
+                      ["Payments", `${paidCount} paid, ${tripBookings.length - paidCount} pending`],
+                      [
+                        "Checked in",
+                        selectedTrip.status === "completed"
+                          ? "Trip is over"
+                          : `${checkedCount} of ${tripBookings.length}`,
+                      ],
+                    ].map(([label, value]) => (
+                      <div key={label} className={styles.bookingSummaryItem}>
+                        <p className={styles.bookingSummaryLabel}>{label}</p>
+                        <div className={styles.bookingSummaryValue}>{value}</div>
+                      </div>
+                    ))}
+                  </section>
 
-                    <div className={styles.bookingTableBody}>
-                      {tripBookings.map((b) => {
-                        const done = checkedIn[b._id];
+                  {tripBookings.length === 0 ? (
+                    <div className={styles.emptyCard}>No one has booked this trip yet.</div>
+                  ) : (
+                    <section className={styles.bookingTable}>
+                      {/* Column titles (desktop only) */}
+                      <div className={styles.bookingTableHeader}>
+                        <span>Traveler</span>
+                        <span>Seats</span>
+                        <span>Payment</span>
+                        <span>Booked on</span>
+                        <span style={{ textAlign: "right" }}>Check-in</span>
+                      </div>
 
-                        return (
-                          <div key={b._id} className={styles.bookingRow}>
+                      <div>
+                        {tripBookings.map((b) => {
+                          const done = checkedIn[b._id];
 
-                            <div className={styles.travelerInfo}>
-                              <p className={styles.travelerName}>
-                                {b.traveler}
+                          return (
+                            <div key={b._id} className={styles.bookingRow}>
+                              <div className={styles.travelerInfo}>
+                                <p className={styles.travelerName}>{b.traveler}</p>
+
+                                <a
+                                  href={`tel:${(b.phone || "").replace(/\s/g, "")}`}
+                                  className={styles.travelerPhone}
+                                >
+                                  <FaPhoneAlt style={{ fontSize: "0.75rem" }} />
+                                  {b.phone}
+                                </a>
+                              </div>
+
+                              <p className={styles.seatsCell}>
+                                <span className={styles.mobileLabel}>Seats: </span>
+                                {b.travelers}
                               </p>
 
-                              <a
-                                href={`tel:${(b.phone || "").replace(/\s/g, "")}`}
-                                className={styles.travelerPhone}
-                              >
-                                <FaPhoneAlt className="text-xs" />
-                                {b.phone}
-                              </a>
-                            </div>
-
-                            <p className={styles.seatsCell}>
-                              {b.travelers}
-                            </p>
-
-                            <div>
-                              <span
-                                className={`${styles.paymentBadge} ${
-                                  b.payment === "paid"
-                                    ? styles.paymentPaid
-                                    : styles.paymentPending
-                                }`}
-                              >
-                                {b.payment}
-                              </span>
-                            </div>
-
-                            <p className={styles.bookedDate}>
-                              {formatDate(b.bookedOn)}
-                            </p>
-
-                            <div className="md:text-right">
-                              {selectedTrip.status === "completed" ? (
+                              <div>
                                 <span
-                                  style={{
-                                    fontSize: "var(--text-sm)",
-                                    color: "var(--text-muted)",
-                                  }}
-                                >
-                                  Completed
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={() =>
-                                    setCheckedIn((prev) => ({
-                                      ...prev,
-                                      [b._id]: !prev[b._id],
-                                    }))
-                                  }
-                                  aria-pressed={!!done}
-                                  className={`${styles.checkInBtn} ${
-                                    done
-                                      ? styles.checkInBtnChecked
-                                      : styles.checkInBtnUnchecked
+                                  className={`${styles.paymentBadge} ${
+                                    b.payment === "paid" ? styles.paymentPaid : styles.paymentPending
                                   }`}
                                 >
-                                  {done ? (
-                                    <>
-                                      <FaCheck className="text-xs" />
-                                      Checked in
-                                    </>
-                                  ) : (
-                                    "Check in"
-                                  )}
-                                </button>
-                              )}
+                                  {b.payment}
+                                </span>
+                              </div>
+
+                              <p className={styles.bookedDate}>
+                                <span className={styles.mobileLabel}>Booked on: </span>
+                                {formatDate(b.bookedOn)}
+                              </p>
+
+                              <div className={styles.checkInCell}>
+                                {selectedTrip.status === "completed" ? (
+                                  "Completed"
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      setCheckedIn((prev) => ({ ...prev, [b._id]: !prev[b._id] }))
+                                    }
+                                    aria-pressed={!!done}
+                                    className={`${styles.checkInBtn} ${
+                                      done ? styles.checkInBtnChecked : styles.checkInBtnUnchecked
+                                    }`}
+                                  >
+                                    {done ? (
+                                      <>
+                                        <FaCheck style={{ fontSize: "0.75rem" }} />
+                                        Checked in
+                                      </>
+                                    ) : (
+                                      "Check in"
+                                    )}
+                                  </button>
+                                )}
+                              </div>
                             </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                )}
-              </>
-            )}
-          </div>
-        )}
-
-        <p
-          className="mt-10 text-center text-xs"
-          style={{ color: "var(--text-muted)" }}
-        >
-          Need help? Contact the Pack&Go team from your{" "}
-          <Link to="/" className="underline">
-            account
-          </Link>.
-        </p>
-
-      </main>
+          <p className={styles.helpText}>
+            Need help? Contact the Pack&Go team from your{" "}
+            <Link to="/" style={{ textDecoration: "underline" }}>
+              account
+            </Link>
+            .
+          </p>
+        </main>
+      </div>
     </div>
   );
 }

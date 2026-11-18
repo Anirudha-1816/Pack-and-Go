@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import useAuthStore from "../Stores/authStore";
 import styles from "./Auth.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL ;
@@ -53,6 +54,9 @@ export default function OperatorLogin() {
       const res = await axios.post(`${API_URL}/operator/login`, loginData, { withCredentials: true });
 
       console.log(res);
+
+      // Immediately update Zustand with the user data from login response
+      useAuthStore.getState().setUser(res.data?.data || null);
 
       navigate("/operator/dashboard", { replace: true });
     } catch (err) {

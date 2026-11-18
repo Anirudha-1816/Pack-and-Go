@@ -9,7 +9,7 @@
   gap: 12px;
   padding: 8px 18px 8px 8px;
   border-radius: 999px;
-  background: var(--primary);
+  background-color: rgb(16, 64, 109); 
   color: var(--on-primary);
   font-family: var(--font-body);
   font-weight: 600;

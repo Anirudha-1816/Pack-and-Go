@@ -146,6 +146,7 @@ export const loginOperators = async (req, res, next) => {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
+      path: "/", // Ensure cookie is available on all paths
       maxAge: cookieMaxAge,
       expires: new Date(Date.now() + cookieMaxAge),
     });

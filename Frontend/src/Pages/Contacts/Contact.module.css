@@ -6,9 +6,9 @@
   gap: 1.25rem;
   max-width: 80rem;
   align-items: center;
-  margin: 10rem auto 0;
+  margin: 2rem auto 0;
   padding: 0 1rem;
-  height: 90vh;
+  height: 70vh;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
@@ -19,7 +19,7 @@
   flex-direction: column;
   overflow: hidden;
   padding: 2.5rem 2rem;
-  height: 60vh;
+  height: 80vh;
   border-radius: 2rem;
   color: #fff;
   background: linear-gradient(145deg, #142b3b, #24566f);
@@ -55,6 +55,7 @@
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.035em;
+  color: #fff;
 }
 
 .title span { color: var(--coral); }
@@ -64,6 +65,7 @@
   margin: 0;
   line-height: 1.65;
   opacity: 0.85;
+  color: #fff;
 }
 
 .info {
@@ -86,8 +88,8 @@
   background: rgba(255, 255, 255, 0.14);
 }
 
-.info small { display: block; font-size: 0.75rem; opacity: 0.7; }
-.info strong { font-size: 1rem; }
+.info small { display: block; font-size: .80rem; color: #e0bd7f; opacity: 0.7; }
+.info strong { font-size: 1rem;  }
 
 /* ---------- Right: form ---------- */
 .form {

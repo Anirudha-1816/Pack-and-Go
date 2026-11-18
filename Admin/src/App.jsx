@@ -1,46 +1,101 @@
-import { useEffect } from "react";
-import { Route, Routes } from "react-router-dom";
 
-import AdminLogin from "./pages/Auth/AdminLogin";
-import AdminDashboard from "./components/Dashboard/AdminDashboard";
-import AddPackage from "./components/Sections/AddPackage";
-import AdminBookings from "./components/Sections/AdminBookings";
-
-import ProtectedRoutes from "./Routes/ProtectedRoutes";
+import { lazy, Suspense, useEffect } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import useAuthStore from "./store/authStore";
-import ManagePackages from "./components/x/ManagePackages";
+import ProtectedRoutes from "./Routes/ProtectedRoutes";
+
 import { Toaster } from "react-hot-toast";
-import OperatorRequests from "./components/x/Operatorrequests";
-import NotFound from "./utils/notFound/NotFound";
+
+import AuthLoading from "./utils/AuthLoading";
+
+// Lazy-loaded pages and components
+const AdminLogin = lazy(() => import("./pages/Auth/AdminLogin"));
+const AdminDashboard = lazy(
+  () => import("./components/Dashboard/AdminDashboard")
+);
+const AddPackage = lazy(
+  () => import("./components/Sections/AddPackage")
+);
+const AdminBookings = lazy(
+  () => import("./components/Sections/AdminBookings")
+);
+const ManagePackages = lazy(
+  () => import("./components/x/ManagePackages")
+);
+const OperatorRequests = lazy(
+  () => import("./components/x/Operatorrequests")
+);
+const NotFound = lazy(() => import("./utils/notFound/NotFound"));
+
+// Loading screen
+
+
+// Automatically decide where the admin should go
+const AdminEntry = () => {
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore(
+    (state) => state.isAuthenticated
+  );
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  if (isLoading) {
+    return <AuthLoading />;
+  }
+
+  if (isAuthenticated && user) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return <AdminLogin />;
+};
 
 const App = () => {
   const fetchUser = useAuthStore((state) => state.fetchUser);
 
+  // Restore existing admin session on application startup
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
   return (
     <>
-    <Toaster position="top-right" />
-    <Routes>
+      <Toaster position="top-right" />
 
-      {/* <Route path="/check" element={<UpComingTrips />} />   check route */}
+      <Suspense fallback={<AuthLoading />}>
+        <Routes>
+          {/* Entry route */}
+          <Route path="/" element={<AdminEntry />} />
 
+          {/* Protected admin routes */}
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/admin" element={<AdminDashboard />} />
 
-      <Route path="/" element={<AdminLogin />} />
+            <Route
+              path="/admin/add-package"
+              element={<AddPackage />}
+            />
 
-      <Route element={<ProtectedRoutes />}>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/add-package" element={<AddPackage />} />
-      <Route path="/admin-managePackages" element={<ManagePackages />} />
-        <Route path="/admin/bookings" element={<AdminBookings />} />
-        <Route path="/admin/operator-requests" element={<OperatorRequests />} />
-      </Route>
+            <Route
+              path="/admin-managePackages"
+              element={<ManagePackages />}
+            />
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+            <Route
+              path="/admin/bookings"
+              element={<AdminBookings />}
+            />
+
+            <Route
+              path="/admin/operator-requests"
+              element={<OperatorRequests />}
+            />
+          </Route>
+
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 };

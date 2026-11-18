@@ -137,10 +137,7 @@ function AboutUs() {
           <div className={styles.team}>
             {team.map((person, index) => (
               <div key={index} className={styles.person}>
-                <div
-                  className={styles.avatar}
-                  style={{ background: person.color }}
-                />
+                <img src="/admin.jpeg" alt={person.name} />
                 <h3>{person.name}</h3>
                 <p>
                   {person.role}. {person.about}

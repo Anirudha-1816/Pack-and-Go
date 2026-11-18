@@ -8,7 +8,10 @@
   --font-serif: "Instrument Serif", Georgia, serif;
 }
 
-/* Base Layout */
+/* =====================================================================
+   Page layout: sidebar on the left, content on the right
+   ===================================================================== */
+
 .page {
   min-height: 100svh;
   background: var(--bg);
@@ -16,24 +19,229 @@
   font-family: var(--font-body);
 }
 
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
-  backdrop-filter: blur(16px);
+/* Full-screen message (loading, error, signed out) */
+.centerScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
 }
 
-.headerInner {
+.content {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .content {
+    padding-left: 16rem; /* same as the sidebar width */
+  }
+}
+
+.main {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.5rem 1rem;
+  padding: 2rem 1.25rem;
 }
+
+/* Vertical stack with even spacing between blocks */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* =====================================================================
+   Sidebar
+   ===================================================================== */
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: 16rem;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  transform: translateX(-100%); /* hidden on mobile until opened */
+  transition: transform 0.2s ease;
+}
+
+.sidebarOpen {
+  transform: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    transform: none; /* always visible on desktop */
+  }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--text) 50%, transparent);
+}
+
+@media (min-width: 1024px) {
+  .backdrop {
+    display: none;
+  }
+}
+
+.sidebarHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4rem;
+  padding: 0 1.25rem;
+}
+
+.closeBtn {
+  display: flex;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  background: var(--surface-raised);
+}
+
+@media (min-width: 1024px) {
+  .closeBtn {
+    display: none;
+  }
+}
+
+.sidebarNav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0.75rem;
+  overflow-y: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navItem:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.navItemActive,
+.navItemActive:hover {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.navIcon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.navLabel {
+  flex: 1;
+}
+
+.navBadge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.navDivider {
+  height: 1px;
+  margin: 0.75rem 0;
+  border: none;
+  background: var(--border);
+}
+
+.sidebarFooter {
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.userText {
+  min-width: 0;
+}
+
+.userName,
+.userEmail {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userName {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.userEmail {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
+  background: var(--surface);
+  color: var(--danger);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+/* =====================================================================
+   Logo + avatar
+   ===================================================================== */
 
 .logo {
   display: flex;
@@ -63,43 +271,93 @@
   letter-spacing: 0.08em;
 }
 
-/* Tabs */
-.tabs {
+.avatar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  flex: 1;
-  overflow-x: auto;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--on-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
-.tab {
-  white-space: nowrap;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  transition: all 0.2s ease;
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarLg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.25rem;
+}
+
+/* =====================================================================
+   Top bar
+   ===================================================================== */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 4rem;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.menuBtn {
+  display: flex;
+  padding: 0.5rem;
   border: none;
+  border-radius: 0.5rem;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text);
   cursor: pointer;
 }
 
-.tab:hover {
+.menuBtn:hover {
   background: var(--surface-raised);
+}
+
+.breadcrumb {
+  display: none;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.breadcrumbCurrent {
+  margin-left: 0.25rem;
+  font-weight: 600;
   color: var(--text);
 }
 
-.tabActive {
-  background: var(--primary);
-  color: var(--on-primary);
+@media (min-width: 1024px) {
+  .menuBtn,
+  .mobileLogo {
+    display: none;
+  }
+
+  .breadcrumb {
+    display: block;
+  }
 }
 
-/* Availability & Account */
 .availabilityRow {
   display: flex;
   align-items: center;
   gap: 0.625rem;
+  margin-left: auto;
 }
 
 .availabilityLabel {
@@ -115,9 +373,13 @@
   }
 }
 
-/* Switch Toggle */
+/* =====================================================================
+   Switch toggle
+   ===================================================================== */
+
 .switchToggle {
   position: relative;
+  flex-shrink: 0;
   width: 3rem;
   height: 1.75rem;
   border-radius: 999px;
@@ -125,11 +387,6 @@
   cursor: pointer;
   background: var(--border);
   transition: background-color 0.2s ease;
-}
-
-.switchToggle:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
 }
 
 .switchToggle[data-on="true"] {
@@ -152,99 +409,13 @@
   transform: translateX(1.25rem);
 }
 
-/* Account Menu */
-.accountMenu {
-  position: relative;
-}
+/* =====================================================================
+   Headings, buttons, empty states
+   ===================================================================== */
 
-.accountTrigger {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background: var(--brand);
-  color: var(--on-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.accountTrigger:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-.accountTrigger img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.accountDropdown {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 14rem;
-  padding: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--text) 20%, transparent);
-  animation: scale-in 150ms ease-out;
-  z-index: 100;
-}
-
-.accountName {
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 0.25rem;
-}
-
-.accountEmail {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.accountLogoutBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  margin-top: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
-  background: var(--surface);
-  color: var(--danger);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.accountLogoutBtn:hover {
-  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
-}
-
-/* Main Content */
-.main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem;
-}
-
-/* Section Headings */
 .sectionTitle {
   font-family: var(--font-heading);
-  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 800;
   line-height: 1.1;
   color: var(--text);
@@ -255,14 +426,154 @@
   color: var(--text-muted);
 }
 
-/* KPI Cards */
+.btnSolid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  margin-top: 1rem;
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  border: none;
+}
+
+.btnPrimary:hover {
+  filter: brightness(1.1);
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--on-primary);
+  font-weight: 600;
+  border: 1px solid color-mix(in srgb, var(--on-primary) 40%, transparent);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btnGhost:hover {
+  background: color-mix(in srgb, var(--on-primary) 10%, transparent);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.btnSecondary:hover {
+  border-color: var(--primary);
+  background: var(--surface-raised);
+}
+
+.emptyCard {
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  color: var(--brand);
+  font-size: 1.25rem;
+}
+
+.emptyTitle {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.mutedText {
+  color: var(--text-muted);
+}
+
+.errorText {
+  color: var(--danger);
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  border: 4px solid var(--brand);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.helpText {
+  margin-top: 2.5rem;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* =====================================================================
+   Overview: KPI cards
+   ===================================================================== */
+
 .kpiGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .kpiGrid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -308,14 +619,21 @@
   margin-top: 0.25rem;
 }
 
-/* Next Trip Card */
+/* =====================================================================
+   Overview: next trip card
+   ===================================================================== */
+
 .nextTripCard {
-  position: relative;
-  overflow: hidden;
   border-radius: 1.75rem;
-  padding: 1.75rem 2.25rem;
-  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  padding: 1.75rem;
+  background: var(--primary);
   color: var(--on-primary);
+}
+
+@media (min-width: 640px) {
+  .nextTripCard {
+    padding: 2rem 2.25rem;
+  }
 }
 
 .nextTripBadge {
@@ -331,7 +649,7 @@
 
 .nextTripTitle {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 800;
   line-height: 1.1;
   margin: 0;
@@ -358,8 +676,6 @@
 .nextTripDetailLabel {
   font-size: var(--text-xs);
   color: color-mix(in srgb, var(--on-primary) 70%, transparent);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .nextTripDetailValue {
@@ -373,77 +689,25 @@
   margin-top: 1.75rem;
 }
 
-.btnPrimary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-}
+/* =====================================================================
+   Overview: trips list, availability, profile
+   ===================================================================== */
 
-.btnPrimary:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-}
-
-.btnGhost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--on-primary);
-  font-weight: 600;
-  border: 1px solid color-mix(in srgb, var(--on-primary) 40%, transparent);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btnGhost:hover {
-  background: color-mix(in srgb, var(--on-primary) 10%, transparent);
-}
-
-/* Empty State */
-.emptyCard {
-  padding: 3.5rem 1.5rem;
-  text-align: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1.5rem;
-  color: var(--text-muted);
-}
-
-.emptyTitle {
-  font-family: var(--font-heading);
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 0.5rem;
-}
-
-/* Grid Sections */
 .gridSection {
   display: grid;
   gap: 1.5rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .gridSection {
     grid-template-columns: 1fr 340px;
     align-items: start;
   }
 }
 
-.cardSection {
+.cardSection,
+.profileCard,
+.availabilityCard {
   padding: 1.5rem;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -465,19 +729,20 @@
 }
 
 .sectionHeaderLink {
+  border: none;
+  background: none;
+  font: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--brand);
   text-decoration: underline;
   text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .tripList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 .tripListItem {
@@ -493,6 +758,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 3rem;
   height: 3rem;
   border-radius: 0.75rem;
@@ -528,69 +794,38 @@
 }
 
 .tripListTravelers {
+  display: none;
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
-/* Status Pills */
-.statusPill {
-  display: inline-flex;
+@media (min-width: 640px) {
+  .tripListTravelers {
+    display: block;
+  }
+}
+
+.availabilityHeader {
+  display: flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: var(--text-xs);
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.availabilityTitle {
   font-weight: 600;
-}
-
-.statusUpcoming {
-  background: var(--warning);
-  color: var(--on-accent);
-}
-
-.statusRunning {
-  background: var(--success);
-  color: white;
-}
-
-.statusCompleted {
-  background: var(--surface);
   color: var(--text);
-  border: 1px solid var(--border);
 }
 
-/* Profile Card */
-.profileCard {
-  padding: 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
+.availabilityText {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .profileHeader {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.profileAvatar {
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand), var(--primary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--on-primary);
-}
-
-.profileAvatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
 .profileName {
@@ -628,37 +863,44 @@
   color: var(--brand);
 }
 
-/* Availability Card */
-.availabilityCard {
-  padding: 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-}
+/* =====================================================================
+   Status pills
+   ===================================================================== */
 
-.availabilityHeader {
-  display: flex;
+.statusPill {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.availabilityTitle {
+  white-space: nowrap;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: var(--text-xs);
   font-weight: 600;
+}
+
+.statusUpcoming {
+  background: var(--warning);
+  color: var(--on-accent);
+}
+
+.statusRunning {
+  background: var(--success);
+  color: white;
+}
+
+.statusCompleted {
+  background: var(--surface);
   color: var(--text);
+  border: 1px solid var(--border);
 }
 
-.availabilityText {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
+/* =====================================================================
+   My trips tab
+   ===================================================================== */
 
-/* Trips Tab */
 .tabsFilter {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .tabFilterBtn {
@@ -667,6 +909,7 @@
   gap: 0.375rem;
   padding: 0.5rem 1rem;
   border-radius: 999px;
+  font: inherit;
   font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid var(--border);
@@ -686,6 +929,10 @@
   color: var(--on-primary);
 }
 
+.tabFilterCount {
+  opacity: 0.7;
+}
+
 .tripsGrid {
   display: grid;
   gap: 1rem;
@@ -697,7 +944,6 @@
   }
 }
 
-/* Trip Card */
 .tripCard {
   display: flex;
   flex-direction: column;
@@ -745,8 +991,6 @@
 .detailLabel {
   font-size: var(--text-xs);
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .detailValue {
@@ -754,37 +998,28 @@
   color: var(--text);
 }
 
-.btnSecondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.25rem;
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 600;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  align-self: flex-start;
-}
+/* =====================================================================
+   My bookings tab
+   ===================================================================== */
 
-.btnSecondary:hover {
-  border-color: var(--primary);
-  background: var(--surface-raised);
-}
-
-/* Bookings Tab */
 .bookingHeader {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+}
+
+.tripSelectLabel {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .tripSelect {
+  width: 100%;
   min-width: 260px;
   height: 2.75rem;
   padding: 0 1rem;
@@ -842,9 +1077,9 @@
   border-radius: 1rem;
 }
 
+/* On phones each booking is a stacked card, columns appear from 768px */
 .bookingTableHeader {
-  display: grid;
-  grid-template-columns: 2fr 0.8fr 1fr 1fr 9.375rem;
+  display: none;
   gap: 1rem;
   padding: 0.75rem 1.25rem;
   background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
@@ -854,22 +1089,38 @@
   color: var(--text-muted);
 }
 
-.bookingTableBody {
-  display: flex;
-  flex-direction: column;
-}
-
 .bookingRow {
   display: grid;
-  grid-template-columns: 2fr 0.8fr 1fr 1fr 9.375rem;
-  gap: 1rem;
-  align-items: center;
+  gap: 0.625rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border);
 }
 
 .bookingRow:last-child {
   border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  .bookingTableHeader,
+  .bookingRow {
+    display: grid;
+    grid-template-columns: 2fr 0.8fr 1fr 1fr 9.375rem;
+    gap: 1rem;
+  }
+
+  .bookingRow {
+    align-items: center;
+  }
+}
+
+.mobileLabel {
+  color: var(--text-muted);
+}
+
+@media (min-width: 768px) {
+  .mobileLabel {
+    display: none;
+  }
 }
 
 .travelerInfo {
@@ -921,20 +1172,38 @@
   color: var(--text-muted);
 }
 
+.checkInCell {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+@media (min-width: 768px) {
+  .checkInCell {
+    text-align: right;
+  }
+}
+
 .checkInBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  width: 100%;
   height: 2.25rem;
-  padding: 0 0.875rem;
+  padding: 0 1.25rem;
   border-radius: 0.5rem;
+  font: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+}
+
+@media (min-width: 768px) {
+  .checkInBtn {
+    width: 100%;
+    padding: 0 0.875rem;
+  }
 }
 
 .checkInBtnChecked {
@@ -952,48 +1221,10 @@
   background: var(--surface-raised);
 }
 
-.emptyState {
-  padding: 3.5rem 1.5rem;
-  text-align: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  color: var(--text-muted);
-}
+/* =====================================================================
+   Focus, motion, scrollbar
+   ===================================================================== */
 
-/* Animations */
-@keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-slide-down {
-  animation: slide-up 300ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.animate-slide-up {
-  animation: slide-up 300ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.animate-scale-in {
-  animation: scale-in 200ms ease-out both;
-}
-
-.animate-fade-in {
-  animation: fade-in 200ms ease-out both;
-}
-
-/* Focus States */
 button:focus-visible,
 a:focus-visible,
 select:focus-visible,
@@ -1002,7 +1233,6 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1013,7 +1243,6 @@ input:focus-visible {
   }
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
