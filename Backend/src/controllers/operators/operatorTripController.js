@@ -2,6 +2,13 @@ import cloudinary from "../../configs/cloudinary.js";
 import statusCode from "../../utils/statusCodes.js";
 import OperatorTrip from "../../models/components/operatorTripModel.js";
 import Operator from "../../models/users/operatorsModel.js";
+import {
+  MEALS,
+  TIERS,
+  TRIP_TYPES,
+  PICKUP_DROP_TYPES,
+  MIN_REJECTION_REASON_LENGTH,
+} from "../../constants/tripConstants.js";
 
 // Makes a 400 error that your error middleware understands
 const badRequest = (message) => {
@@ -54,10 +61,12 @@ export const createOperatorTrip = async (req, res, next) => {
       description,
       destination,
       date,
+      pickupDropType = "group", // "group" = we pick up & drop, "self" = travelers come on their own
       pickupTime,
       pickupLocation,
       dropTime,
       dropLocation,
+      meetupPoint, // only for self drop & pickup
       duration,
       pricePerHead,
       maxTravelers,
@@ -79,7 +88,7 @@ export const createOperatorTrip = async (req, res, next) => {
     const meals = req.body.meals ? parseJson(req.body.meals, "meals") : [];
     const roadmap = req.body.roadmap ? parseJson(req.body.roadmap, "roadmap") : [];
 
-    // Validate required fields
+    // 5. Validate required fields
     if (!title?.trim()) throw badRequest("Package title is required");
     if (!description?.trim()) throw badRequest("Description is required");
     if (!destination?.trim()) throw badRequest("Destination is required");
@@ -88,7 +97,33 @@ export const createOperatorTrip = async (req, res, next) => {
     if (!pricePerHead) throw badRequest("Price is required");
     if (!maxTravelers) throw badRequest("Max travelers is required");
 
-    // 5. Save the trip with operator reference and pending status
+    // Pickup & drop type
+    if (!PICKUP_DROP_TYPES.includes(pickupDropType)) {
+      throw badRequest("Pickup & drop option must be 'group' or 'self'");
+    }
+
+    const isSelfService = pickupDropType === "self";
+
+    if (isSelfService) {
+      if (!meetupPoint?.trim()) throw badRequest("Meetup point is required");
+    } else {
+      if (!pickupTime) throw badRequest("Pickup time is required");
+      if (!pickupLocation?.trim()) throw badRequest("Pickup location is required");
+      if (!dropTime) throw badRequest("Drop time is required");
+      if (!dropLocation?.trim()) throw badRequest("Drop location is required");
+    }
+
+    // Roadmap days must add up to the trip duration
+    if (!Array.isArray(roadmap) || roadmap.length === 0) {
+      throw badRequest("Add at least one place to the roadmap");
+    }
+    const totalDays = roadmap.reduce((sum, stop) => sum + Number(stop.days || 0), 0);
+    if (totalDays !== Number(duration)) {
+      throw badRequest(`Roadmap adds up to ${totalDays} days, but duration is ${duration} days`);
+    }
+
+    // 6. Save the trip with operator reference and pending status
+    // Only the fields that match the chosen option are saved.
     const trip = await OperatorTrip.create({
       title,
       description,
@@ -97,10 +132,10 @@ export const createOperatorTrip = async (req, res, next) => {
       to,
       guide,
       date,
-      pickupTime,
-      pickupLocation,
-      dropTime,
-      dropLocation,
+      pickupDropType,
+      ...(isSelfService
+        ? { meetupPoint }
+        : { pickupTime, pickupLocation, dropTime, dropLocation }),
       duration,
       pricePerHead,
       maxTravelers,
@@ -108,7 +143,7 @@ export const createOperatorTrip = async (req, res, next) => {
       stays,
       travel,
       termsType,
-      customTerms,
+      ...(termsType === "custom" && { customTerms }),
       meals,
       roadmap,
       banner,

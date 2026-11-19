@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       // minlength: [2, "Full name must be at least 2 characters"],
       // maxlength: [30, "Full name cannot exceed 30 characters"],
-      
+
     },
 
     gender: {
@@ -52,6 +52,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['light', 'dark', 'system'],
       default: 'system'
+    },
+    city: {
+      type: String,
+      trim: true,
+      // Not required in schema to avoid breaking existing users.
+      // Controller validates it on signup.
     }
   },
   {

@@ -65,12 +65,18 @@ This document describes the current system as implemented.
 - Views only their own trips in dashboard, grouped by status (upcoming, running, completed).
 - Sees traveler count per trip.
 - Cannot edit or delete trips after submission; only admin can change status.
+- On submit: loading state + toast feedback; success resets form and clears image previews.
 
 **Trip Statuses**
 - `pending` — Operator-submitted, awaiting admin review.
 - `approved` — Visible to public, bookable (default for admin-created trips).
 - `rejected` — Not visible, operator sees rejection reason.
 - `isActive` toggle — Admin can hide/show approved trips without deletion.
+
+**Operator Trip Approval Flow**
+- Admin views all operator-submitted trips at `/admin/operator-trips` (pending/approved/rejected tabs).
+- On approve: a copy is published to the public `Trip` collection (status `approved`, `isActive: true`) and the original `OperatorTrip` gets `approvedTrip` linking to that copy. Travelers can now discover and book it.
+- On reject: operator sees the rejection reason in their dashboard; the trip stays in `rejected` status and is never shown publicly.
 
 ### 3.3 Bookings & Payments
 
@@ -97,7 +103,7 @@ This document describes the current system as implemented.
 - Sees all bookings across all trips with traveler details, payment status, booking status.
 
 **Operator View**
-- Sees bookings only for their own trips.
+- Sees bookings only for their own trips (both admin-created `Trip` and operator-created `OperatorTrip` that are approved).
 - Passenger list per trip with traveler name, phone, seats, payment status, booked date.
 - Check-in button for upcoming/running trips (tracks checked-in travelers).
 
@@ -117,6 +123,7 @@ This document describes the current system as implemented.
 - **Quick Actions**: Add package, manage packages, review bookings.
 - **Upcoming Trips Panel**: Scrollable list with date, booking progress bar, fill status chips (open/filling/full).
 - **Operator Requests**: List of pending/approved/rejected operators with approve/reject actions and rejection reason field.
+- **Operator Trips**: Tabbed list of all operator-submitted trips (pending/approved/rejected). Approve publishes a public copy; reject requires a 10+ character reason shown to the operator.
 - **Manage Packages**: Full CRUD for trips with image uploads.
 
 ### 3.6 Website Content & Contact
@@ -187,6 +194,17 @@ See `PAYMENT_INTEGRATION.md` for Stripe setup and testing details.
 ## 8. API Reference
 
 Backend API documented in Swagger UI at **`/api-docs`** on the backend host (e.g., `http://localhost:8080/api-docs`). Includes all endpoints, request/response schemas, authentication, and common error responses.
+
+### 8.1 Operator Trip Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/operator/trips` | Operator | Create a new operator trip (multipart form with banner, thumbnail, JSON meals & roadmap). Saved as `pending`. |
+| `GET` | `/operator/trips` | Operator | List the signed-in operator's trips. |
+| `GET` | `/operator/trips/:id` | Operator | Get one operator trip. |
+| `GET` | `/admin/operator-trips` | Admin | List all operator trips (query `?status=pending\|approved\|rejected`). |
+| `POST` | `/admin/operator-trips/:id/approve` | Admin | Approve operator trip → publishes copy to public `Trip` collection. |
+| `POST` | `/admin/operator-trips/:id/reject` | Admin | Reject operator trip (requires `rejectionReason` ≥ 10 chars). |
 
 ## 9. Not Included in Current Version
 

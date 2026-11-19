@@ -20,7 +20,7 @@ if (!body || typeof body !== "object" || terms !== true) {
     "Please provide valid fields and accept the terms.";
   return next(error);
 }
-    const { gender, fullName, email, password } = body;
+    const { gender, fullName, email, password, city } = body;
 
     // 2. Check required fields
     if (
@@ -28,7 +28,8 @@ if (!body || typeof body !== "object" || terms !== true) {
       !fullName?.trim() ||
       !email?.trim() ||
       typeof password !== "string" ||
-      !password
+      !password ||
+      !city?.trim()
     ) {
       const error = new Error("All fields are required");
       error.statusCode = statusCode.BAD_REQUEST;
@@ -65,7 +66,8 @@ if (!body || typeof body !== "object" || terms !== true) {
       password: hashPassword,
       gender,
       terms,
-      role : 'user'
+      role : 'user',
+      city: city.trim()
     });
 
     return res.status(statusCode.CREATED).json({

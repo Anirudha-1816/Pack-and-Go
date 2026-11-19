@@ -16,6 +16,7 @@ import NotFound from "../Utils/notFound/NotFound";
 const AuthPage = lazy(() => import("../Pages/Auth/AuthPage"));
 const Contact = lazy(() => import("../Pages/Contacts/Contact"));
 const AboutUs = lazy(() => import("../Components/AboutUs/AboutUs"));
+const EventsPage = lazy(() => import("../Pages/Events/EventsPage"));
 
 
 const TripDetails = lazy(() =>
@@ -67,6 +68,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/trip/:id" element={<TripDetails />} />
         <Route path="know-us" element={<AboutUs />} />
+        <Route path="/events" element={<EventsPage />} />
 
         {/* Protected Routes: Logged-in users and admins */}
         <Route element={<ProtectedRoutes allowedRoles={["user", "admin"]} />}>

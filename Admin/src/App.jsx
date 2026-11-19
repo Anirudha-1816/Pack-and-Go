@@ -26,6 +26,9 @@ const ManagePackages = lazy(
 const OperatorRequests = lazy(
   () => import("./components/x/Operatorrequests")
 );
+const OperatorTrips = lazy(
+  () => import("./components/x/OperatorTrips")
+);
 const NotFound = lazy(() => import("./utils/notFound/NotFound"));
 
 // Loading screen
@@ -89,6 +92,11 @@ const App = () => {
             <Route
               path="/admin/operator-requests"
               element={<OperatorRequests />}
+            />
+
+            <Route
+              path="/admin/operator-trips"
+              element={<OperatorTrips />}
             />
           </Route>
 

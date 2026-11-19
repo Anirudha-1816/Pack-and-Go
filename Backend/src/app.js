@@ -16,6 +16,7 @@ import adminRouter from './routes/admin/adminRoutes.js'
 import paymentRouter from './routes/payments/paymentRoutes.js'
 import operatorsRouter from './routes/operatorsRoutes.js'
 import operatorTripRouter from './routes/operators/operatorTripRoutes.js'
+import adminOperatorTripRouter from './routes/admin/adminOperatorTripRoutes.js'
 
 import errorMiddleWare from './middlewares/errorHandlerMiddleware.js'
 
@@ -75,6 +76,7 @@ app.use('/otp',verificationRoutes)
 app.use('/trip',tripRouter)
 app.use('/booking',bookingRouter)
 app.use('/admin',adminRouter)
+app.use('/admin/operator-trips', adminOperatorTripRouter)
 app.use('/api/payments',paymentRouter)
 app.use('/operator',operatorsRouter)
 // Operator-created trips live under /operator/trips. This must be mounted

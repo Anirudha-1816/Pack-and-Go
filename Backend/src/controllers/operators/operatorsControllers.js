@@ -303,7 +303,6 @@ export const getOperatorBookings = async (req, res, next) => {
   }
 };
 
-
 export const createOperatorTrip = async (req, res, next) => {
   let images = [];
 
@@ -391,7 +390,6 @@ export const createOperatorTrip = async (req, res, next) => {
 };
 
 // Old createOperatorTrip removed - now handled by dedicated operatorTripController
-
 export const logoutOperator = async (req, res, next) => {
   try {
     const isProduction = process.env.NODE_ENV === "production";

@@ -1,6 +1,7 @@
 import cloudinary from '../../configs/cloudinary.js';
 import statusCode from "../../utils/statusCodes.js";
 import Trip from "../../models/components/tripModel.js";
+import { publicTripFilter } from "../../constants/tripConstants.js";
 // Makes a 400 error that your error middleware understands
 const badRequest = (message) => {
   const error = new Error(message);
@@ -123,11 +124,29 @@ export const updateTripVisibility = async (req, res, next) => {
   }
 };
 
+/**
+ * Checks if a trip document is publicly visible.
+ * Tolerant of old documents: missing status/isActive defaults to visible.
+ * @param {Object} trip - Trip document
+ * @returns {boolean}
+ */
+const isTripPubliclyVisible = (trip) => {
+  if (!trip) return false;
+  // status: missing or "approved" or "pending" -> visible; "rejected" -> hidden
+  const status = trip.status ?? "approved";
+  if (status === "rejected") return false;
+  // isActive: missing or true -> visible; false -> hidden
+  const isActive = trip.isActive ?? true;
+  if (isActive === false) return false;
+  return true;
+};
+
 export const getTripById = async (req, res, next) => {
   try {
     const trip = await Trip.findById(req.params.id);
 
-    if (!trip || trip.isActive === false) {
+    // Public API: only show active, approved trips (tolerant of old documents)
+    if (!trip || !isTripPubliclyVisible(trip)) {
       const error = new Error("Trip not found.");
       error.status = statusCode.NOT_FOUND;
       return next(error);
@@ -135,7 +154,7 @@ export const getTripById = async (req, res, next) => {
 
     return res.status(200).json({ success: true, data: trip });
   } catch (err) {
-    return next(err);  
+    return next(err);
   }
 };
 

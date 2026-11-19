@@ -24,10 +24,24 @@ const money = (amount) => `₹${amount.toLocaleString("en-IN")}`;
 
 // "06:30" -> "6:30 AM"
 const formatTime = (time) => {
+  if (!time) return "";
   const [hour, minute] = time.split(":");
   const suffix = hour >= 12 ? "PM" : "AM";
   return `${hour % 12 || 12}:${minute} ${suffix}`;
 };
+
+// Format tier for display (handles "Not included" and "Not needed")
+const formatTier = (tier) => {
+  if (!tier) return "Not included";
+  if (tier === "Not included" || tier === "Not needed") return tier;
+  return `${tier}`;
+};
+
+// Safe defaults for backward compatibility with old trips
+const getPickupDropType = (trip) => trip.pickupDropType ?? "group";
+const getMeetupPoint = (trip) => trip.meetupPoint ?? "";
+const getMaxTravelers = (trip) => trip.maxTravelers ?? 20;
+const getRoadmap = (trip) => trip.roadmap ?? [];
 
 // ---------- Styles used in many places ----------
 
@@ -207,7 +221,11 @@ export default function TripDetails() {
 
   // ----- Values we show -----
   const nights = trip.duration - 1;
-  const totalDays = trip.roadmap.reduce((sum, stop) => sum + stop.days, 0);
+  const pickupDropType = getPickupDropType(trip);
+  const meetupPoint = getMeetupPoint(trip);
+  const maxTravelers = getMaxTravelers(trip);
+  const roadmap = getRoadmap(trip);
+  const totalDays = roadmap.reduce((sum, stop) => sum + (stop.days || 0), 0);
 
   // Ask Cloudinary for a smaller copy of the banner so the page loads fast
   const bannerUrl = trip.banner.url.replace("/upload/", "/upload/w_1600,q_auto,f_auto/");
@@ -224,14 +242,14 @@ export default function TripDetails() {
   // "Day 1-2", "Day 3" ... for each place in the roadmap
   const dayLabel = (index) => {
     let start = 1;
-    for (let i = 0; i < index; i++) start += trip.roadmap[i].days;
-    const end = start + trip.roadmap[index].days - 1;
+    for (let i = 0; i < index; i++) start += roadmap[i]?.days || 0;
+    const end = start + (roadmap[index]?.days || 1) - 1;
     return start === end ? `Day ${start}` : `Day ${start}-${end}`;
   };
 
   // One row in the booking card that opens a pop-up
   const sideRows = [
-    { key: "roadmap", title: "Roadmap", note: `${trip.roadmap.length} places, ${totalDays} days` },
+    { key: "roadmap", title: "Roadmap", note: `${roadmap.length} places, ${totalDays} days` },
     { key: "includes", title: "Includes", note: "Meals, stay and travel" },
     { key: "terms", title: "Terms", note: "Must read this", important: true },
   ];
@@ -282,6 +300,7 @@ export default function TripDetails() {
             </Fact>
             <Fact label="Trip type">{trip.tripType}</Fact>
             <Fact label="Your guide">{trip.guide}</Fact>
+            <Fact label="Max travelers">{maxTravelers}</Fact>
             <Fact label="Trip ID" className="col-span-2 lg:col-span-1">
               {trip.tripIdentifier}
             </Fact>
@@ -291,7 +310,7 @@ export default function TripDetails() {
           <section className={`${card} p-6`}>
             <h3 className={sectionTitle}>Where we are going</h3>
             <div className="flex flex-wrap items-center gap-2">
-              {trip.roadmap.map((stop, index) => (
+              {roadmap.map((stop, index) => (
                 <span key={index} className="inline-flex items-center gap-2">
                   {index > 0 && <span className="font-bold text-[#c49a55]">→</span>}
                   <span className="inline-flex items-center gap-2 rounded-full bg-[#e8eff1] py-1.5 pl-1.5 pr-4 text-sm font-semibold">
@@ -303,12 +322,14 @@ export default function TripDetails() {
                 </span>
               ))}
             </div>
-            <button
-              className="mt-4 text-sm font-semibold text-[#142b3b] underline underline-offset-4 hover:text-[#2f6b8a]"
-              onClick={() => setModal("roadmap")}
-            >
-              View full roadmap
-            </button>
+            {roadmap.length > 0 && (
+              <button
+                className="mt-4 text-sm font-semibold text-[#142b3b] underline underline-offset-4 hover:text-[#2f6b8a]"
+                onClick={() => setModal("roadmap")}
+              >
+                View full roadmap
+              </button>
+            )}
           </section>
 
           {/* Stay, travel and meals */}
@@ -320,9 +341,7 @@ export default function TripDetails() {
                   <BedIcon />
                 </span>
                 <p className="text-xs text-[#6b7a72]">Where we stay</p>
-                <p className="mt-0.5 font-semibold">
-                  {trip.stays === "Not included" ? "Not included" : `${trip.stays} stay`}
-                </p>
+                <p className="mt-0.5 font-semibold">{formatTier(trip.stays)}</p>
               </div>
 
               <div className="rounded-xl bg-[#e8eff1] p-4">
@@ -330,9 +349,7 @@ export default function TripDetails() {
                   <BusIcon />
                 </span>
                 <p className="text-xs text-[#6b7a72]">How we travel</p>
-                <p className="mt-0.5 font-semibold">
-                  {trip.travel === "Not included" ? "Not included" : `${trip.travel} travel`}
-                </p>
+                <p className="mt-0.5 font-semibold">{formatTier(trip.travel)}</p>
               </div>
 
               <div className="rounded-xl bg-[#e8eff1] p-4">
@@ -340,7 +357,7 @@ export default function TripDetails() {
                   <MealIcon />
                 </span>
                 <p className="text-xs text-[#6b7a72]">Meals</p>
-                {trip.meals.length > 0 ? (
+                {trip.meals?.length > 0 ? (
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {trip.meals.map((meal) => (
                       <span
@@ -413,22 +430,28 @@ export default function TripDetails() {
       {modal === "roadmap" && (
         <Modal title="Trip roadmap" onClose={closeModal}>
           <div className="flex flex-col gap-3">
-            {trip.roadmap.map((stop, index) => (
-              <div key={index} className="rounded-2xl border border-[#e8e5de] p-4">
-                <span className="inline-block rounded-full bg-[#142b3b] px-3 py-1 text-xs font-bold text-white">
-                  {dayLabel(index)}
-                </span>
-                <h3 className={`${headingFont} mt-2 text-lg font-bold`}>{stop.place}</h3>
-                <p className="mt-0.5 text-sm text-[#61717b]">
-                  {stop.days} {stop.days === 1 ? "day" : "days"} here
-                </p>
-                {stop.note && <p className="mt-2 text-sm leading-relaxed text-[#2b3a31]">{stop.note}</p>}
-              </div>
-            ))}
+            {roadmap.length > 0 ? (
+              roadmap.map((stop, index) => (
+                <div key={index} className="rounded-2xl border border-[#e8e5de] p-4">
+                  <span className="inline-block rounded-full bg-[#142b3b] px-3 py-1 text-xs font-bold text-white">
+                    {dayLabel(index)}
+                  </span>
+                  <h3 className={`${headingFont} mt-2 text-lg font-bold`}>{stop.place}</h3>
+                  <p className="mt-0.5 text-sm text-[#61717b]">
+                    {stop.days} {stop.days === 1 ? "day" : "days"} here
+                  </p>
+                  {stop.note && <p className="mt-2 text-sm leading-relaxed text-[#2b3a31]">{stop.note}</p>}
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-sm text-[#61717b] py-4">No roadmap available</p>
+            )}
           </div>
-          <p className="text-center text-sm font-semibold text-[#142b3b]">
-            {trip.roadmap.length} places, {totalDays} days in total
-          </p>
+          {roadmap.length > 0 && (
+            <p className="text-center text-sm font-semibold text-[#142b3b]">
+              {roadmap.length} places, {totalDays} days in total
+            </p>
+          )}
         </Modal>
       )}
 
@@ -438,7 +461,7 @@ export default function TripDetails() {
           <h3 className="text-sm font-bold text-[#142b3b]">Meals</h3>
           <ul className="grid gap-2">
             {ALL_MEALS.map((meal) => {
-              const included = trip.meals.includes(meal);
+              const included = trip.meals?.includes(meal);
               return (
                 <li
                   key={meal}
@@ -454,16 +477,19 @@ export default function TripDetails() {
 
           <h3 className="mt-2 text-sm font-bold text-[#142b3b]">Stay and travel</h3>
           <ul className="grid gap-2">
-            {[["Stay", trip.stays], ["Travel", trip.travel]].map(([name, tier]) => (
-              <li
-                key={name}
-                className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold ${
-                  tier === "Not included" ? "bg-[#f4f4f2] text-[#8a8f8c]" : "bg-[#e8eff1] text-[#24566f]"
-                }`}
-              >
-                <span className="w-4 font-bold">{tier === "Not included" ? "✕" : "✓"}</span> {name}: {tier}
-              </li>
-            ))}
+            {[["Stay", trip.stays], ["Travel", trip.travel]].map(([name, tier]) => {
+              const isIncluded = tier && tier !== "Not included" && tier !== "Not needed";
+              return (
+                <li
+                  key={name}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold ${
+                    isIncluded ? "bg-[#e8eff1] text-[#24566f]" : "bg-[#f4f4f2] text-[#8a8f8c]"
+                  }`}
+                >
+                  <span className="w-4 font-bold">{isIncluded ? "✓" : "✕"}</span> {name}: {formatTier(tier)}
+                </li>
+              );
+            })}
           </ul>
         </Modal>
       )}
@@ -472,18 +498,28 @@ export default function TripDetails() {
       {modal === "terms" && (
         <Modal title="Terms and timings" onClose={closeModal}>
           <h3 className="text-sm font-bold text-[#142b3b]">Pickup and drop</h3>
-          <div className="grid gap-3 sm:grid-cols-2">
+          {(trip.pickupDropType || "group") === "self" ? (
             <div className="rounded-xl bg-[#e8eff1] p-4">
-              <p className="text-xs text-[#61717b]">Pickup</p>
-              <p className={`${headingFont} text-2xl font-bold text-[#142b3b]`}>{formatTime(trip.pickupTime)}</p>
-              <p className="text-sm">{trip.pickupLocation}</p>
+              <p className="text-xs text-[#61717b]">Meetup point</p>
+              <p className={`${headingFont} text-xl font-bold text-[#142b3b]`}>{trip.meetupPoint || "Not specified"}</p>
+              <p className="mt-1 text-sm text-[#61717b]">
+                Travelers reach the meetup point and return home on their own.
+              </p>
             </div>
-            <div className="rounded-xl bg-[#e8eff1] p-4">
-              <p className="text-xs text-[#61717b]">Drop</p>
-              <p className={`${headingFont} text-2xl font-bold text-[#142b3b]`}>{formatTime(trip.dropTime)}</p>
-              <p className="text-sm">{trip.dropLocation}</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-[#e8eff1] p-4">
+                <p className="text-xs text-[#61717b]">Pickup</p>
+                <p className={`${headingFont} text-2xl font-bold text-[#142b3b]`}>{formatTime(trip.pickupTime)}</p>
+                <p className="text-sm">{trip.pickupLocation}</p>
+              </div>
+              <div className="rounded-xl bg-[#e8eff1] p-4">
+                <p className="text-xs text-[#61717b]">Drop</p>
+                <p className={`${headingFont} text-2xl font-bold text-[#142b3b]`}>{formatTime(trip.dropTime)}</p>
+                <p className="text-sm">{trip.dropLocation}</p>
+              </div>
             </div>
-          </div>
+          )}
 
           <h3 className="mt-2 text-sm font-bold text-[#142b3b]">Terms</h3>
           {trip.termsType === "custom" ? (

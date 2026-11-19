@@ -6,14 +6,18 @@ import { createButton,
           getContentBlocks,
             getNav,
             getTrips,
+            getEvents,
+            getDestinations,
             createCity,
             getCity
-                
+
              } from '../../controllers/components/componentsController.js'
 
 const componentRouter = express.Router()
 
 componentRouter.get('/get-trips',getTrips)
+componentRouter.get('/events',getEvents)
+componentRouter.get('/destinations',getDestinations)
 
 componentRouter.route('/nav').get(getNav).post(createNav)
 componentRouter.route('/city').get(getCity).post(createCity)
@@ -22,4 +26,3 @@ componentRouter.route('/content-blocks').get(getContentBlocks).post(createConten
 
 
 export default componentRouter;
-

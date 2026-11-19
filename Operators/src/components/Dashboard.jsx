@@ -17,6 +17,7 @@ import {
   FaCog,
   FaBars,
   FaTimes,
+  FaHourglassHalf,
 } from "react-icons/fa";
 import axios from "axios";
 import useAuthStore from "../Stores/authStore";
@@ -40,17 +41,24 @@ const NAV_MAIN = [
 ];
 
 const NAV_MORE = [
-  { id: "add", to: "/operator/add-package", label: "Add package", icon: FaPlusCircle },
+  { id: "add", to: "/operator/add-package", label: "Add Events", icon: FaPlusCircle },
   { id: "messages", to: "/operator/messages", label: "Messages", icon: FaEnvelope },
   { id: "feedbacks", to: "/operator/feedbacks", label: "Feedbacks", icon: FaCommentDots },
   { id: "settings", to: "/operator/settings", label: "Settings", icon: FaCog },
 ];
 
+// pending / rejected come from admin approval.
+// upcoming / running / completed are worked out from the trip date (approved trips only).
 const STATUS_LABEL = {
+  pending: "Pending approval",
+  rejected: "Rejected",
   upcoming: "Upcoming",
   running: "Running now",
   completed: "Completed",
 };
+
+// Only approved trips can have bookings
+const LIVE_STATUSES = ["upcoming", "running", "completed"];
 
 // =====================================================================
 // Helpers
@@ -67,6 +75,10 @@ const formatTime = (time = "00:00") => {
   const [hour, minute] = time.split(":").map(Number);
   return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${hour >= 12 ? "PM" : "AM"}`;
 };
+
+const formatPrice = (price) => `₹${Number(price || 0).toLocaleString("en-IN")}`;
+
+const durationLabel = (days) => `${days} ${days === 1 ? "day" : "days"}`;
 
 const initials = (name = "") =>
   name
@@ -85,7 +97,30 @@ const greeting = () => {
   return "Good evening";
 };
 
+// Self drop & pickup trips only have a meetup point.
+// Pickup & drop service trips have pickup time + location.
+function pickupInfo(trip) {
+  if (trip.pickupDropType === "self") {
+    return ["Meetup point", trip.meetupPoint || "Not added"];
+  }
+
+  return ["Pickup", `${formatTime(trip.pickupTime)}, ${trip.pickupLocation}`];
+}
+
+function dropInfo(trip) {
+  if (trip.pickupDropType === "self") return null;
+
+  return ["Drop", `${formatTime(trip.dropTime)}, ${trip.dropLocation}`];
+}
+
+// The id that bookings use for this trip.
+// Once approved, travelers book the public copy (approvedTrip), not the operator trip.
+const bookingTripId = (trip) => String(trip.approvedTrip?._id || trip.approvedTrip || trip._id);
+
+// Approval status first, then the date based status for approved trips
 function getTripStatus(trip) {
+  if (trip.status === "pending" || trip.status === "rejected") return trip.status;
+
   const start = new Date(trip.date);
   const end = new Date(start.getTime() + trip.duration * DAY);
   const now = new Date();
@@ -97,7 +132,7 @@ function getTripStatus(trip) {
 }
 
 function sortTrips(a, b) {
-  const order = { running: 0, upcoming: 1, completed: 2 };
+  const order = { running: 0, upcoming: 1, pending: 2, rejected: 3, completed: 4 };
 
   if (order[a.status] !== order[b.status]) {
     return order[a.status] - order[b.status];
@@ -175,38 +210,96 @@ function Kpi({ icon, value, label, note }) {
 }
 
 function TripCard({ trip, travelers, onPassengers }) {
+  const [pickupLabel, pickupValue] = pickupInfo(trip);
+  const drop = dropInfo(trip);
+  const isLive = LIVE_STATUSES.includes(trip.status);
+  const liveTripId = trip.approvedTrip?._id || trip.approvedTrip;
+
   const details = [
     ["Starts on", formatDate(trip.date)],
-    ["Duration", `${trip.duration} days`],
-    ["Pickup", `${formatTime(trip.pickupTime)}, ${trip.pickupLocation}`],
-    ["Travelers", travelers],
+    ["Duration", durationLabel(trip.duration)],
+    ["Travelers", `${travelers} / ${trip.maxTravelers}`],
+    ["Price per head", formatPrice(trip.pricePerHead)],
+    [pickupLabel, pickupValue],
+    ...(drop ? [drop] : []),
   ];
+
+  // Small tags: stays, travel and meals
+  const tags = [`Stays: ${trip.stays}`, `Travel: ${trip.travel}`, ...(trip.meals || [])];
 
   return (
     <article className={styles.tripCard}>
-      <div className={styles.tripHeader}>
+      {/* Photo with the status on top */}
+      <div className={styles.tripMedia}>
+        {trip.thumbnail?.url ? (
+          <img src={trip.thumbnail.url} alt={trip.title} className={styles.tripThumb} />
+        ) : (
+          <div className={styles.tripMediaEmpty}>
+            <FaSuitcaseRolling />
+          </div>
+        )}
+
+        <span className={styles.tripMediaStatus}>
+          <StatusPill status={trip.status} />
+        </span>
+      </div>
+
+      <div className={styles.tripBody}>
         <div>
-          <h3 className={styles.tripTitle}>
-            {trip.from} to {trip.to}
-          </h3>
-          <p className={styles.tripType}>{trip.tripType}</p>
+          <h3 className={styles.tripTitle}>{trip.title}</h3>
+          <p className={styles.tripType}>
+            <FaMapMarkerAlt /> {trip.destination} · {trip.tripType}
+          </p>
         </div>
 
-        <StatusPill status={trip.status} />
-      </div>
+        <div className={styles.tripDetails}>
+          {details.map(([label, value]) => (
+            <div key={label} className={styles.detailItem}>
+              <p className={styles.detailLabel}>{label}</p>
+              <p className={styles.detailValue}>{value}</p>
+            </div>
+          ))}
+        </div>
 
-      <div className={styles.tripDetails}>
-        {details.map(([label, value]) => (
-          <div key={label} className={styles.detailItem}>
-            <p className={styles.detailLabel}>{label}</p>
-            <p className={styles.detailValue}>{value}</p>
+        <div className={styles.tagRow}>
+          {tags.map((tag) => (
+            <span key={tag} className={styles.tag}>
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {trip.status === "rejected" && (
+          <p className={styles.rejectNote}>
+            <b>Reason:</b> {trip.rejectionReason || "No reason was given."}
+          </p>
+        )}
+
+        {trip.status === "pending" && (
+          <p className={styles.pendingNote}>
+            Waiting for admin approval. Travelers can book it once it is approved.
+          </p>
+        )}
+
+        {isLive && (
+          <div className={styles.tripFooter}>
+            <button className={styles.btnSecondary} onClick={onPassengers}>
+              Passenger list
+            </button>
+
+            {liveTripId && (
+              <a
+                href={`/trip/${liveTripId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.btnSecondary}
+              >
+                View live trip
+              </a>
+            )}
           </div>
-        ))}
+        )}
       </div>
-
-      <button className={styles.btnSecondary} onClick={onPassengers}>
-        View passenger list
-      </button>
     </article>
   );
 }
@@ -381,6 +474,8 @@ export default function OperatorDashboard() {
       const tripsData = tripsRes.data?.data || [];
       const bookingsData = bookingsRes.data?.data || [];
 
+      // trip.status from the server (pending / approved / rejected)
+      // becomes pending / rejected / upcoming / running / completed
       const tripsWithStatus = tripsData
         .map((trip) => ({ ...trip, status: getTripStatus(trip) }))
         .sort(sortTrips);
@@ -439,25 +534,35 @@ export default function OperatorDashboard() {
     }
   };
 
-
   // ---------------------------------------------------------------
   // Derived data
   // ---------------------------------------------------------------
 
-  const travelersOn = (tripId) =>
-    bookings
-      .filter((booking) => booking.trip === tripId)
-      .reduce((sum, booking) => sum + (booking.travelers || 0), 0);
+  // Bookings are matched with the id travelers booked (the approved copy of the trip)
+  const bookingsOf = (trip) =>
+    bookings.filter(
+      (booking) => String(booking.trip?._id || booking.trip) === bookingTripId(trip)
+    );
+
+  const travelersOn = (trip) =>
+    bookingsOf(trip).reduce((sum, booking) => sum + (booking.travelers || 0), 0);
 
   const count = (status) => trips.filter((trip) => trip.status === status).length;
 
-  const activeTrips = trips.filter((trip) => trip.status !== "completed");
+  // Approved trips only (they are the ones that can have bookings)
+  const liveTrips = trips.filter((trip) => LIVE_STATUSES.includes(trip.status));
 
-  const travelersBooked = activeTrips.reduce((sum, trip) => sum + travelersOn(trip._id), 0);
+  // Trips that are still to come or running right now
+  const activeTrips = trips.filter((trip) => trip.status === "upcoming" || trip.status === "running");
+
+  const travelersBooked = activeTrips.reduce((sum, trip) => sum + travelersOn(trip), 0);
 
   const nextTrip = activeTrips[0];
 
-  const selectedTrip = trips.find((trip) => trip._id === selectedTripId) || nextTrip || trips[0];
+  const pendingCount = count("pending");
+  const rejectedCount = count("rejected");
+
+  const selectedTrip = liveTrips.find((trip) => trip._id === selectedTripId) || nextTrip || liveTrips[0];
 
   const openPassengers = (tripId) => {
     setSelectedTripId(tripId);
@@ -469,9 +574,7 @@ export default function OperatorDashboard() {
     setSidebarOpen(false); // close the sidebar on mobile
   };
 
-  const tripBookings = selectedTrip
-    ? bookings.filter((booking) => booking.trip === selectedTrip._id)
-    : [];
+  const tripBookings = selectedTrip ? bookingsOf(selectedTrip) : [];
 
   const totalTravelers = tripBookings.reduce((sum, booking) => sum + (booking.travelers || 0), 0);
 
@@ -503,7 +606,6 @@ export default function OperatorDashboard() {
 
   if (!authInitialized || authLoading || loading) {
     return <AuthLoading />;
-    
   }
 
   // ---------------------------------------------------------------
@@ -602,9 +704,43 @@ export default function OperatorDashboard() {
                 <p className={styles.sectionSubtitle}>
                   {today}
                   {nextTrip?.status === "running" &&
-                    `. Your ${nextTrip.to} trip is on, day ${dayNumber} of ${nextTrip.duration}.`}
+                    `. Your ${nextTrip.title} trip is on, day ${dayNumber} of ${nextTrip.duration}.`}
                 </p>
               </div>
+
+              {/* Packages waiting for approval, or rejected */}
+              {(pendingCount > 0 || rejectedCount > 0) && (
+                <section className={styles.noticeCard}>
+                  <span className={styles.noticeIcon}>
+                    <FaHourglassHalf />
+                  </span>
+
+                  <div className={styles.noticeText}>
+                    {pendingCount > 0 && (
+                      <p>
+                        {pendingCount} {pendingCount === 1 ? "package is" : "packages are"} waiting for
+                        admin approval.
+                      </p>
+                    )}
+                    {rejectedCount > 0 && (
+                      <p>
+                        {rejectedCount} {rejectedCount === 1 ? "package was" : "packages were"} rejected.
+                        Open My trips to see the reason.
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    className={styles.btnSecondary}
+                    onClick={() => {
+                      setTripFilter(pendingCount > 0 ? "pending" : "rejected");
+                      setTab("trips");
+                    }}
+                  >
+                    View
+                  </button>
+                </section>
+              )}
 
               {/* Next trip */}
               {nextTrip ? (
@@ -617,15 +753,14 @@ export default function OperatorDashboard() {
                         : `Leaves in ${daysToGo} days`}
                   </span>
 
-                  <h2 className={styles.nextTripTitle}>
-                    {nextTrip.from} to {nextTrip.to}
-                  </h2>
+                  <h2 className={styles.nextTripTitle}>{nextTrip.title}</h2>
 
                   <div className={styles.nextTripDetails}>
                     {[
+                      ["Destination", nextTrip.destination],
                       ["Starts on", formatDate(nextTrip.date)],
-                      ["Pickup", `${formatTime(nextTrip.pickupTime)}, ${nextTrip.pickupLocation}`],
-                      ["Travelers booked", travelersOn(nextTrip._id)],
+                      pickupInfo(nextTrip),
+                      ["Travelers booked", `${travelersOn(nextTrip)} / ${nextTrip.maxTravelers}`],
                     ].map(([label, value]) => (
                       <div key={label} className={styles.nextTripDetailItem}>
                         <p className={styles.nextTripDetailLabel}>{label}</p>
@@ -649,11 +784,14 @@ export default function OperatorDashboard() {
                   <span className={styles.emptyIcon}>
                     <FaSuitcaseRolling />
                   </span>
-                  <h2 className={styles.emptyTitle}>No trips assigned yet</h2>
+                  <h2 className={styles.emptyTitle}>No approved trips yet</h2>
                   <p>
-                    When the Pack&Go team assigns you a trip, it will show up here with its passenger
-                    list.
+                    Add a package and it will show up here with its passenger list once the admin
+                    approves it.
                   </p>
+                  <Link to="/operator/add-package" className={styles.btnSolid}>
+                    Add package
+                  </Link>
                 </section>
               )}
 
@@ -707,15 +845,13 @@ export default function OperatorDashboard() {
                           </div>
 
                           <div className={styles.tripListInfo}>
-                            <p className={styles.tripListName}>
-                              {t.from} to {t.to}
-                            </p>
+                            <p className={styles.tripListName}>{t.title}</p>
                             <p className={styles.tripListMeta}>
-                              {formatDate(t.date)}, {t.duration} days
+                              {formatDate(t.date)}, {durationLabel(t.duration)}
                             </p>
                           </div>
 
-                          <div className={styles.tripListTravelers}>{travelersOn(t._id)} travelers</div>
+                          <div className={styles.tripListTravelers}>{travelersOn(t)} travelers</div>
 
                           <StatusPill status={t.status} />
                         </li>
@@ -782,7 +918,9 @@ export default function OperatorDashboard() {
             <div className={styles.stack}>
               <div>
                 <h1 className={styles.sectionTitle}>My trips</h1>
-                <p className={styles.sectionSubtitle}>Only the trips assigned to you.</p>
+                <p className={styles.sectionSubtitle}>
+                  Events you created. New packages go live after admin approval.
+                </p>
               </div>
 
               <div className={styles.tabsFilter}>
@@ -790,6 +928,8 @@ export default function OperatorDashboard() {
                   ["upcoming", "Upcoming", count("upcoming")],
                   ["running", "Running", count("running")],
                   ["completed", "Completed", count("completed")],
+                  ["pending", "Pending", pendingCount],
+                  ["rejected", "Rejected", rejectedCount],
                   ["all", "All", trips.length],
                 ].map(([key, label, n]) => (
                   <button
@@ -814,7 +954,7 @@ export default function OperatorDashboard() {
                     <TripCard
                       key={t._id}
                       trip={t}
-                      travelers={travelersOn(t._id)}
+                      travelers={travelersOn(t)}
                       onPassengers={() => openPassengers(t._id)}
                     />
                   ))}
@@ -835,7 +975,7 @@ export default function OperatorDashboard() {
                   <p className={styles.sectionSubtitle}>Travelers who booked your trips.</p>
                 </div>
 
-                {trips.length > 0 && (
+                {liveTrips.length > 0 && (
                   <div>
                     <label htmlFor="trip" className={styles.tripSelectLabel}>
                       Choose a trip
@@ -847,9 +987,9 @@ export default function OperatorDashboard() {
                       onChange={(e) => setSelectedTripId(e.target.value)}
                       className={styles.tripSelect}
                     >
-                      {trips.map((t) => (
+                      {liveTrips.map((t) => (
                         <option key={t._id} value={t._id}>
-                          {t.from} to {t.to}, {formatDate(t.date)}
+                          {t.title}, {formatDate(t.date)}
                         </option>
                       ))}
                     </select>
@@ -859,14 +999,14 @@ export default function OperatorDashboard() {
 
               {!selectedTrip ? (
                 <div className={styles.emptyCard}>
-                  You have no trips yet, so there are no bookings to show.
+                  You have no approved trips yet, so there are no bookings to show.
                 </div>
               ) : (
                 <>
                   <section className={styles.bookingSummaryGrid}>
                     {[
                       ["Trip status", <StatusPill key="s" status={selectedTrip.status} />],
-                      ["Travelers", totalTravelers],
+                      ["Travelers", `${totalTravelers} / ${selectedTrip.maxTravelers}`],
                       ["Payments", `${paidCount} paid, ${tripBookings.length - paidCount} pending`],
                       [
                         "Checked in",

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar, FaUsers,
-  FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown
+  FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown,
+  FaClipboardList
 } from "react-icons/fa";
 
 import {FaGear} from "react-icons/fa6"
@@ -12,10 +13,23 @@ import styles from "./AdminDashboard.module.css";
 import useAuthStore from "../../store/authStore";
 import baseApi from "../../api/baseApi";
 import UpComingTrips from "./components/UpComingTrips";
+
+// Fetch pending operator trips count for badge
+async function fetchPendingOperatorTripsCount() {
+  try {
+    const res = await baseApi.get("/admin/operator-trips?status=pending");
+    const trips = Array.isArray(res.data.data) ? res.data.data : [];
+    return trips.length;
+  } catch {
+    return 0;
+  }
+}
+
 const nav = [
-  { to: "/admin-managePackages", label: "Manager packages", icon: <FaSuitcaseRolling /> },
+  { to: "/admin-managePackages", label: "Manage packages", icon: <FaSuitcaseRolling /> },
   { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
   { to: "/admin/operator-requests", label: "Operator requests", icon: <FaUsers /> },
+  { to: "/admin/operator-trips", label: "Operator trips", icon: <FaClipboardList /> },
   { to: "/admin/gallery", label: "Gallery", icon: <FaImages /> },
   { to: "/admin/messages", label: "Messages", icon: <FaEnvelope />, badge: 3 },
   { to: "/admin/feedbacks", label: "Feedbacks", icon: <FaStar /> },
@@ -35,11 +49,21 @@ const kpis = [
 export default function AdminDashboard() {
 
   const [open, setOpen] = useState(() => window.innerWidth > 900);
+  const [pendingTripsCount, setPendingTripsCount] = useState(0);
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
 
   const logoutUser  = useAuthStore((state)=> state.logout)
+
+  // Fetch pending operator trips count for sidebar badge
+  useEffect(() => {
+    let active = true;
+    fetchPendingOperatorTripsCount().then((count) => {
+      if (active) setPendingTripsCount(count);
+    });
+    return () => { active = false; };
+  }, []);
   // const displayName = user?.fullName?.trim() || "Administrator";
   // const firstName = displayName.split(/\s+/)[0];   // used for admin welcome message, but currently commented
   // const initials = displayName
@@ -112,7 +136,10 @@ export default function AdminDashboard() {
               style={{ animationDelay: `${i * 60}ms` }}
             >
               {n.icon} {n.label}
-              {n.badge && <span className={styles.badge}>{n.badge}</span>}
+              {n.badge !== undefined && n.badge > 0 && <span className={styles.badge}>{n.badge}</span>}
+              {n.to === "/admin/operator-trips" && pendingTripsCount > 0 && (
+                <span className={styles.badge}>{pendingTripsCount}</span>
+              )}
             </NavLink>
           ))}
           <button className={`${styles.item} ${styles.logout} animate-slide-up`} onClick={logout}>

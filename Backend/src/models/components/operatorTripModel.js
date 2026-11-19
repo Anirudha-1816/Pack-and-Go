@@ -1,9 +1,17 @@
 import mongoose from "mongoose";
+import {
+  MEALS,
+  TIERS,
+  TRIP_TYPES,
+  PICKUP_DROP_TYPES,
+  TIME_REGEX,
+  OPERATOR_TRIP_STATUS,
+} from "../../constants/tripConstants.js";
 
-// Allowed values. Keep these the same as the lists in your AddPackage form.
-const MEALS = ["Breakfast", "Lunch", "Dinner", "Snacks", "Tea / Coffee"];
-const TIERS = ["Not included", "Budget", "Deluxe", "Premium"];
-const TRIP_TYPES = ["Solo travelers only", "Couples only", "Mixed group", "Friends group", "Family"];
+// Pickup and drop details are only needed when we provide the service
+const needsPickupDrop = function () {
+  return this.pickupDropType === "group";
+};
 
 // An uploaded image (what your uploadMedia function returns)
 const imageSchema = new mongoose.Schema(
@@ -44,14 +52,12 @@ const operatorTripSchema = new mongoose.Schema(
       index: true,
     },
 
-    // Package title
     title: {
       type: String,
       required: [true, "Package title is required."],
       trim: true,
     },
 
-    // Description
     description: {
       type: String,
       required: [true, "Description is required."],
@@ -69,30 +75,58 @@ const operatorTripSchema = new mongoose.Schema(
     from: { type: String, required: [true, "From city is required."], trim: true },
     to: { type: String, required: [true, "To city is required."], trim: true },
 
-    // Name of the guide / instructor (the form sends a name for now)
+    // Name of the guide / instructor (the controller uses the operator's name)
     guide: { type: String, required: [true, "Guide is required."], trim: true },
 
     // Trip start date
     date: { type: Date, required: [true, "Trip date is required."] },
 
-    // ----- Timings (24 hour "HH:MM", like the time input sends) -----
+    // ----- Pickup & drop -----
+    // group = operator provides pickup and drop
+    // self  = travelers reach the meetup point and go home on their own
+    pickupDropType: {
+      type: String,
+      enum: PICKUP_DROP_TYPES,
+      default: "group",
+    },
+
+    // Used only when pickupDropType is "self"
+    meetupPoint: {
+      type: String,
+      trim: true,
+      required: [
+        function () {
+          return this.pickupDropType === "self";
+        },
+        "Meetup point is required.",
+      ],
+    },
+
+    // Used only when pickupDropType is "group" (24 hour "HH:MM", like the time input sends)
     pickupTime: {
       type: String,
-      required: true,
-      match: [/^([01]\d|2[0-3]):[0-5]\d$/, "Pickup time must be HH:MM."],
+      required: [needsPickupDrop, "Pickup time is required."],
+      match: [TIME_REGEX, "Pickup time must be HH:MM."],
     },
-    pickupLocation: { type: String, required: true, trim: true },
+    pickupLocation: {
+      type: String,
+      trim: true,
+      required: [needsPickupDrop, "Pickup location is required."],
+    },
     dropTime: {
       type: String,
-      required: true,
-      match: [/^([01]\d|2[0-3]):[0-5]\d$/, "Drop time must be HH:MM."],
+      required: [needsPickupDrop, "Drop time is required."],
+      match: [TIME_REGEX, "Drop time must be HH:MM."],
     },
-    dropLocation: { type: String, required: true, trim: true },
+    dropLocation: {
+      type: String,
+      trim: true,
+      required: [needsPickupDrop, "Drop location is required."],
+    },
 
     // Number of days (nights = days - 1, see the virtual below)
-    duration: { type: Number, required: true, min: 2, max: 15 },
+    duration: { type: Number, required: true, min: 1, max: 15 },
 
-    // Max travelers
     maxTravelers: { type: Number, required: true, min: 1 },
 
     // ----- Pricing in rupees -----
@@ -110,7 +144,7 @@ const operatorTripSchema = new mongoose.Schema(
     customTerms: {
       type: String,
       trim: true,
-      // only required when the admin chose "Add new terms"
+      // only required when the operator chose "Add new terms"
       required: [
         function () {
           return this.termsType === "custom";
@@ -135,7 +169,7 @@ const operatorTripSchema = new mongoose.Schema(
     // For operator-created trips: pending | approved | rejected
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: OPERATOR_TRIP_STATUS,
       default: "pending", // operator-created trips need admin approval
     },
     rejectionReason: { type: String, default: "" },
@@ -168,8 +202,9 @@ operatorTripSchema.pre("validate", function () {
 });
 
 // Nights are worked out from days, so we don't store them twice
+// (a 1 day trip has 0 nights)
 operatorTripSchema.virtual("nights").get(function () {
-  return this.duration - 1;
+  return Math.max(this.duration - 1, 0);
 });
 
 // Common query: active trips sorted by date

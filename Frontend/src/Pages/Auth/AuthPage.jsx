@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import styles from "./Auth.module.css";
 import apiUsers from "../../apis/apiUsers";
 import apiOtp from "../../apis/apiOtp";
+import apiComponents from "../../apis/apiComponents";
 import useAuthStore from "../../Stores/authStore";
 import OtpVerification from "./OtpVerification";
 import Navbar from "../../Components/Navbar/Navbar";
@@ -44,6 +45,7 @@ export default function AuthPage({ signup = true }) {
   const [pendingSignup, setPendingSignup] = useState(null);
   const [showOtp, setShowOtp] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
+  const [cityOptions, setCityOptions] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,8 +60,25 @@ export default function AuthPage({ signup = true }) {
     mode: "onTouched",
     defaultValues: {
       gender: "",
+      city: "",
     },
   });
+
+  // Fetch city options once on mount
+  useEffect(() => {
+    let active = true;
+    async function loadCities() {
+      try {
+        const res = await apiComponents.get("/city");
+        const list = res.data?.data || [];
+        if (active) setCityOptions(list.map((c) => c.city).sort());
+      } catch (err) {
+        console.error("Failed to load cities:", err);
+      }
+    }
+    loadCities();
+    return () => { active = false; };
+  }, []);
 
   const switchMode = () => {
     setIsSignup((current) => !current);
@@ -364,6 +383,26 @@ export default function AuthPage({ signup = true }) {
                     <option value="Other">Other</option>
                   </select>
                 </Field>
+
+                {/* City */}
+                {isSignup && cityOptions.length > 0 && (
+                  <Field label="Select your city" error={errors.city}>
+                    <select
+                      {...register("city", {
+                        required: "Select your city",
+                      })}
+                    >
+                      <option value="" disabled>
+                        Select your city
+                      </option>
+                      {cityOptions.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
 
                 {/* Terms */}
                 <label className={styles.terms}>
