@@ -5,7 +5,7 @@ import axios from "axios";
 import useAuthStore from "../Stores/authStore";
 import styles from "./Auth.module.css";
 
-const API_URL = import.meta.env.VITE_API_URL ;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 const STATUS_STYLES = {
   pending: "statusPending",

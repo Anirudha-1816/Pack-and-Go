@@ -1,8 +1,9 @@
 // Operator "Add package" page
 // Needs:  npm i react-hook-form lucide-react react-hot-toast
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
+import tripsBaseUrlApi from "../../apis/tripsApi";
 import {
   Camera,
   CalendarDays,
@@ -13,6 +14,11 @@ import {
   PackagePlus,
   ScrollText,
   Utensils,
+  MapPin,
+  Clock,
+  Plus,
+  Minus,
+  Trash2,
 } from "lucide-react";
 
 // ---------- Dropdown / choice options (change these anytime) ----------
@@ -26,9 +32,14 @@ const mealOptions = [
   { value: "Tea / Coffee", label: "Tea / Coffee" },
 ];
 
+// These values must match the enum on the Trip model (stays / travel):
+//   ["Not included", "Budget", "Deluxe", "Premium"]
+const tierOptions = ["Not included", "Budget", "Deluxe", "Premium"];
+
+// Friendly travel options for the operator form
 const travelOptions = [
-  { value: "self", label: "Self travel to the decided place" },
-  { value: "pickup", label: "Pickup from a meeting point" },
+  { value: "Not included", label: "Self travel to the decided place" },
+  { value: "Budget", label: "Pickup from a meeting point" },
 ];
 
 const termsOptions = [
@@ -145,47 +156,148 @@ function ImagePicker({ name, label, hint, register, error, className = "" }) {
   );
 }
 
+// ---------- Tier picker for stays and travel ----------
+function TierPicker({ name, label, register, error, options = tierOptions }) {
+  return (
+    <Field label={label} error={error}>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <label key={option} className="cursor-pointer">
+            <input
+              type="radio"
+              value={option}
+              className="peer sr-only"
+              {...register(name, { required: "Please choose one" })}
+            />
+            <span
+              className="block rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-600 transition
+                         hover:border-teal-700 peer-checked:border-teal-800 peer-checked:bg-teal-800
+                         peer-checked:text-white peer-focus-visible:ring-4 peer-focus-visible:ring-teal-700/20"
+            >
+              {option}
+            </span>
+          </label>
+        ))}
+      </div>
+    </Field>
+  );
+}
+
 export default function OperatorAddPackage() {
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    control,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: { termsType: "regular", meals: [] },
+    defaultValues: { termsType: "regular", meals: [], roadmap: [] },
   });
 
   // Used to clear the image previews after the form is reset
   const [formKey, setFormKey] = useState(0);
 
+  // Roadmap field array
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "roadmap",
+    rules: { required: "Add at least one place to the roadmap" },
+  });
+
   // Show extra inputs only when needed
   const travel = watch("travel");
   const termsType = watch("termsType");
+
+  // Roadmap values
+  const roadmap = watch("roadmap");
+  const totalDays = roadmap.reduce((sum, stop) => sum + (stop.days || 0), 0);
+
+  const dayLabel = (index) => {
+    let start = 1;
+    for (let i = 0; i < index; i++) start += roadmap[i]?.days || 0;
+    const end = start + (roadmap[index]?.days || 1) - 1;
+    return start === end ? `Day ${start}` : `Day ${start}-${end}`;
+  };
+
+  // Open the roadmap modal
+  const openRoadmap = () => {
+    if (fields.length === 0) append({ place: "", days: 1, note: "" });
+    setShowRoadmap(true);
+  };
+
+  // Close the roadmap modal only if every place is filled correctly
+  const closeRoadmap = async () => {
+    if (fields.length === 0) {
+      setShowRoadmap(false);
+      return;
+    }
+    const isValid = await trigger("roadmap");
+    if (isValid) setShowRoadmap(false);
+  };
+
+  const [showRoadmap, setShowRoadmap] = useState(false);
 
   const onSubmit = async (data) => {
     // 1. The plain form data (images show up as FileList)
     console.log("Form data:", data);
 
-    // 2. The same data as multipart/form-data, ready for your backend
-    const { banner, thumbnail, meals, ...rest } = data;
-    if (rest.termsType === "regular") delete rest.customTerms;
-    if (rest.travel !== "pickup") delete rest.meetingPoint;
+    // 2. Build the multipart/form-data payload the backend expects.
+    const { banner, thumbnail, meals, location, travel: travelValue, meetingPoint, ...rest } = data;
+
+    // Map form fields to backend schema
+    const from = (location || "").trim();
+    const to = from;
+
+    // Map travel value to backend enum
+    const travelEnum = travelValue === "pickup" ? "Budget" : "Not included";
+
+    const payload = {
+      ...rest,
+      destination: location,
+      from,
+      to,
+      travel: travelEnum,
+      maxTravelers: data.maxTravelers,
+    };
+
+    if (payload.termsType === "regular") delete payload.customTerms;
+    if (travelValue !== "pickup") delete payload.meetingPoint;
 
     const formData = new FormData();
     formData.append("banner", banner[0]);
     formData.append("thumbnail", thumbnail[0]);
-    formData.append("meals", JSON.stringify(meals)); // array sent as a JSON string
-    Object.keys(rest).forEach((key) => formData.append(key, rest[key]));
+    formData.append("meals", JSON.stringify(meals || []));
+    formData.append("roadmap", JSON.stringify(roadmap || []));
+
+    Object.keys(payload).forEach((key) => {
+      const value = payload[key];
+      if (value === undefined || value === null) return;
+      formData.append(key, String(value));
+    });
 
     console.log("FormData (what the backend will receive):", Object.fromEntries(formData));
 
-    // TODO: add your API call here, e.g.
-    // await tripsBaseUrlApi.post("/create", formData, { withCredentials: true });
+    const toastId = toast.loading("Adding package...");
+    try {
+      const res = await tripsBaseUrlApi.post("/trips", formData, {
+        withCredentials: true,
+      });
 
-    toast.success("Package added (check the console)");
-    reset();
-    setFormKey((key) => key + 1);
+      toast.success(res.data?.message || "Package added successfully", { id: toastId });
+      reset();
+      setFormKey((key) => key + 1);
+      setShowRoadmap(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.extraDetails ||
+          "Could not add the package. Please try again.",
+        { id: toastId }
+      );
+    }
   };
 
   return (
@@ -239,15 +351,15 @@ export default function OperatorAddPackage() {
                 </Field>
 
                 <Field
-                  label="Trip location"
-                  hint="One place, or a route like Jaipur to Manali"
+                  label="Destination"
+                  hint="One place, e.g. Manali, Himachal Pradesh"
                   error={errors.location}
                 >
                   <input
                     type="text"
                     placeholder="e.g. Manali, Himachal Pradesh"
                     className={inputClass}
-                    {...register("location", { required: "Enter the trip location" })}
+                    {...register("location", { required: "Enter the destination" })}
                   />
                 </Field>
 
@@ -262,6 +374,47 @@ export default function OperatorAddPackage() {
               </div>
             </Card>
 
+            {/* Pickup & Drop Details */}
+            <Card icon={MapPin} title="Pickup & Drop Details">
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Pickup time" error={errors.pickupTime}>
+                    <input
+                      type="time"
+                      className={inputClass}
+                      {...register("pickupTime", { required: "Pickup time is required" })}
+                    />
+                  </Field>
+
+                  <Field label="Pickup location" error={errors.pickupLocation}>
+                    <input
+                      type="text"
+                      placeholder="e.g. Sindhi Camp bus stand, Jaipur"
+                      className={inputClass}
+                      {...register("pickupLocation", { required: "Pickup location is required" })}
+                    />
+                  </Field>
+
+                  <Field label="Drop time" error={errors.dropTime}>
+                    <input
+                      type="time"
+                      className={inputClass}
+                      {...register("dropTime", { required: "Drop time is required" })}
+                    />
+                  </Field>
+
+                  <Field label="Drop location" error={errors.dropLocation}>
+                    <input
+                      type="text"
+                      placeholder="e.g. Sindhi Camp bus stand, Jaipur"
+                      className={inputClass}
+                      {...register("dropLocation", { required: "Drop location is required" })}
+                    />
+                  </Field>
+                </div>
+              </div>
+            </Card>
+
             {/* Meals + travel */}
             <Card icon={Bus} title="Meals and travel">
               <div className="space-y-5">
@@ -272,19 +425,11 @@ export default function OperatorAddPackage() {
                   <Choice type="checkbox" name="meals" options={mealOptions} register={register} />
                 </div>
 
-                <Field label="Travel" error={errors.travel}>
-                  <select className={inputClass} {...register("travel", { required: "Select a travel option" })}>
-                    <option value="">Select travel option</option>
-                    {travelOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
+                <TierPicker name="stays" label="Stays" register={register} error={errors.stays} />
+                <TierPicker name="travel" label="Travel" register={register} error={errors.travel} />
 
                 {/* Only shown when pickup is selected */}
-                {travel === "pickup" && (
+                {travel === "Budget" && (
                   <Field label="Meeting point" error={errors.meetingPoint}>
                     <input
                       type="text"
@@ -315,6 +460,31 @@ export default function OperatorAddPackage() {
                 </div>
               )}
             </Card>
+
+            {/* Roadmap */}
+            <Card icon={FileText} title="Roadmap">
+              <div className="space-y-4">
+                {roadmap.length > 0 && (
+                  <p className="text-sm text-slate-600">
+                    {roadmap.map((stop) => stop.place || "?").join(" → ")}
+                    <br />
+                    <strong>{roadmap.length} places, {totalDays} days</strong>
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2
+                             text-sm font-medium text-slate-700 transition
+                             hover:border-teal-700 hover:bg-teal-50/50"
+                  onClick={openRoadmap}
+                >
+                  <Plus size={16} /> {roadmap.length > 0 ? "Edit roadmap" : "Add roadmap"}
+                </button>
+
+                {errors.roadmap?.root && <small className="mt-1 block text-xs text-red-600">{errors.roadmap.root.message}</small>}
+              </div>
+            </Card>
           </div>
 
           {/* ================= RIGHT SIDE ================= */}
@@ -344,13 +514,31 @@ export default function OperatorAddPackage() {
                   </select>
                 </Field>
 
+                <Field label="Duration (days)" error={errors.duration}>
+                  <input
+                    type="number"
+                    min="2"
+                    max="15"
+                    placeholder="e.g. 5"
+                    className={inputClass}
+                    {...register("duration", {
+                      required: "Enter duration",
+                      valueAsNumber: true,
+                      min: { value: 2, message: "Minimum 2 days" },
+                      max: { value: 15, message: "Maximum 15 days" },
+                    })}
+                  />
+                </Field>
+
                 <Field label="Max travelers" error={errors.maxTravelers}>
                   <input
                     type="number"
+                    min="1"
                     placeholder="e.g. 12"
                     className={inputClass}
                     {...register("maxTravelers", {
                       required: "Enter the group size",
+                      valueAsNumber: true,
                       min: { value: 1, message: "Must be at least 1" },
                     })}
                   />
@@ -359,10 +547,12 @@ export default function OperatorAddPackage() {
                 <Field label="Price per head (₹)" error={errors.pricePerHead}>
                   <input
                     type="number"
+                    min="1"
                     placeholder="e.g. 6499"
                     className={inputClass}
                     {...register("pricePerHead", {
                       required: "Enter a price",
+                      valueAsNumber: true,
                       min: { value: 1, message: "Must be more than 0" },
                     })}
                   />
@@ -383,6 +573,106 @@ export default function OperatorAddPackage() {
             </Card>
           </div>
         </form>
+
+        {/* ================= ROADMAP MODAL ================= */}
+        {showRoadmap && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-slate-900">Trip roadmap</h2>
+                <button
+                  type="button"
+                  className="text-slate-400 hover:text-slate-600"
+                  onClick={closeRoadmap}
+                  aria-label="Close"
+                >
+                  <Trash2 size={24} />
+                </button>
+              </div>
+
+              <p className="mb-4 text-sm text-slate-500">
+                Add every place in order, and how many days the group stays there.
+              </p>
+
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="border border-slate-200 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-800">
+                        {dayLabel(index)}
+                      </span>
+                      <button
+                        type="button"
+                        className="text-slate-400 hover:text-red-600"
+                        onClick={() => remove(index)}
+                        aria-label={`Remove place ${index + 1}`}
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field label="Place" error={errors.roadmap?.[index]?.place}>
+                        <input
+                          type="text"
+                          placeholder="e.g. Manali"
+                          className={inputClass}
+                          {...register(`roadmap.${index}.place`, { required: "Enter a place" })}
+                        />
+                      </Field>
+
+                      <Field label="Days stayed" error={errors.roadmap?.[index]?.days}>
+                        <input
+                          type="number"
+                          min="1"
+                          className={inputClass}
+                          {...register(`roadmap.${index}.days`, {
+                            valueAsNumber: true,
+                            required: "Enter days",
+                            min: { value: 1, message: "Min 1" },
+                          })}
+                        />
+                      </Field>
+                    </div>
+
+                    <Field label="What we do here (optional)">
+                      <input
+                        type="text"
+                        placeholder="e.g. Snow point, local market, bonfire night"
+                        className={inputClass}
+                        {...register(`roadmap.${index}.note`)}
+                      />
+                    </Field>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3
+                             text-sm font-medium text-slate-700 transition
+                             hover:border-teal-700 hover:bg-teal-50/50"
+                  onClick={() => append({ place: "", days: 1, note: "" })}
+                >
+                  <Plus size={16} /> Add place
+                </button>
+              </div>
+
+              <div className="mt-6 flex items-center justify-between">
+                <span className="text-sm text-slate-600">
+                  {fields.length} places, {totalDays} days
+                </span>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full bg-teal-800 px-6 py-2.5
+                             text-sm font-semibold text-white transition hover:bg-teal-700"
+                  onClick={closeRoadmap}
+                >
+                  <PackagePlus size={16} /> Done
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Readable } from "stream";
 import Operator from "../../models/users/operatorsModel.js";
-import Trip from "../../models/components/tripModel.js";
+import OperatorTrip from "../../models/components/operatorTripModel.js";
 import Booking from "../../models/Bookings/bookingModel.js";
 import cloudinary from "../../configs/cloudinary.js";
 import { uploadMedia } from "../../services/cloudinaryService.js";
@@ -263,15 +263,8 @@ export const getOperatorTrips = async (req, res, next) => {
       return next(error);
     }
 
-    // Get trips where the guide matches the operator's name
-    const operator = await Operator.findById(operatorId);
-    if (!operator) {
-      const error = new Error("Operator not found");
-      error.status = statusCode.NOT_FOUND;
-      return next(error);
-    }
-
-    const trips = await Trip.find({ guide: operator.name }).sort({ date: 1 });
+    // Get trips belonging to the authenticated operator
+    const trips = await OperatorTrip.find({ operator: operatorId }).sort({ createdAt: -1 });
 
     return res.status(statusCode.OK).json({
       success: true,
@@ -292,14 +285,7 @@ export const getOperatorBookings = async (req, res, next) => {
     }
 
     // Get operator's trips first
-    const operator = await Operator.findById(operatorId);
-    if (!operator) {
-      const error = new Error("Operator not found");
-      error.status = statusCode.NOT_FOUND;
-      return next(error);
-    }
-
-    const operatorTrips = await Trip.find({ guide: operator.name }).select("_id");
+    const operatorTrips = await OperatorTrip.find({ operator: operatorId }).select("_id");
     const tripIds = operatorTrips.map((t) => t._id);
 
     // Get bookings for those trips
@@ -342,13 +328,30 @@ export const createOperatorTrip = async (req, res, next) => {
       throw badRequest("Operator not authorized");
     }
 
+    // The operator's own trips are looked up by `guide: operator.name`
+    // (see getOperatorTrips), so the guide must be the operator's name.
+    const operator = await Operator.findById(operatorId);
+    if (!operator) {
+      throw badRequest("Operator not authorized");
+    }
+
     // 4. Take only the fields we expect
     const {
-      from, to, guide, date,
+      from, to, date,
       pickupTime, pickupLocation, dropTime, dropLocation,
       duration, pricePerHead,
       tripType, stays, travel, termsType, customTerms,
     } = req.body;
+
+    // The form may send a guide name; fall back to the operator's own name so
+    // the trip is always attributable to, and discoverable by, this operator.
+    const guide = (typeof req.body.guide === "string" && req.body.guide.trim()) || operator.name;
+
+    // 4b. "meals" and "roadmap" arrive as JSON strings inside the FormData.
+    //     They are optional at parse time; the model still enforces its own
+    //     requirements (meals defaults to [], roadmap needs at least one stop).
+    const meals = req.body.meals ? parseJson(req.body.meals, "meals") : [];
+    const roadmap = req.body.roadmap ? parseJson(req.body.roadmap, "roadmap") : [];
 
     // 5. Save the trip with operator reference and pending status
     const trip = await Trip.create({
@@ -356,8 +359,8 @@ export const createOperatorTrip = async (req, res, next) => {
       pickupTime, pickupLocation, dropTime, dropLocation,
       duration, pricePerHead,
       tripType, stays, travel, termsType, customTerms,
-      meals: req.body.meals ? parseJson(req.body.meals, "meals") : [],
-      roadmap: parseJson(req.body.roadmap, "roadmap"),
+      meals,
+      roadmap,
       banner,
       thumbnail,
       operator: operatorId,
@@ -386,6 +389,8 @@ export const createOperatorTrip = async (req, res, next) => {
     return next(err);
   }
 };
+
+// Old createOperatorTrip removed - now handled by dedicated operatorTripController
 
 export const logoutOperator = async (req, res, next) => {
   try {

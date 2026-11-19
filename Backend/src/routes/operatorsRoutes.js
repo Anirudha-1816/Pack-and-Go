@@ -1,7 +1,6 @@
 import express from 'express'
 import {
   createOperators,
-  createOperatorTrip,
   getAllOperatorsReq,
   getCurrentOperator,
   getOperatorBookings,
@@ -13,7 +12,6 @@ import {
   updateOperatorThemePreference,
 } from '../controllers/operators/operatorsControllers.js'
 import { uploadOperatorImage } from '../middlewares/Uploads/operatorUploadMiddleware.js'
-import { uploadTripImages } from '../middlewares/Uploads/uploadMiddleware.js'
 import checkForAuth from '../middlewares/Authentication/checkForAuth.js'
 import checkForAdmin from '../middlewares/Authentication/checkForAdmin.js'
 
@@ -25,7 +23,6 @@ operatorsRouter.post('/logout', logoutOperator)
 operatorsRouter.get('/me', checkForAuth, getCurrentOperator)
 operatorsRouter.get('/trips', checkForAuth, getOperatorTrips)
 operatorsRouter.get('/bookings', checkForAuth, getOperatorBookings)
-operatorsRouter.post('/trips', checkForAuth, uploadTripImages, createOperatorTrip)
 operatorsRouter.get('/all', checkForAuth, checkForAdmin, getAllOperatorsReq)
 operatorsRouter.patch(
   '/status/:id',

@@ -19,11 +19,10 @@ export default function Hero() {
             Small-group journeys, thoughtfully planned
           </p>
           <h1 className={styles.title}>
-            Pick a route.
-            <br />
-            Grab a seat.
-            <br />
-            <span className={styles.go}>Go.</span>
+            Don't Stay In.
+             
+            <span className={styles.go}>Get Out.
+</span>
           </h1>
 
           <p className={styles.desc}>
