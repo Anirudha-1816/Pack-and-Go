@@ -20,10 +20,10 @@ import {
   FaHourglassHalf,
 } from "react-icons/fa";
 import axios from "axios";
-import useAuthStore from "../Stores/authStore";
+import useAuthStore from "../../Stores/authStore.js";
 import styles from "./Dashboard.module.css";
-import AuthLoading from "../utils/AuthLoading"; 
-import NextTripCard from "./NextTripCard.jsx";
+import AuthLoading from "../../utils/AuthLoading.jsx"; 
+import NextTripCard from "../Sections/NextTripCard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
