@@ -1,5 +1,11 @@
-// import axios from "axios";
+import apiComponents from "../../apis/apiComponents";
 
-// export const getDestinations = ()=>{
-//   return apiComponents.get("/destinations");
-// }
+export const getDestinations = async () => {
+  const { data } = await apiComponents.get("/destinations");
+
+  return Array.isArray(data?.data)
+    ? data.data
+    : data?.data
+      ? [data.data]
+      : [];
+};

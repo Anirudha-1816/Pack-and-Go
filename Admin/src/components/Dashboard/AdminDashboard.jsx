@@ -30,7 +30,6 @@ const nav = [
   { to: "/admin/bookings", label: "Check bookings", icon: <FaCalendarCheck /> },
   { to: "/admin/operator-requests", label: "Operator requests", icon: <FaUsers /> },
   { to: "/admin/operator-trips", label: "Operator trips", icon: <FaClipboardList /> },
-  { to: "/admin/gallery", label: "Gallery", icon: <FaImages /> },
   { to: "/admin/messages", label: "Messages", icon: <FaEnvelope />, badge: 3 },
   { to: "/admin/feedbacks", label: "Feedbacks", icon: <FaStar /> },
   { to: "/admin/settings", label: "Settings", icon: <FaGear /> },

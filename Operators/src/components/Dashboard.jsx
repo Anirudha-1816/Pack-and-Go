@@ -23,6 +23,7 @@ import axios from "axios";
 import useAuthStore from "../Stores/authStore";
 import styles from "./Dashboard.module.css";
 import AuthLoading from "../utils/AuthLoading";
+import NextTripCard from "./NextTripCard";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
@@ -591,6 +592,15 @@ export default function OperatorDashboard() {
 
   const daysToGo = nextTrip && Math.ceil((nextStart - new Date()) / DAY);
 
+  // Text shown on the next trip card image
+  const nextTripBadge =
+    nextTrip &&
+    (nextTrip.status === "running"
+      ? `Running now, day ${dayNumber} of ${nextTrip.duration}`
+      : daysToGo <= 1
+        ? "Leaves tomorrow"
+        : `Leaves in ${daysToGo} days`);
+
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
@@ -744,41 +754,14 @@ export default function OperatorDashboard() {
 
               {/* Next trip */}
               {nextTrip ? (
-                <section className={styles.nextTripCard}>
-                  <span className={styles.nextTripBadge}>
-                    {nextTrip.status === "running"
-                      ? `Running now, day ${dayNumber} of ${nextTrip.duration}`
-                      : daysToGo <= 1
-                        ? "Leaves tomorrow"
-                        : `Leaves in ${daysToGo} days`}
-                  </span>
-
-                  <h2 className={styles.nextTripTitle}>{nextTrip.title}</h2>
-
-                  <div className={styles.nextTripDetails}>
-                    {[
-                      ["Destination", nextTrip.destination],
-                      ["Starts on", formatDate(nextTrip.date)],
-                      pickupInfo(nextTrip),
-                      ["Travelers booked", `${travelersOn(nextTrip)} / ${nextTrip.maxTravelers}`],
-                    ].map(([label, value]) => (
-                      <div key={label} className={styles.nextTripDetailItem}>
-                        <p className={styles.nextTripDetailLabel}>{label}</p>
-                        <p className={styles.nextTripDetailValue}>{value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className={styles.nextTripActions}>
-                    <button className={styles.btnPrimary} onClick={() => openPassengers(nextTrip._id)}>
-                      View passenger list
-                    </button>
-
-                    <button onClick={() => setTab("trips")} className={styles.btnGhost}>
-                      All my trips
-                    </button>
-                  </div>
-                </section>
+                <NextTripCard
+                  trip={nextTrip}
+                  bookedCount={travelersOn(nextTrip)}
+                  badge={nextTripBadge}
+                  pickup={pickupInfo(nextTrip)}
+                  onViewPassengers={() => openPassengers(nextTrip._id)}
+                  onAllTrips={() => setTab("trips")}
+                />
               ) : (
                 <section className={styles.emptyCard}>
                   <span className={styles.emptyIcon}>
