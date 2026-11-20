@@ -6,7 +6,7 @@ import OperatorLogin from "./Pages/OperatorsLogin";
 import Signup from "./Pages/OperatorSignup";
 import OperatorHome from "./Pages/home";
 
-import OperatorDashboard from "./components/Dashboard";
+import OperatorDashboard from "./components/dashboard/Dashboard";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
 import OperatorAddPackage from "./components/Sections/AddPackages";
 
