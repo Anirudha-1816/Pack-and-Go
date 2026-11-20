@@ -22,7 +22,7 @@ import {
 import axios from "axios";
 import useAuthStore from "../Stores/authStore";
 import styles from "./Dashboard.module.css";
-import AuthLoading from "../utils/AuthLoading";
+import AuthLoading from "../utils/AuthLoading"; 
 import NextTripCard from "./NextTripCard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
