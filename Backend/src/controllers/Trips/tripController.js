@@ -56,7 +56,7 @@ export const createTrip = async (req, res, next) => {
       thumbnail,
     });
 
-    
+
 
     return res.status(201).json({
       success: true,
@@ -83,7 +83,8 @@ export const createTrip = async (req, res, next) => {
 
 export const getAllTripsForAdmin = async (req, res, next) => {
   try {
-    const trips = await Trip.find().sort({ createdAt: -1 });
+    // Exclude deleted trips by default in admin listing
+    const trips = await Trip.find({ isDeleted: { $ne: true } }).sort({ createdAt: -1 });
 
     return res.status(statusCode.OK).json({
       success: true,
@@ -138,6 +139,9 @@ const isTripPubliclyVisible = (trip) => {
   // isActive: missing or true -> visible; false -> hidden
   const isActive = trip.isActive ?? true;
   if (isActive === false) return false;
+  // isDeleted: missing or false -> visible; true -> hidden
+  const isDeleted = trip.isDeleted ?? false;
+  if (isDeleted === true) return false;
   return true;
 };
 
@@ -160,24 +164,23 @@ export const getTripById = async (req, res, next) => {
 
 export const deleteTripById = async (req, res, next) => {
   try {
-    const trip = await Trip.findById(req.params.id)
+    const trip = await Trip.findById(req.params.id);
 
-    if(!trip) {
+    if (!trip) {
       const error = new Error("Trip not found.");
       error.status = statusCode.NOT_FOUND;
       return next(error);
     }
 
-    await Trip.findByIdAndDelete(req.params.id);
+    // Soft delete: mark as deleted instead of permanently removing
+    trip.isDeleted = true;
+    await trip.save();
 
-    res.status(200).json({ success: true, 
-      message: "Trip deleted successfully." });
-
-
-
-  }
-  catch (err) {
+    res.status(200).json({
+      success: true,
+      message: "Trip deleted successfully.",
+    });
+  } catch (err) {
     return next(err);
   }
-
 };

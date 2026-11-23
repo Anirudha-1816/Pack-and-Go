@@ -184,8 +184,8 @@ export const getOperatorTrips = async (req, res, next) => {
       return next(error);
     }
 
-    // Get trips belonging to the authenticated operator
-    const trips = await OperatorTrip.find({ operator: operatorId }).sort({ createdAt: -1 });
+    // Get trips belonging to the authenticated operator (exclude deleted)
+    const trips = await OperatorTrip.find({ operator: operatorId, isDeleted: { $ne: true } }).sort({ createdAt: -1 });
 
     return res.status(statusCode.OK).json({
       success: true,
@@ -214,6 +214,36 @@ export const getOperatorTripById = async (req, res, next) => {
     }
 
     return res.status(200).json({ success: true, data: trip });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const deleteOperatorTripById = async (req, res, next) => {
+  try {
+    const operatorId = req.user?.userId;
+    if (!operatorId) {
+      const error = new Error("Operator not authorized");
+      error.status = statusCode.UNAUTHORIZED;
+      return next(error);
+    }
+
+    const trip = await OperatorTrip.findOne({ _id: req.params.id, operator: operatorId });
+
+    if (!trip) {
+      const error = new Error("Trip not found.");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    // Soft delete: mark as deleted instead of permanently removing
+    trip.isDeleted = true;
+    await trip.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Trip deleted successfully.",
+    });
   } catch (err) {
     return next(err);
   }

@@ -21,6 +21,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaSpinner,
+  FaTrashAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import {
@@ -28,6 +29,7 @@ import {
   fetchOperatorTripDetail,
   approveOperatorTrip,
   rejectOperatorTrip,
+  deleteOperatorTrip,
 } from "../../api/trips/operatorTripsApi.js";
 import styles from "./OperatorTrips.module.css";
 
@@ -293,6 +295,43 @@ function RejectDialog({ operatorTrip, onClose, onConfirm, busy }) {
   );
 }
 
+// ---------- Delete Confirmation Dialog ----------
+function DeleteDialog({ operatorTrip, onClose, onConfirm, busy }) {
+  return (
+    <ModalOverlay isOpen onClose={onClose}>
+      <div>
+        <DetailModalHeader title={`Delete "${operatorTrip.title}"?`} onClose={onClose} />
+        <div className="flex flex-col gap-4 overflow-y-auto px-6 pb-6 pt-2">
+          <p className="text-sm text-[#55655b]">
+            This will permanently remove the operator trip. This action cannot be undone.
+          </p>
+
+          <div className="rounded-xl bg-[#fdf0ee] p-4">
+            <p className="text-sm font-medium text-[#8f1d17]">
+              <FaTimesCircle size={16} className="inline-block mr-1" /> This action cannot be undone.
+            </p>
+            <p className="mt-1 text-xs text-[#8f1d17]">
+              The operator trip will be soft deleted and removed from all listings.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" className={btnNormal} onClick={onClose} disabled={busy}>
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={busy}
+              className="inline-flex h-9 items-center rounded-lg bg-[#b3261e] px-4 text-sm font-semibold text-white transition hover:bg-[#8f1d17] disabled:opacity-50"
+            >
+              {busy ? "Deleting..." : "Yes, delete"}
+            </button>
+          </div>
+        </div      </div>
+    </ModalOverlay>
+  );
+}
+
 // ---------- Approve Confirmation Dialog ----------
 function ApproveDialog({ operatorTrip, onClose, onConfirm, busy }) {
   return (
@@ -385,7 +424,7 @@ function OperatorTripCard({ trip, onClick, busyId }) {
 }
 
 // ---------- Detail View (Full Screen Modal) ----------
-function DetailView({ trip, onClose, onApprove, onReject, busyId }) {
+function DetailView({ trip, onClose, onApprove, onReject, onDelete, busyId }) {
   const isBusy = busyId === trip._id;
   const operator = trip.operator || {};
   const totalDays = trip.roadmap?.reduce((sum, stop) => sum + (stop.days || 0), 0) || 0;
@@ -629,6 +668,17 @@ function DetailView({ trip, onClose, onApprove, onReject, busyId }) {
                     </p>
                   </div>
                 )}
+
+                {/* Delete button */}
+                <div className="pt-2">
+                  <button
+                    className={btnDanger}
+                    onClick={() => onDelete(trip)}
+                    disabled={isBusy}
+                  >
+                    <FaTrashAlt size={14} className="mr-1" /> Delete
+                  </button>
+                </div>
               </div>
             </aside>
           </div>
@@ -651,6 +701,7 @@ export default function OperatorTrips() {
   const [busyId, setBusyId] = useState(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
 
   // 1. Load trips on mount and when tab changes
@@ -721,7 +772,30 @@ export default function OperatorTrips() {
     }
   };
 
-  // 4. Handle detail view
+  // 4. Handle delete
+  const handleDelete = (trip) => {
+    setSelectedTrip(trip);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedTrip) return;
+    try {
+      setBusyId(selectedTrip._id);
+      await deleteOperatorTrip(selectedTrip._id);
+      showSuccess(`${selectedTrip.title} was deleted.`);
+      setShowDeleteDialog(false);
+      setSelectedTrip(null);
+      loadTrips({ refresh: true });
+    } catch (err) {
+      console.error("Could not delete:", err);
+      showError(err.response?.data?.message || "Could not delete the package.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // 5. Handle detail view
   const openDetail = (trip) => {
     setSelectedTrip(trip);
   };
@@ -899,6 +973,7 @@ export default function OperatorTrips() {
             onClose={closeDetail}
             onApprove={handleApprove}
             onReject={handleReject}
+            onDelete={handleDelete}
             busyId={busyId}
           />
         )}
@@ -919,6 +994,16 @@ export default function OperatorTrips() {
             operatorTrip={selectedTrip}
             onClose={() => setShowApproveDialog(false)}
             onConfirm={confirmApprove}
+            busy={busyId === selectedTrip._id}
+          />
+        )}
+
+        {/* Delete dialog */}
+        {showDeleteDialog && selectedTrip && (
+          <DeleteDialog
+            operatorTrip={selectedTrip}
+            onClose={() => setShowDeleteDialog(false)}
+            onConfirm={confirmDelete}
             busy={busyId === selectedTrip._id}
           />
         )}

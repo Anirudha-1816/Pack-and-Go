@@ -171,6 +171,10 @@ const tripSchema = new mongoose.Schema(
     // Default true so old documents (missing this field) are treated as active
     isActive: { type: Boolean, default: true },
 
+    // Soft delete flag - when true, trip is hidden from all normal queries
+    // Default false so existing documents without this field are treated as not deleted
+    isDeleted: { type: Boolean, default: false, index: true },
+
     // For operator-created trips: pending | approved | rejected
     // Default "approved" so old documents (missing this) are treated as approved
     status: {

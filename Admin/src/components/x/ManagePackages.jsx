@@ -56,6 +56,7 @@ function formatTrip(t) {
     price: t.pricePerHead,
     visible: t.isActive !== false,
     status: getTripStatus(t),
+    deleted: t.isDeleted === true,
   };
 }
 
@@ -72,6 +73,7 @@ const STATUS_STYLE = {
   upcoming: "bg-[#ffe9d6] text-[#8a3f00]",
   running: "bg-[#dff1e6] text-[#14633c]",
   completed: "bg-[#ececea] text-[#4a4f4b]",
+  deleted: "bg-[#fbe3e0] text-[#8f1d17]",
 };
 
 const FILTERS = [
@@ -80,6 +82,7 @@ const FILTERS = [
   ["running", "Running"],
   ["completed", "Completed"],
   ["hidden", "Hidden"],
+  ["deleted", "Deleted"],
 ];
 
 // ---------- Reusable Components ----------
@@ -131,7 +134,7 @@ function DeleteDialog({ busy, onCancel, onConfirm }) {
 
         
         <p className="mt-3 rounded-lg bg-[#fff1e3] px-3 py-2 text-sm text-[#7a3a00]">
-          If travelers have already booked this trip, hide it instead of deleting it.
+          This will soft delete the package. It will be hidden from all listings but not permanently removed.
         </p>
 
         <div className="mt-6 flex justify-end gap-3">
@@ -207,6 +210,12 @@ function TripRow({ trip, busy, onToggle, onDelete }) {
           {!trip.visible && (
             <Badge className="border border-[#cfd8cb] bg-white text-[#55655b]">
               Hidden
+            </Badge>
+          )}
+
+          {trip.deleted && (
+            <Badge className="bg-[#fbe3e0] text-[#8f1d17]">
+              Deleted
             </Badge>
           )}
         </div>
@@ -348,6 +357,7 @@ export default function ManagePackages() {
     running: trips.filter((t) => t.status === "running").length,
     completed: trips.filter((t) => t.status === "completed").length,
     hidden: trips.filter((t) => !t.visible).length,
+    deleted: trips.filter((t) => t.deleted === true).length,
   };
 
   // 5. Search, filter and sorting
@@ -356,6 +366,8 @@ export default function ManagePackages() {
     .filter((t) =>
       filter === "hidden"
         ? !t.visible
+        : filter === "deleted"
+        ? t.deleted === true
         : filter === "all" || t.status === filter
     )
     .filter((t) =>

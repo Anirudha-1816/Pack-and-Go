@@ -20,6 +20,7 @@ function formatTrip(t) {
     price: t.pricePerHead ?? t.price,
     seatsLeft: t.seatsLeft,
     type: t.tripType || "",
+    deleted: t.isDeleted === true,
   };
 }
 
@@ -51,10 +52,10 @@ function Packages() {
     loadTrips();
   }, []);
 
-  // 2. Keep only upcoming trips (today or later)
+  // 2. Keep only upcoming trips (today or later) and not deleted
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const upcoming = trips.filter((t) => new Date(t.date) >= today);
+  const upcoming = trips.filter((t) => new Date(t.date) >= today && !t.deleted);
 
   // 3. Filter chips come from the trip types we actually have
   const types = ["All", ...new Set(upcoming.map((t) => t.type).filter(Boolean))];

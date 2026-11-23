@@ -4,6 +4,7 @@ import {
   getOperatorTripDetail,
   approveOperatorTrip,
   rejectOperatorTrip,
+  deleteOperatorTrip,
 } from "../../controllers/admin/adminOperatorTripController.js";
 import checkForAuth from "../../middlewares/Authentication/checkForAuth.js";
 import checkForAdmin from "../../middlewares/Authentication/checkForAdmin.js";
@@ -25,5 +26,8 @@ adminOperatorTripRouter.patch("/:id/approve", approveOperatorTrip);
 
 // PATCH /admin/operator-trips/:id/reject -> reject operator trip (requires reason)
 adminOperatorTripRouter.patch("/:id/reject", rejectOperatorTrip);
+
+// DELETE /admin/operator-trips/:id -> soft delete operator trip
+adminOperatorTripRouter.delete("/:id", deleteOperatorTrip);
 
 export default adminOperatorTripRouter;

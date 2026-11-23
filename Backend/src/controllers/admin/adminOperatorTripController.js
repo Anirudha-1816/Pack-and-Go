@@ -102,3 +102,23 @@ export const rejectOperatorTrip = async (req, res, next) => {
     return next(err);
   }
 };
+
+/**
+ * DELETE /admin/operator-trips/:id
+ * Soft deletes an operator trip.
+ * Admin only.
+ */
+export const deleteOperatorTrip = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const operatorTrip = await operatorTripService.deleteOperatorTripByAdmin(id);
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Operator trip deleted successfully.",
+      data: operatorTrip,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};

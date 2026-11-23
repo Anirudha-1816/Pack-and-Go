@@ -82,10 +82,12 @@ export const OPERATOR_TRIP_COLLECTION_NAME = "OperatorTrip";
  * Old documents (pre-feature) don't have status/isActive, so we use $ne to include them.
  * - status: { $ne: "rejected" } matches "approved", "pending", and missing
  * - isActive: { $ne: false } matches true and missing
+ * - isDeleted: { $ne: true } matches false and missing (soft delete)
  */
 export const publicTripFilter = {
   status: { $ne: "rejected" },
   isActive: { $ne: false },
+  isDeleted: { $ne: true },
 };
 
 /**

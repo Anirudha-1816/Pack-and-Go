@@ -166,6 +166,10 @@ const operatorTripSchema = new mongoose.Schema(
     // Admin can hide a trip without deleting it
     isActive: { type: Boolean, default: true },
 
+    // Soft delete flag - when true, trip is hidden from all normal queries
+    // Default false so existing documents without this field are treated as not deleted
+    isDeleted: { type: Boolean, default: false, index: true },
+
     // For operator-created trips: pending | approved | rejected
     status: {
       type: String,

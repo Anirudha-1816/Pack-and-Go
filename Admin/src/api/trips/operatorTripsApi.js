@@ -26,3 +26,9 @@ export const rejectOperatorTrip = async (id, rejectionReason) => {
   });
   return data;
 };
+
+// DELETE /admin/operator-trips/:id
+export const deleteOperatorTrip = async (id) => {
+  const { data } = await adminApi.delete(`/admin/operator-trips/${id}`);
+  return data;
+};

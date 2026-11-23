@@ -165,7 +165,7 @@ export const rejectOperatorTrip = async (operatorTripId, rejectionReason) => {
  * @returns {Promise<Array>} List of operator trips with operator name
  */
 export const getOperatorTripsForAdmin = async (status) => {
-  const filter = {};
+  const filter = { isDeleted: { $ne: true } }; // Exclude deleted trips by default
   if (status && ["pending", "approved", "rejected"].includes(status)) {
     filter.status = status;
   }
@@ -196,4 +196,29 @@ export const getOperatorTripByIdForAdmin = async (operatorTripId) => {
   }
 
   return trip;
+};
+
+/**
+ * Soft deletes an operator trip.
+ * Only admin can do this.
+ *
+ * @param {string} operatorTripId - The _id of the OperatorTrip to delete
+ * @returns {Promise<OperatorTrip>} The updated operator trip
+ */
+export const deleteOperatorTripByAdmin = async (operatorTripId) => {
+  if (!mongoose.isValidObjectId(operatorTripId)) {
+    throw error("Invalid operator trip ID.", statusCode.BAD_REQUEST);
+  }
+
+  const operatorTrip = await OperatorTrip.findById(operatorTripId);
+
+  if (!operatorTrip) {
+    throw error("Operator trip not found.", statusCode.NOT_FOUND);
+  }
+
+  // Soft delete: mark as deleted instead of permanently removing
+  operatorTrip.isDeleted = true;
+  await operatorTrip.save();
+
+  return operatorTrip;
 };

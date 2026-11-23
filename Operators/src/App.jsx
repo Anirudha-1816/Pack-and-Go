@@ -12,6 +12,7 @@ import OperatorAddPackage from "./components/Sections/AddPackages";
 
 import NotFound from "./utils/NotFound";
 import useAuthStore from "./Stores/authStore";
+import AddEventModal from "./components/models/AddEventModal";
 
 // Decide where the operator should go
 function OperatorEntry() {
@@ -45,6 +46,7 @@ export default function App() {
 
       <Route path="/operator/login" element={<OperatorLogin />} />
       <Route path="/operator/register" element={<Signup />} />
+      <Route path="/operator/check" element={<AddEventModal />} />
 
       <Route element={<OperatorProtectedRoute />}>
         <Route

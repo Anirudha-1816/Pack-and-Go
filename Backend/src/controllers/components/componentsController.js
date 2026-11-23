@@ -11,6 +11,7 @@ import Buttons from "../../models/global/buttonModel.js";
 import ContentBlocks from "../../models/global/contentBlockModel.js";
 
 import City from "../../models/global/citiesModel.js";
+import PackageCategory from "../../models/components/packageModel.js";
 
 
 //Reusable controller for creating components 
@@ -177,4 +178,7 @@ export const getButton = getComponents(Buttons)
 export const createContentBlocks = createComponents(ContentBlocks)
 export const getContentBlocks = getComponents(ContentBlocks)
 
+// Category
 
+export const createPackageCategory = createComponents(PackageCategory)
+export const getPackageCategory = getComponents(PackageCategory)

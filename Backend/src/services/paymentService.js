@@ -185,6 +185,9 @@ export const createStripeCheckoutSession = async (userId, body) => {
   if (trip.isActive === false) {
     throw paymentError("This trip is not available.", statusCode.GONE);
   }
+  if (trip.isDeleted === true) {
+    throw paymentError("This trip is not available.", statusCode.GONE);
+  }
   if (!isTripDateAvailable(trip.date)) {
     throw paymentError("This trip date has passed.", statusCode.GONE);
   }
