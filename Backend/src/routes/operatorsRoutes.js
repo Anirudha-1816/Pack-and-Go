@@ -14,6 +14,7 @@ import {
 import { uploadOperatorImage } from '../middlewares/Uploads/operatorUploadMiddleware.js'
 import checkForAuth from '../middlewares/Authentication/checkForAuth.js'
 import checkForAdmin from '../middlewares/Authentication/checkForAdmin.js'
+import { getEventCategoriesForOperator } from '../controllers/components/componentsController.js'
 
 const operatorsRouter = express.Router()
 
@@ -32,5 +33,6 @@ operatorsRouter.patch(
 )
 operatorsRouter.get('/theme-preference', checkForAuth, getOperatorThemePreference)
 operatorsRouter.put('/theme-preference', checkForAuth, updateOperatorThemePreference)
+operatorsRouter.get('/event-categories', checkForAuth, getEventCategoriesForOperator)
 
 export default operatorsRouter

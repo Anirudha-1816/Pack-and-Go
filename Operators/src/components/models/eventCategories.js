@@ -49,7 +49,7 @@ const MOCK_CATEGORIES = [
 export async function getEventCategories() {
   if (USE_MOCK_DATA) return MOCK_CATEGORIES;
 
-  const res = await axios.get(`${API_URL}/components/packageCategory`, {
+  const res = await axios.get(`${API_URL}/operator/event-categories`, {
     withCredentials: true,
   });
 

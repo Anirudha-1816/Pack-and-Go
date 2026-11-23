@@ -3,7 +3,8 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   FaSuitcaseRolling, FaCalendarCheck, FaImages, FaEnvelope, FaStar, FaUsers,
   FaSignOutAlt, FaBars, FaSearch, FaBell, FaRupeeSign, FaArrowUp, FaArrowDown,
-  FaClipboardList
+  FaClipboardList,
+  FaLayerGroup
 } from "react-icons/fa";
 
 import {FaGear} from "react-icons/fa6"
@@ -32,6 +33,8 @@ const nav = [
   { to: "/admin/operator-trips", label: "Operator trips", icon: <FaClipboardList /> },
   { to: "/admin/messages", label: "Messages", icon: <FaEnvelope />, badge: 3 },
   { to: "/admin/feedbacks", label: "Feedbacks", icon: <FaStar /> },
+  { to: "/admin/content-management", label: "Content management", icon: <FaLayerGroup /> },
+
   { to: "/admin/settings", label: "Settings", icon: <FaGear /> },
 ];
 

@@ -9,6 +9,9 @@ import OperatorHome from "./Pages/home";
 import OperatorDashboard from "./components/dashboard/Dashboard";
 import OperatorProtectedRoute from "./routes/ProtectedRoute";
 import OperatorAddPackage from "./components/Sections/AddPackages";
+import FestivalsForm from "./components/Sections/FestivalsForm";
+import AdventureForm from "./components/Sections/AdventureForm";
+import SocialEventsForm from "./components/Sections/SocialEventsForm";
 
 import NotFound from "./utils/NotFound";
 import useAuthStore from "./Stores/authStore";
@@ -57,6 +60,21 @@ export default function App() {
         <Route
           path="/operator/add-package"
           element={<OperatorAddPackage />}
+        />
+
+        <Route
+          path="/operator/add-festival"
+          element={<FestivalsForm />}
+        />
+
+        <Route
+          path="/operator/add-adventure"
+          element={<AdventureForm />}
+        />
+
+        <Route
+          path="/operator/add-social"
+          element={<SocialEventsForm />}
         />
       </Route>
 

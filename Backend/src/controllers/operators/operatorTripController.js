@@ -9,6 +9,7 @@ import {
   PICKUP_DROP_TYPES,
   MIN_REJECTION_REASON_LENGTH,
 } from "../../constants/tripConstants.js";
+import { VALID_CATEGORIES } from "../../models/components/operatorTripModel.js";
 
 // Makes a 400 error that your error middleware understands
 const badRequest = (message) => {
@@ -23,6 +24,55 @@ const parseJson = (value, name) => {
     return JSON.parse(value);
   } catch {
     throw badRequest(`${name} is missing or not valid.`);
+  }
+};
+
+// Category-specific validation
+const validateCategoryDetails = (category, details, body) => {
+  if (!details) return;
+
+  switch (category) {
+    case "festivals-celebrations":
+      if (!details.eventType) throw badRequest("Event type is required for festivals");
+      if (details.eventType === "Other" && !details.customEventType) {
+        throw badRequest("Custom event type is required when 'Other' is selected");
+      }
+      if (!details.dressCode) throw badRequest("Dress code is required for festivals");
+      if (details.dressCode === "Other" && !details.customDressCode) {
+        throw badRequest("Custom dress code is required when 'Other' is selected");
+      }
+      break;
+
+    case "adventure-outdoors":
+      if (!details.activityType) throw badRequest("Activity type is required for adventure");
+      if (details.activityType === "Other" && !details.customActivityType) {
+        throw badRequest("Custom activity type is required when 'Other' is selected");
+      }
+      if (!details.duration) throw badRequest("Duration is required for adventure");
+      if (!details.durationUnit) throw badRequest("Duration unit is required for adventure");
+      if (!details.difficultyLevel) throw badRequest("Difficulty level is required for adventure");
+      if (!details.safetyInstructions) throw badRequest("Safety instructions are required for adventure");
+      if (!details.guideIncluded) throw badRequest("Guide inclusion is required for adventure");
+      break;
+
+    case "social-gatherings":
+    case "networking-meetups":
+      if (!details.eventType) throw badRequest("Event type is required for social events");
+      if (details.eventType === "Other" && !details.customEventType) {
+        throw badRequest("Custom event type is required when 'Other' is selected");
+      }
+      if (!details.ageGroup) throw badRequest("Age group is required for social events");
+      if (details.ageGroup === "custom") {
+        if (!details.minimumAge) throw badRequest("Minimum age is required for custom age range");
+        if (!details.maximumAge) throw badRequest("Maximum age is required for custom age range");
+      }
+      if (!details.atmosphere) throw badRequest("Atmosphere is required for social events");
+      if (!details.dressCode) throw badRequest("Dress code is required for social events");
+      if (details.dressCode === "Other" && !details.customDressCode) {
+        throw badRequest("Custom dress code is required when 'Other' is selected");
+      }
+      if (!details.foodAndDrinks) throw badRequest("Food & drinks option is required for social events");
+      break;
   }
 };
 
@@ -75,6 +125,8 @@ export const createOperatorTrip = async (req, res, next) => {
       travel,
       termsType,
       customTerms,
+      category, // New field
+      categoryDetails, // New field - JSON string
     } = req.body;
 
     // Operator form uses destination for both from and to
@@ -87,6 +139,7 @@ export const createOperatorTrip = async (req, res, next) => {
     // Parse JSON fields
     const meals = req.body.meals ? parseJson(req.body.meals, "meals") : [];
     const roadmap = req.body.roadmap ? parseJson(req.body.roadmap, "roadmap") : [];
+    const parsedCategoryDetails = categoryDetails ? parseJson(categoryDetails, "categoryDetails") : {};
 
     // 5. Validate required fields
     if (!title?.trim()) throw badRequest("Package title is required");
@@ -96,6 +149,13 @@ export const createOperatorTrip = async (req, res, next) => {
     if (!duration) throw badRequest("Duration is required");
     if (!pricePerHead) throw badRequest("Price is required");
     if (!maxTravelers) throw badRequest("Max travelers is required");
+    if (!category) throw badRequest("Category is required");
+    if (!VALID_CATEGORIES.includes(category)) {
+      throw badRequest("Invalid category");
+    }
+
+    // Category-specific validation
+    validateCategoryDetails(category, parsedCategoryDetails, req.body);
 
     // Pickup & drop type
     if (!PICKUP_DROP_TYPES.includes(pickupDropType)) {
@@ -113,18 +173,19 @@ export const createOperatorTrip = async (req, res, next) => {
       if (!dropLocation?.trim()) throw badRequest("Drop location is required");
     }
 
-    // Roadmap days must add up to the trip duration
-    if (!Array.isArray(roadmap) || roadmap.length === 0) {
-      throw badRequest("Add at least one place to the roadmap");
-    }
-    const totalDays = roadmap.reduce((sum, stop) => sum + Number(stop.days || 0), 0);
-    if (totalDays !== Number(duration)) {
-      throw badRequest(`Roadmap adds up to ${totalDays} days, but duration is ${duration} days`);
+    // Roadmap days must add up to the trip duration (only for curated trips)
+    if (category === "curated-trips") {
+      if (!Array.isArray(roadmap) || roadmap.length === 0) {
+        throw badRequest("Add at least one place to the roadmap");
+      }
+      const totalDays = roadmap.reduce((sum, stop) => sum + Number(stop.days || 0), 0);
+      if (totalDays !== Number(duration)) {
+        throw badRequest(`Roadmap adds up to ${totalDays} days, but duration is ${duration} days`);
+      }
     }
 
     // 6. Save the trip with operator reference and pending status
-    // Only the fields that match the chosen option are saved.
-    const trip = await OperatorTrip.create({
+    const tripData = {
       title,
       description,
       destination,
@@ -149,8 +210,12 @@ export const createOperatorTrip = async (req, res, next) => {
       banner,
       thumbnail,
       operator: operatorId,
+      category,
+      categoryDetails: parsedCategoryDetails,
       status: "pending", // operator-created trips need admin approval
-    });
+    };
+
+    const trip = await OperatorTrip.create(tripData);
 
     return res.status(statusCode.CREATED).json({
       success: true,

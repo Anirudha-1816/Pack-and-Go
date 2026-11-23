@@ -14,7 +14,7 @@ import City from "../../models/global/citiesModel.js";
 import PackageCategory from "../../models/components/packageModel.js";
 
 
-//Reusable controller for creating components 
+//Reusable controller for creating components
 export const createComponents = (Model) => async (req, res, next) => {
   try {
     const data = req.body;
@@ -54,12 +54,12 @@ export const getComponents = (Model)=> async (req,res,next)=>{
 
     res.status(statusCode.OK).json({
         success : true,
-        data : document 
+        data : document
     })
 
     } catch (err){
         next(err)
-        
+
     }
 
 }
@@ -170,15 +170,215 @@ export const getNav = getComponents(NavbarModel)
 export const createCity = createComponents(City)
 export const getCity = getComponents(City)
 
-// Buttons 
+// Buttons
 export const createButton = createComponents(Buttons)
 export const getButton = getComponents(Buttons)
 
-// Buttons 
+// Buttons
 export const createContentBlocks = createComponents(ContentBlocks)
 export const getContentBlocks = getComponents(ContentBlocks)
 
 // Category
+const badRequest = (message) => {
+  const error = new Error(message);
+  error.status = statusCode.BAD_REQUEST;
+  return error;
+};
+
+/**
+ * GET /admin/event-categories
+ * Admin: returns all categories where isDeleted is false, sorted by order ascending
+ */
+export const getEventCategoriesForAdmin = async (req, res, next) => {
+  try {
+    const categories = await PackageCategory.find({ isDeleted: { $ne: true } }).sort({ order: 1 });
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: categories,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * POST /admin/event-categories
+ * Admin: create a new category
+ * Generates slug from name, checks for duplicates
+ */
+export const createEventCategory = async (req, res, next) => {
+  try {
+    const { name, description, icon, order } = req.body;
+
+    if (!name || !description || !icon) {
+      return next(badRequest("Name, description, and icon are required"));
+    }
+
+    if (typeof order !== "number" || order < 0) {
+      return next(badRequest("Order must be a non-negative number"));
+    }
+
+    // Generate slug from name
+    const slug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    // Check if slug already exists
+    const existing = await PackageCategory.findOne({ slug });
+    if (existing) {
+      const error = new Error("A category with this name already exists");
+      error.status = statusCode.BAD_REQUEST;
+      return next(error);
+    }
+
+    const category = await PackageCategory.create({
+      name,
+      slug,
+      description,
+      icon,
+      order,
+    });
+
+    return res.status(statusCode.CREATED).json({
+      success: true,
+      message: "Category created successfully",
+      data: category,
+    });
+  } catch (err) {
+    if (err.code === 11000) {
+      const error = new Error("A category with this name already exists");
+      error.status = statusCode.BAD_REQUEST;
+      return next(error);
+    }
+    return next(err);
+  }
+};
+
+/**
+ * PUT /admin/event-categories/:id
+ * Admin: edit name, description, icon, order (slug is immutable)
+ */
+export const updateEventCategory = async (req, res, next) => {
+  try {
+    const { name, description, icon, order } = req.body;
+
+    if (!name || !description || !icon) {
+      return next(badRequest("Name, description, and icon are required"));
+    }
+
+    if (typeof order !== "number" || order < 0) {
+      return next(badRequest("Order must be a non-negative number"));
+    }
+
+    const category = await PackageCategory.findByIdAndUpdate(
+      req.params.id,
+      { $set: { name, description, icon, order } },
+      { new: true, runValidators: true }
+    );
+
+    if (!category) {
+      const error = new Error("Category not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Category updated successfully",
+      data: category,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * PATCH /admin/event-categories/:id/toggle
+ * Admin: flip isActive
+ */
+export const toggleEventCategory = async (req, res, next) => {
+  try {
+    const category = await PackageCategory.findById(req.params.id);
+
+    if (!category) {
+      const error = new Error("Category not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    category.isActive = !category.isActive;
+    await category.save();
+
+    const message = category.isActive ? "Category is now visible" : "Category is now hidden";
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message,
+      data: category,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * DELETE /admin/event-categories/:id
+ * Admin: soft delete - set isDeleted = true
+ */
+export const deleteEventCategory = async (req, res, next) => {
+  try {
+    const category = await PackageCategory.findById(req.params.id);
+
+    if (!category) {
+      const error = new Error("Category not found");
+      error.status = statusCode.NOT_FOUND;
+      return next(error);
+    }
+
+    category.isDeleted = true;
+    await category.save();
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Category deleted",
+      data: category,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * GET /operator/event-categories
+ * Operator: returns only active, non-deleted categories, sorted by order
+ * Returns: { id, slug, name, description, icon }
+ */
+export const getEventCategoriesForOperator = async (req, res, next) => {
+  try {
+    const categories = await PackageCategory.find({
+      isActive: true,
+      isDeleted: { $ne: true },
+    }).sort({ order: 1 });
+
+    const data = categories.map((cat) => ({
+      id: cat._id,
+      slug: cat.slug,
+      name: cat.name,
+      description: cat.description,
+      icon: cat.icon,
+    }));
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
 
 export const createPackageCategory = createComponents(PackageCategory)
 export const getPackageCategory = getComponents(PackageCategory)

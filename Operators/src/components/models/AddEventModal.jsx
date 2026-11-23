@@ -9,7 +9,7 @@ import {
   FaChevronRight,
   FaTimes,
 } from "react-icons/fa";
-import { getEventCategories } from "./eventCategories"; 
+import { getEventCategories } from "./eventCategories";
 // The database only stores an icon name. This turns the name into a real icon.
 const ICONS = {
   festival: FaGlassCheers,
@@ -17,6 +17,15 @@ const ICONS = {
   adventure: FaMountain,
   networking: FaHandshake,
   social: FaUserFriends,
+};
+
+// Map category slugs to their form routes
+const CATEGORY_ROUTES = {
+  "festivals-celebrations": "/operator/add-festival",
+  "curated-trips": "/operator/add-package",
+  "adventure-outdoors": "/operator/add-adventure",
+  "social-gatherings": "/operator/add-social",
+  "networking-meetups": "/operator/add-social", // Networking uses social form
 };
 
 export default function AddEventModal({ open, onClose }) {
@@ -47,7 +56,8 @@ export default function AddEventModal({ open, onClose }) {
 
   const chooseCategory = (category) => {
     onClose();
-    navigate(`/operator/add-package?category=${category.slug}`);
+    const route = CATEGORY_ROUTES[category.slug] || "/operator/add-package";
+    navigate(route);
   };
 
   return (

@@ -8,6 +8,93 @@ import {
   OPERATOR_TRIP_STATUS,
 } from "../../constants/tripConstants.js";
 
+// Valid categories from the PackageCategory model
+export const VALID_CATEGORIES = [
+  "festivals-celebrations",
+  "curated-trips",
+  "adventure-outdoors",
+  "social-gatherings",
+  "networking-meetups",
+];
+
+// Category-specific detail schemas
+const festivalDetailsSchema = new mongoose.Schema(
+  {
+    eventType: { type: String, required: true },
+    customEventType: String,
+    dressCode: { type: String, required: true },
+    customDressCode: String,
+    whatsIncluded: String,
+  },
+  { _id: false }
+);
+
+const adventureDetailsSchema = new mongoose.Schema(
+  {
+    activityType: { type: String, required: true },
+    customActivityType: String,
+    duration: { type: Number, required: true, min: 1 },
+    durationUnit: {
+      type: String,
+      required: true,
+      enum: ["hours", "half-day", "full-day", "multiple-days"],
+    },
+    difficultyLevel: {
+      type: String,
+      required: true,
+      enum: ["Easy", "Moderate", "Difficult", "Extreme"],
+    },
+    minimumAge: { type: Number, min: 1, max: 100 },
+    fitnessRequirement: {
+      type: String,
+      enum: ["none", "basic", "moderate", "good", "high"],
+    },
+    equipmentProvided: String,
+    whatToBring: String,
+    safetyInstructions: { type: String, required: true },
+    guideIncluded: { type: String, enum: ["Yes", "No"], required: true },
+    whatsIncluded: String,
+    whatsExcluded: String,
+  },
+  { _id: false }
+);
+
+const socialDetailsSchema = new mongoose.Schema(
+  {
+    eventType: { type: String, required: true },
+    customEventType: String,
+    ageGroup: {
+      type: String,
+      required: true,
+      enum: ["all", "18+", "21+", "25+", "custom"],
+    },
+    minimumAge: { type: Number, min: 1, max: 100 },
+    maximumAge: { type: Number, min: 1, max: 100 },
+    atmosphere: {
+      type: String,
+      required: true,
+      enum: ["chill", "energetic", "professional", "casual", "romantic", "creative"],
+    },
+    dressCode: { type: String, required: true },
+    customDressCode: String,
+    foodAndDrinks: {
+      type: String,
+      required: true,
+      enum: ["none", "snacks", "meals", "drinks", "food-drinks", "purchase"],
+    },
+    whatsIncluded: String,
+    specialInstructions: String,
+  },
+  { _id: false }
+);
+
+const curatedTripDetailsSchema = new mongoose.Schema(
+  {
+    // Curated trips use the existing fields directly
+  },
+  { _id: false }
+);
+
 // Pickup and drop details are only needed when we provide the service
 const needsPickupDrop = function () {
   return this.pickupDropType === "group";
@@ -50,6 +137,16 @@ const operatorTripSchema = new mongoose.Schema(
       ref: "Operator",
       required: [true, "Operator is required."],
       index: true,
+    },
+
+    // Category - references PackageCategory
+    category: {
+      type: String,
+      required: [true, "Category is required."],
+      enum: {
+        values: VALID_CATEGORIES,
+        message: "Invalid category",
+      },
     },
 
     title: {
@@ -154,9 +251,20 @@ const operatorTripSchema = new mongoose.Schema(
     },
 
     // ----- Roadmap (list of places in order) -----
+    // Only required for curated-trips category
     roadmap: {
       type: [roadmapStopSchema],
-      validate: [(stops) => stops.length > 0, "Add at least one place to the roadmap."],
+      default: [],
+      validate: {
+        validator: function (stops) {
+          // Only validate for curated-trips category
+          if (this.category === "curated-trips") {
+            return stops.length > 0;
+          }
+          return true;
+        },
+        message: "Add at least one place to the roadmap.",
+      },
     },
 
     // ----- Images -----
@@ -177,6 +285,12 @@ const operatorTripSchema = new mongoose.Schema(
       default: "pending", // operator-created trips need admin approval
     },
     rejectionReason: { type: String, default: "" },
+
+    // Category-specific details (flexible schema based on category)
+    categoryDetails: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
 
     // When the admin approves the trip, a copy is published in the public
     // Trip collection so travelers can discover and book it. This holds that

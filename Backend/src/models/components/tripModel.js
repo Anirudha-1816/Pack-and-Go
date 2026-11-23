@@ -10,6 +10,14 @@ import {
   MAX_DURATION,
 } from "../../constants/tripConstants.js";
 
+const VALID_CATEGORIES = [
+  "festivals-celebrations",
+  "curated-trips",
+  "adventure-outdoors",
+  "social-gatherings",
+  "networking-meetups",
+];
+
 // An uploaded image (what your uploadMedia function returns)
 const imageSchema = new mongoose.Schema(
   {
@@ -51,6 +59,22 @@ const tripSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Operator",
       default: null,
+    },
+
+    // Category - references PackageCategory
+    category: {
+      type: String,
+      required: [true, "Category is required."],
+      enum: {
+        values: VALID_CATEGORIES,
+        message: "Invalid category",
+      },
+    },
+
+    // Category-specific details (flexible schema based on category)
+    categoryDetails: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
 
     // City from operator's location (for events filtering)

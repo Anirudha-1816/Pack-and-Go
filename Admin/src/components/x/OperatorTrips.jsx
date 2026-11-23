@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import {
-  FaSuitcaseRolling,
   FaCalendar,
   FaMapMarkerAlt,
-  FaClock,
-  FaUsers,
   FaRupeeSign,
-  FaImage,
   FaRoute,
   FaUtensils,
-  FaBed,
-  FaBus,
   FaFileAlt,
   FaCheckCircle,
   FaTimesCircle,
@@ -19,14 +12,11 @@ import {
   FaEye,
   FaTimes,
   FaChevronLeft,
-  FaChevronRight,
-  FaSpinner,
   FaTrashAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import {
   fetchOperatorTrips,
-  fetchOperatorTripDetail,
   approveOperatorTrip,
   rejectOperatorTrip,
   deleteOperatorTrip,
@@ -55,10 +45,6 @@ const TABS = [
   ["all", "All"],
 ];
 
-const TIERS = ["Not included", "Budget", "Deluxe", "Premium", "Not needed"];
-const MEALS = ["Breakfast", "Lunch", "Dinner", "Snacks", "Tea / Coffee"];
-const TRIP_TYPES = ["Solo travelers only", "Couples only", "Mixed group", "Friends group", "Family"];
-const PICKUP_DROP_TYPES = ["group", "self"];
 
 // ---------- Toast styles ----------
 const toastStyle = {
@@ -118,10 +104,10 @@ const textareaStyle =
 
 // ---------- Small UI Components ----------
 
-function StatusPill({ status }) {
+function StatusPill({ status, className = "" }) {
   return (
     <span
-      className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${STATUS_STYLE[status]}`}
+      className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${STATUS_STYLE[status] || "bg-gray-100 text-gray-700"} ${className}`}
     >
       {STATUS_LABEL[status]}
     </span>
@@ -154,13 +140,18 @@ function MealTag({ meal }) {
 }
 
 function ModalOverlay({ isOpen, onClose, children, className = "" }) {
-  if (!isOpen) return null;
-
   useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
+    if (!isOpen) return undefined;
+
+    const onKey = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
 
   return (
     <div
@@ -327,7 +318,8 @@ function DeleteDialog({ operatorTrip, onClose, onConfirm, busy }) {
               {busy ? "Deleting..." : "Yes, delete"}
             </button>
           </div>
-        </div      </div>
+        </div>
+        </div>
     </ModalOverlay>
   );
 }
@@ -702,7 +694,6 @@ export default function OperatorTrips() {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const navigate = useNavigate();
 
   // 1. Load trips on mount and when tab changes
   const loadTrips = async ({ refresh = false } = {}) => {
@@ -728,7 +719,8 @@ export default function OperatorTrips() {
   }, [tab]);
 
   // 2. Handle approve
-  const handleApprove = async (trip) => {
+  const handleApprove = (trip) => {
+    setSelectedTrip(trip);
     setShowApproveDialog(true);
   };
 

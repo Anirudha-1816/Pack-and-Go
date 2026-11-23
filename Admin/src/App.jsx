@@ -29,6 +29,9 @@ const OperatorRequests = lazy(
 const OperatorTrips = lazy(
   () => import("./components/x/OperatorTrips")
 );
+const ContentManagement = lazy(
+  () => import("./components/x/ContentManagement")
+);
 const NotFound = lazy(() => import("./utils/notFound/NotFound"));
 
 // Loading screen
@@ -97,6 +100,11 @@ const App = () => {
             <Route
               path="/admin/operator-trips"
               element={<OperatorTrips />}
+            />
+
+            <Route
+              path="/admin/content-management"
+              element={<ContentManagement />}
             />
           </Route>
 
