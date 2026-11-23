@@ -10,6 +10,7 @@ import {
   toggleEventCategory,
   deleteEventCategory,
 } from '../../controllers/components/componentsController.js'
+import adminSettingsRouter from './adminSettingsRoutes.js'
 
 const adminRouter = express.Router()
 
@@ -22,5 +23,8 @@ adminRouter.post('/event-categories', checkForAuth, checkForAdmin, createEventCa
 adminRouter.put('/event-categories/:id', checkForAuth, checkForAdmin, updateEventCategory)
 adminRouter.patch('/event-categories/:id/toggle', checkForAuth, checkForAdmin, toggleEventCategory)
 adminRouter.delete('/event-categories/:id', checkForAuth, checkForAdmin, deleteEventCategory)
+
+// Settings routes (policies, activity logs)
+adminRouter.use('/', adminSettingsRouter)
 
 export default adminRouter

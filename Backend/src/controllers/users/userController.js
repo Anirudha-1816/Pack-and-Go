@@ -2,6 +2,7 @@ import User from "../../models/users/usersModel.js";
 import bcrypt from "bcrypt";
 import jwt  from 'jsonwebtoken'
 import statusCode from "../../utils/statusCodes.js";
+import { logActivity } from "../../controllers/admin/adminSettingsController.js";
 
 export const createUser = async (req, res, next) => {
 
@@ -240,6 +241,8 @@ export const updatePassword = async (req, res, next) => {
     const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
+      // Log failed password change attempt
+      await logActivity(req.user, "Failed password change", "Security settings", "Failed");
       const error = new Error("Current password is incorrect");
       error.statusCode = statusCode.UNAUTHORIZED;
       error.extraDetails = "Please enter your correct current password";
@@ -259,11 +262,16 @@ export const updatePassword = async (req, res, next) => {
     user.password = hashedPassword;
     await user.save();
 
+    // Log successful password change
+    await logActivity(req.user, "Changed password", "Security settings", "Success");
+
     return res.status(statusCode.OK).json({
       success: true,
       message: "Password updated successfully",
     });
   } catch (err) {
+    // Log unexpected error
+    await logActivity(req.user, "Error changing password", "Security settings", "Failed");
     next(err);
   }
 };

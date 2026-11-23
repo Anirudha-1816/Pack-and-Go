@@ -254,6 +254,7 @@ function ImagePicker({ name, label, hint, register, error, className = "" }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 function TierPicker({ name, label, register, error, options = tierOptions }) {
   return (
     <Field label={label} error={error}>
@@ -320,9 +321,6 @@ export default function SocialEventsForm() {
     handleSubmit,
     watch,
     reset,
-    control,
-    trigger,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -347,7 +345,7 @@ export default function SocialEventsForm() {
 
   const today = getToday();
 
-  const onInvalid = (formErrors) => {
+  const onInvalid = () => {
     showError("Please fix the highlighted fields and try again.");
   };
 

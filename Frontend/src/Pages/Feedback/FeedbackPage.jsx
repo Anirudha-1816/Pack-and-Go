@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Star,
   MapPin,
@@ -9,11 +9,8 @@ import {
   Sparkles,
   Shield,
   Heart,
-  Pen,
-  Trash2,
   X,
   Loader2,
-  ChevronDown,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -387,7 +384,7 @@ function WriteReviewModal({ open, onClose, onSubmit, userReviews, loading }) {
 }
 
 // ---------- page ----------
-export default function FeedbackPage() {
+export function FeedbackPage() {
   const navigate = useNavigate();
   const { user: authUser, isAuthenticated } = useAuthStore();
   const [reviews, setReviews] = useState([]);
@@ -407,7 +404,6 @@ export default function FeedbackPage() {
   const [editingReview, setEditingReview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-  const { user: authUser, isAuthenticated } = useAuthStore();
 
   const filterCategories = [
     "All",
@@ -681,6 +677,7 @@ export default function FeedbackPage() {
                 </p>
               </div>
             ) : (
+              <>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-[repeat(auto-fill,minmax(340px,1fr))]" role="list">
                 {reviews.map((review) => (
                   <article
@@ -830,7 +827,8 @@ export default function FeedbackPage() {
                   </button>
                 </div>
               )}
-            </div>
+              </>
+              )}
           </section>
 
           {/* CTA Section */}
@@ -868,9 +866,7 @@ export default function FeedbackPage() {
           setWriteModalOpen(false);
           setEditingReview(null);
         }}
-        onSubmit={async (data) => {
-          // This will be handled by the parent
-        }}
+        onSubmit={handleWriteReview}
         userReviews={reviews}
         loading={submitting}
       />
