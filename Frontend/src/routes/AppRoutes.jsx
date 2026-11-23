@@ -11,12 +11,14 @@ import HeroSlider from "../sections/Hero/HeroSlider";
 import Destinations from "../sections/Destinations/Destinations";
 import AboutHero from "../Components/AboutUs/AboutHero";
 import NotFound from "../Utils/notFound/NotFound";
+import CallToAction from "../sections/CallToAction";
 
 
 const AuthPage = lazy(() => import("../Pages/Auth/AuthPage"));
 const Contact = lazy(() => import("../Pages/Contacts/Contact"));
 const AboutUs = lazy(() => import("../Components/AboutUs/AboutUs"));
 const EventsPage = lazy(() => import("../Pages/Events/EventsPage"));
+const FeedbackPage = lazy(() => import("../Pages/Feedback/FeedbackPage"));
 
 
 const TripDetails = lazy(() =>
@@ -52,6 +54,7 @@ function Home() {
       <Navbar />
       <Hero />
       <AboutHero />
+      <CallToAction/>
       <HeroSlider />
       <Destinations />
       <Footer />
@@ -69,6 +72,8 @@ export default function AppRoutes() {
         <Route path="/trip/:id" element={<TripDetails />} />
         <Route path="know-us" element={<AboutUs />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
+        <Route path="/check" element={<CallToAction />} />
 
         {/* Protected Routes: Logged-in users and admins */}
         <Route element={<ProtectedRoutes allowedRoles={["user", "admin"]} />}>

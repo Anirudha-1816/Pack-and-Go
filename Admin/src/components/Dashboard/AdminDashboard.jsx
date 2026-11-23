@@ -32,7 +32,7 @@ const nav = [
   { to: "/admin/operator-requests", label: "Operator requests", icon: <FaUsers /> },
   { to: "/admin/operator-trips", label: "Operator trips", icon: <FaClipboardList /> },
   { to: "/admin/messages", label: "Messages", icon: <FaEnvelope />, badge: 3 },
-  { to: "/admin/feedbacks", label: "Feedbacks", icon: <FaStar /> },
+  { to: "/admin/feedback", label: "Feedbacks", icon: <FaStar /> },
   { to: "/admin/content-management", label: "Content management", icon: <FaLayerGroup /> },
 
   { to: "/admin/settings", label: "Settings", icon: <FaGear /> },

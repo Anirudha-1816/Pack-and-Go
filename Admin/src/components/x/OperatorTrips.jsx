@@ -715,6 +715,7 @@ export default function OperatorTrips() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTrips();
   }, [tab]);
 

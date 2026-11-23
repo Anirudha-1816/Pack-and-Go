@@ -8,6 +8,7 @@ import ProtectedRoutes from "./Routes/ProtectedRoutes";
 import { Toaster } from "react-hot-toast";
 
 import AuthLoading from "./utils/AuthLoading";
+import AdminSettings from "./components/Sections/AdminSettings";
 
 // Lazy-loaded pages and components
 const AdminLogin = lazy(() => import("./pages/Auth/AdminLogin"));
@@ -31,6 +32,9 @@ const OperatorTrips = lazy(
 );
 const ContentManagement = lazy(
   () => import("./components/x/ContentManagement")
+);
+const Feedback = lazy(
+  () => import("./pages/Feedback/Feedback")
 );
 const NotFound = lazy(() => import("./utils/notFound/NotFound"));
 
@@ -83,6 +87,11 @@ const App = () => {
             />
 
             <Route
+              path="/admin/settings"
+              element={<AdminSettings />}
+            />
+
+            <Route
               path="/admin-managePackages"
               element={<ManagePackages />}
             />
@@ -105,6 +114,11 @@ const App = () => {
             <Route
               path="/admin/content-management"
               element={<ContentManagement />}
+            />
+
+            <Route
+              path="/admin/feedback"
+              element={<Feedback />}
             />
           </Route>
 

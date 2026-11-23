@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 
 import userRouter from './routes/usersRoute.js'
 import componentRouter from './routes/components/componentsRoutes.js'
+import feedbackRouter from './routes/components/feedbackRoutes.js'
 import verificationRoutes from './routes/verifications/optVerificationRoute.js'
 import contactRouter from './routes/contactRoutes.js'
 import bookingRouter from './routes/components/bookings/bookingsRoutes.js'
@@ -71,6 +72,7 @@ app.use(express.json())
 
 app.use('/users',userRouter)
 app.use('/components',componentRouter)
+app.use('/feedback',feedbackRouter)
 app.use('/contacts',contactRouter)
 app.use('/otp',verificationRoutes)
 app.use('/trip',tripRouter)
