@@ -2,6 +2,23 @@
 import { create } from "zustand";
 import axios from "axios";
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Retries only when the server is unreachable or waking up (network error or 5xx).
+// 4xx errors are never retried.
+async function withRetry(request, retries = 2, delayMs = 3000) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await request();
+    } catch (err) {
+      const status = err.response?.status;
+      const retryable = !err.response || status >= 500;
+      if (!retryable || attempt >= retries) throw err;
+      await wait(delayMs);
+    }
+  }
+}
+
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:8080";
 
@@ -19,9 +36,8 @@ const useAuthStore = create((set) => ({
     set({ isLoading: true });
 
     try {
-      const { data } = await axios.get(
-        `${API_URL}/operator/me`,
-        { withCredentials: true }
+      const { data } = await withRetry(() =>
+        axios.get(`${API_URL}/operator/me`, { withCredentials: true })
       );
 
       const currentUser = data?.data || null;
@@ -40,10 +56,10 @@ const useAuthStore = create((set) => ({
       // Ignore outdated requests
       if (requestId !== authRequestId) return null;
 
-      set({
-        user: null,
-        isAuthenticated: false,
-      });
+      const status = error.response?.status;
+      if ([401, 403, 404].includes(status)) {
+        set({ user: null, isAuthenticated: false });
+      }
 
       console.error(
         "Authentication failed:",

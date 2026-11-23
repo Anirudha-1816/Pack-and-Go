@@ -1,8 +1,6 @@
 {
-  "rewrites" : [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://pack-and-go-pd7d.onrender.com/:path*" },
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
