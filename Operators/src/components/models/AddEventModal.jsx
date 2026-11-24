@@ -112,6 +112,7 @@ export default function AddEventModal({ open, onClose }) {
               >
                 {/* Icon turns dark teal on hover */}
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-lg text-teal-800 transition group-hover:bg-teal-800 group-hover:text-white">
+
                   <Icon />
                 </span>
 
@@ -124,6 +125,7 @@ export default function AddEventModal({ open, onClose }) {
 
                 <FaChevronRight className="shrink-0 text-sm text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-teal-700" />
               </button>
+              
             );
           })}
         </div>
