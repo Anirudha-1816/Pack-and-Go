@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
 import {
   Star,
   MapPin,
@@ -8,7 +7,6 @@ import {
   CheckCircle,
   Sparkles,
   Shield,
-  Heart,
 } from "lucide-react";
 import {
   SAMPLE_FEEDBACK,
@@ -332,26 +330,7 @@ export default function FeedbackPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="mx-auto max-w-[600px]">
-        <div className="rounded-[20px] border border-[#e4e6e3] bg-white p-10 text-center shadow-[0_4px_16px_rgba(20,43,59,0.06)]">
-          <Heart className="mx-auto mb-4 h-8 w-8 text-[#c49a55]" aria-hidden="true" />
-
-          <h3 className={`${serifFont} mb-3 text-[clamp(1.5rem,3vw,2rem)]`}>
-            Had a great experience with Pack&Go?
-          </h3>
-
-          <p className="mx-auto mb-6 max-w-[400px] leading-relaxed text-[#61717b]">
-            Share your journey and help fellow travelers make informed decisions.
-          </p>
-
-          <Link
-            to="/contact-us"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#2f6b8a] px-7 py-3.5 font-bold text-white no-underline shadow-[0_4px_12px_rgba(47,107,138,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#24566f] hover:shadow-[0_8px_20px_rgba(47,107,138,0.3)] motion-reduce:transition-none"
-          >
-            Write a Review
-          </Link>
-        </div>
-      </section>
+     
     </div>
   );
 }

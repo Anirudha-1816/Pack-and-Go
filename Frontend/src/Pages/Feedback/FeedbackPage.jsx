@@ -831,30 +831,8 @@ export function FeedbackPage() {
               )}
           </section>
 
-          {/* CTA Section */}
-          <section className="mx-auto max-w-[600px] mt-16">
-            <div className="rounded-[20px] border border-slate-200 bg-white p-10 text-center shadow-sm">
-              <Heart className="mx-auto mb-4 h-8 w-8 text-amber-500" aria-hidden="true" />
-              <h3 className="font-serif font-normal mb-3 text-[clamp(1.5rem,3vw,2rem)] text-slate-900">
-                Had a great experience with Pack&Go?
-              </h3>
-              <p className="mx-auto mb-6 max-w-[400px] leading-relaxed text-slate-500">
-                Share your journey and help fellow travelers make informed decisions.
-              </p>
-              <button
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    navigate("/login", { state: { from: "/feedback" } });
-                  } else {
-                    setWriteModalOpen(true);
-                  }
-                }}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-blue-600 px-7 py-3.5 font-bold text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
-              >
-                Write a Review
-              </button>
-            </div>
-          </section>
+
+          
         </section>
       </main>
       <Footer />
