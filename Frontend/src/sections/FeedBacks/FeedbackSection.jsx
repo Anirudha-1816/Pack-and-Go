@@ -131,7 +131,7 @@ export default function FeedbackSection({ onAddFeedback, onSeeAll, onTripClick }
     <section id="feedback" className={`fb-section ${isDragging ? "is-dragging" : ""}`}>
       {/* Top row: title + actions */}
       <header className="fb-header">
-        <h2 className="fb-title">Travelers feedback</h2>
+        <h2 className="fb-title">What they say about us </h2>
 
         <div className="fb-header-actions">
           {hasManyTrips && (
