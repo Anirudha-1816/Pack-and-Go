@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import baseApi from "../../api/baseApi";
+import AdminSideNav from "../Dashboard/components/AdminSideNav";
 import styles from './AdminBookings.module.css'
 const statusTabs = ["All", "Pending", "Confirmed", "Cancelled"];
 
@@ -135,150 +136,158 @@ const formatBooking = (booking) => {
 
   return (
     <div className={styles.page}>
-      {/* ---------- Header ---------- */}
-      <div className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Admin</p>
-          <h1 className={styles.title}>Bookings</h1>
-        </div>
-        <div className={styles.headerActions}>
-          <p className={styles.subtitle}>Live bookings and payment status from the database.</p>
-          <button type="button" className={styles.refresh} onClick={refreshBookings} disabled={refreshing}>
-            {refreshing ? "Refreshing..." : "Refresh"}
-          </button>
-        </div>
-      </div>
+      {/* NEW: sidebar slot */}
+      <aside className={styles.sidebar}>
+        <AdminSideNav />
+      </aside>
 
-      {/* ---------- Number cards ---------- */}
-      <div className={styles.stats}>
-        <div className={styles.stat}>
-          <small>Total bookings</small>
-          <strong>{bookings.length}</strong>
-        </div>
-        <div className={styles.stat}>
-          <small>Confirmed</small>
-          <strong>{countOf("Confirmed")}</strong>
-        </div>
-        <div className={styles.stat}>
-          <small>Pending bookings</small>
-          <strong className={styles.warn}>{countOf("Pending")}</strong>
-        </div>
-        <div className={styles.stat}>
-          <small>Revenue (paid)</small>
-          <strong>{money(revenue)}</strong>
-          <span className={styles.metricHint}>
-            {paidBookings.length} paid booking{paidBookings.length === 1 ? "" : "s"}
-            {paidBookingsMissingAmount > 0 &&
-              ` · ${paidBookingsMissingAmount} missing amount`}
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.panel}>
-        {/* ---------- Status tabs ---------- */}
-        <div className={styles.tabs}>
-          {statusTabs.map((tab) => (
-            <button
-              key={tab}
-              className={`${styles.tab} ${statusFilter === tab ? styles.tabActive : ""}`}
-              onClick={() => setStatusFilter(tab)}
-            >
-              {tab}
-              <span>{tab === "All" ? bookings.length : countOf(tab)}</span>
+      {/* NEW: everything else lives inside content */}
+      <main className={styles.content}>
+        {/* ---------- Header ---------- */}
+        <div className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>Admin</p>
+            <h1 className={styles.title}>Bookings</h1>
+          </div>
+          <div className={styles.headerActions}>
+            <p className={styles.subtitle}>Live bookings and payment status from the database.</p>
+            <button type="button" className={styles.refresh} onClick={refreshBookings} disabled={refreshing}>
+              {refreshing ? "Refreshing..." : "Refresh"}
             </button>
-          ))}
+          </div>
         </div>
 
-        {/* ---------- Search and trip filter ---------- */}
-        <div className={styles.toolbar}>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="Search by name, email or booking ID"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        {/* ---------- Number cards ---------- */}
+        <div className={styles.stats}>
+          <div className={styles.stat}>
+            <small>Total bookings</small>
+            <strong>{bookings.length}</strong>
+          </div>
+          <div className={styles.stat}>
+            <small>Confirmed</small>
+            <strong>{countOf("Confirmed")}</strong>
+          </div>
+          <div className={styles.stat}>
+            <small>Pending bookings</small>
+            <strong className={styles.warn}>{countOf("Pending")}</strong>
+          </div>
+          <div className={styles.stat}>
+            <small>Revenue (paid)</small>
+            <strong>{money(revenue)}</strong>
+            <span className={styles.metricHint}>
+              {paidBookings.length} paid booking{paidBookings.length === 1 ? "" : "s"}
+              {paidBookingsMissingAmount > 0 &&
+                ` · ${paidBookingsMissingAmount} missing amount`}
+            </span>
+          </div>
+        </div>
 
-          <select className={styles.input} value={tripFilter} onChange={(e) => setTripFilter(e.target.value)}>
-            <option value="All">All trips</option>
-            {tripNames.map((name) => (
-              <option key={name} value={name}>{name}</option>
+        <div className={styles.panel}>
+          {/* ---------- Status tabs ---------- */}
+          <div className={styles.tabs}>
+            {statusTabs.map((tab) => (
+              <button
+                key={tab}
+                className={`${styles.tab} ${statusFilter === tab ? styles.tabActive : ""}`}
+                onClick={() => setStatusFilter(tab)}
+              >
+                {tab}
+                <span>{tab === "All" ? bookings.length : countOf(tab)}</span>
+              </button>
             ))}
-          </select>
-        </div>
+          </div>
 
-        {/* ---------- Table ---------- */}
-        {error && <p className={styles.error} role="alert">{error}</p>}
+          {/* ---------- Search and trip filter ---------- */}
+          <div className={styles.toolbar}>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="Search by name, email or booking ID"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
-        <div className={styles.tableWrap}>
-          {!loading && !error && <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Booking</th>
-                <th>Customer</th>
-                <th>Trip</th>
-                <th>Travel date</th>
-                <th>Seats</th>
-                <th>Amount</th>
-                <th>Payment</th>
-                <th>Status</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {visibleBookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td>
-                    <strong>{booking.id}</strong>
-                    <small>{formatDate(booking.bookedOn)}</small>
-                  </td>
-
-                  <td>
-                    <div className={styles.person}>
-                      <span className={styles.avatar}>{booking.customer[0] || "?"}</span>
-                      <div>
-                        <strong>{booking.customer}</strong>
-                        <small>{booking.email}</small>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td>{booking.trip}</td>
-                  <td>{formatDate(booking.travelDate)}</td>
-                  <td>{booking.seats}</td>
-                  <td><strong>{bookingAmountLabel(booking.amount)}</strong></td>
-
-                  <td>
-                    <span className={`${styles.badge} ${styles[booking.payment.toLowerCase()]}`}>
-                      {booking.payment}
-                    </span>
-                  </td>
-
-                  <td>
-                    <span className={`${styles.badge} ${styles[booking.status.toLowerCase()]}`}>
-                      {booking.status}
-                    </span>
-                  </td>
-
-                  <td>
-                    <div className={styles.actions}>
-                      <button className={`${styles.btn} ${styles.view}`} onClick={() => setSelectedId(booking.id)}>
-                        View
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+            <select className={styles.input} value={tripFilter} onChange={(e) => setTripFilter(e.target.value)}>
+              <option value="All">All trips</option>
+              {tripNames.map((name) => (
+                <option key={name} value={name}>{name}</option>
               ))}
-            </tbody>
-          </table>}
+            </select>
+          </div>
 
-          {loading && <p className={styles.empty}>Loading bookings...</p>}
-          {!loading && !error && visibleBookings.length === 0 && (
-            <p className={styles.empty}>No bookings match your search or filters.</p>
-          )}
+          {/* ---------- Table ---------- */}
+          {error && <p className={styles.error} role="alert">{error}</p>}
+
+          <div className={styles.tableWrap}>
+            {!loading && !error && <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Customer</th>
+                  <th>Trip</th>
+                  <th>Travel date</th>
+                  <th>Seats</th>
+                  <th>Amount</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {visibleBookings.map((booking) => (
+                  <tr key={booking.id}>
+                    <td>
+                      <strong>{booking.id}</strong>
+                      <small>{formatDate(booking.bookedOn)}</small>
+                    </td>
+
+                    <td>
+                      <div className={styles.person}>
+                        <span className={styles.avatar}>{booking.customer[0] || "?"}</span>
+                        <div>
+                          <strong>{booking.customer}</strong>
+                          <small>{booking.email}</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>{booking.trip}</td>
+                    <td>{formatDate(booking.travelDate)}</td>
+                    <td>{booking.seats}</td>
+                    <td><strong>{bookingAmountLabel(booking.amount)}</strong></td>
+
+                    <td>
+                      <span className={`${styles.badge} ${styles[booking.payment.toLowerCase()]}`}>
+                        {booking.payment}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span className={`${styles.badge} ${styles[booking.status.toLowerCase()]}`}>
+                        {booking.status}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div className={styles.actions}>
+                        <button className={`${styles.btn} ${styles.view}`} onClick={() => setSelectedId(booking.id)}>
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>}
+
+            {loading && <p className={styles.empty}>Loading bookings...</p>}
+            {!loading && !error && visibleBookings.length === 0 && (
+              <p className={styles.empty}>No bookings match your search or filters.</p>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
 
       {/* ---------- Details pop-up ---------- */}
       {selected && (

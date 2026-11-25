@@ -5,11 +5,44 @@
   --coral: #f97316;
   --border: #d9e4df;
 
-  width: min(1400px, 92%);
-  margin: 2rem auto 4rem;
+  display: flex;
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 1.25rem;
+  background: #f3f0e9;
   color: var(--green);
 }
 
+/* ---------- NEW: sidebar slot ---------- */
+.sidebar {
+  /* the nav was styled with the dashboard's colors, so give it its own variables back */
+  --green: #18490b;
+  --green-dark: #142b3b;
+  --tint: #e8eff1;
+  --coral: #c49a55;
+  --line: #e8e5de;
+  --muted: #61717b;
+
+  display: flex;
+  flex: 0 0 16rem;
+  position: sticky;
+  top: 1.25rem;
+  height: calc(100vh - 2.5rem);
+}
+
+/* make the nav's root element fill the slot */
+.sidebar > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- NEW: main content next to the sidebar ---------- */
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Header inside content ---------- */
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -437,6 +470,17 @@
 
   .details {
     grid-template-columns: 1fr;
+  }
+}
+
+/* NEW: dashboard turns the nav into a drawer here, so hide it until you add a toggle */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .page {
+    padding: 0.75rem;
   }
 }
 

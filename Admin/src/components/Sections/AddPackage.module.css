@@ -5,9 +5,42 @@
   --coral: #f97316;
   --border: #d9e4df;
 
-  width: min(1400px, 92%);
-  margin: 2rem auto 4rem;
+  display: flex;
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 1.25rem;
+  background: #f3f0e9;
   color: var(--green);
+}
+
+/* ---------- NEW: sidebar slot ---------- */
+.sidebar {
+  /* the nav was styled with the dashboard's colors, so give it its own variables back */
+  --green: #18490b;
+  --green-dark: #142b3b;
+  --tint: #e8eff1;
+  --coral: #c49a55;
+  --line: #e8e5de;
+  --muted: #61717b;
+
+  display: flex;
+  flex: 0 0 16rem;
+  position: sticky;
+  top: 1.25rem;
+  height: calc(100vh - 2.5rem);
+}
+
+/* make the nav's root element fill the slot */
+.sidebar > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- NEW: main content next to the sidebar ---------- */
+.content {
+  flex: 1;
+  min-width: 0; /* stops the form from overflowing the flex row */
+  max-width: 1400px;
 }
 
 .title {
@@ -268,39 +301,14 @@
   background: #ea6a0c;
 }
 
-/* ---------- Tablet and mobile ---------- */
-@media (max-width: 960px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 560px) {
-  .box {
-    padding: 14px;
-    border-radius: 1.5rem;
-  }
-
-  .lower {
-    grid-template-columns: 1fr;
-  }
-
-  .thumbShape {
-    aspect-ratio: 16 / 9;
-  }
-
-  .row {
-    grid-template-columns: 1fr;
-  }
-}
-/* ---------- NEW: small image column (image + roadmap card) ---------- */
+/* ---------- Small image column (image + roadmap card) ---------- */
 .leftCol {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* ---------- NEW: roadmap card ---------- */
+/* ---------- Roadmap card ---------- */
 .summary {
   margin: 0 0 12px;
   font-size: 13px;
@@ -325,11 +333,11 @@
   background: #00372c;
 }
 
-/* ---------- NEW: pop-up ---------- */
+/* ---------- Pop-up ---------- */
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 100; /* above your navbar (z-index 50) */
+  z-index: 100; /* above your navbar and the sidebar */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,7 +469,42 @@
   background: #ea6a0c;
 }
 
+/* ---------- Tablet and mobile ---------- */
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* NEW: dashboard turns the nav into a drawer here, so hide it until you add a toggle */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .page {
+    padding: 0.75rem;
+  }
+}
+
 @media (max-width: 560px) {
+  .box {
+    padding: 14px;
+    border-radius: 1.5rem;
+  }
+
+  .lower {
+    grid-template-columns: 1fr;
+  }
+
+  .thumbShape {
+    aspect-ratio: 16 / 9;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
   .stopRow {
     grid-template-columns: 1fr 100px;
   }

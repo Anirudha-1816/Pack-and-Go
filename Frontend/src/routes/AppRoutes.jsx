@@ -8,10 +8,10 @@ import NetworkStatus from "../Utils/NetworkStatus";
 import ProtectedRoutes from "./ProtectedRoute";
 import Hero from "../sections/Hero/heroSection";
 import HeroSlider from "../sections/Hero/HeroSlider";
-import Destinations from "../sections/Destinations/Destinations";
 import AboutHero from "../Components/AboutUs/AboutHero";
 import NotFound from "../Utils/notFound/NotFound";
 import CallToAction from "../sections/CallToAction";
+import FeedbackSection from "../sections/FeedBacks/FeedbackSection";
 
 
 const AuthPage = lazy(() => import("../Pages/Auth/AuthPage"));
@@ -56,7 +56,7 @@ function Home() {
       <AboutHero />
       <CallToAction/>
       <HeroSlider />
-      <Destinations />
+      <FeedbackSection />
       <Footer />
     </div>
   );
@@ -73,7 +73,7 @@ export default function AppRoutes() {
         <Route path="know-us" element={<AboutUs />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
-        <Route path="/check" element={<CallToAction />} />
+         
 
         {/* Protected Routes: Logged-in users and admins */}
         <Route element={<ProtectedRoutes allowedRoles={["user", "admin"]} />}>

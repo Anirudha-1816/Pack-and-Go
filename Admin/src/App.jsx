@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 
 import AuthLoading from "./utils/AuthLoading";
 import AdminSettings from "./components/Sections/AdminSettings";
+import AddAdmin from "./components/Sections/AddAdmin";
 
 // Lazy-loaded pages and components
 const AdminLogin = lazy(() => import("./pages/Auth/AdminLogin"));
@@ -89,6 +90,11 @@ const App = () => {
             <Route
               path="/admin/settings"
               element={<AdminSettings />}
+            />
+
+            <Route
+              path="/admin/add-admin"
+              element={<AddAdmin />}
             />
 
             <Route

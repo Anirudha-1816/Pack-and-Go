@@ -161,6 +161,7 @@
   border-radius: 1.5rem;
   background: linear-gradient(180deg, #142b3b, #20485e);
   color: #d3e0e5;
+  height: 80vh;
   transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s;
 }
 

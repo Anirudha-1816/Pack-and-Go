@@ -1,0 +1,243 @@
+/* ---------- Page ---------- */
+.page {
+  --green: #00483a;
+  --green-tint: #e6f0ed;
+  --coral: #f97316;
+  --border: #d9e4df;
+
+  display: flex;
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 1.25rem;
+  background: #f3f0e9;
+  color: var(--green);
+}
+
+/* ---------- NEW: sidebar slot ---------- */
+.sidebar {
+  /* the nav was styled with the dashboard's colors, so give it its own variables back */
+  --green: #18490b;
+  --green-dark: #142b3b;
+  --tint: #e8eff1;
+  --coral: #c49a55;
+  --line: #e8e5de;
+  --muted: #61717b;
+
+  display: flex;
+  flex: 0 0 16rem;
+  position: sticky;
+  top: 1.25rem;
+  height: calc(100vh - 2.5rem);
+}
+
+/* make the nav's root element fill the slot */
+.sidebar > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- NEW: main content next to the sidebar ---------- */
+.content {
+  flex: 1;
+  min-width: 0; /* stops the form from overflowing the flex row */
+  max-width: 1400px;
+}
+
+/* ---------- Form styles ---------- */
+.title {
+  margin: 0 0 24px;
+  text-align: center;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+}
+
+.box {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Image box ---------- */
+.imageBox {
+  padding: 24px;
+  text-align: center;
+  background: var(--green-tint);
+  border: 2px dashed var(--border);
+  border-radius: 1.25rem;
+}
+
+.imageBox svg {
+  width: 48px;
+  height: 48px;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+
+.imageBox p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7f78;
+}
+
+/* ---------- Form fields ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #243746;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--green);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+.error {
+  font-size: 12px;
+  color: #c62828;
+}
+
+/* ---------- Row for date fields ---------- */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ---------- Permissions section ---------- */
+.permissions {
+  margin-top: 8px;
+}
+
+.permissionTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #243746;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #55655b;
+}
+
+.checkboxLabel input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* ---------- Submit button ---------- */
+.submit {
+  padding: 14px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--coral);
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.submit:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.submit:hover {
+  background: #ea6a0c;
+}
+
+/* ---------- Tablet and mobile ---------- */
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* NEW: dashboard turns the nav into a drawer here, so hide it until you add a toggle */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .page {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .box {
+    padding: 14px;
+    border-radius: 1.5rem;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

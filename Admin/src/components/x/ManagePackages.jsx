@@ -402,7 +402,7 @@ export default function ManagePackages() {
         <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-['Instrument_Serif',Georgia,serif] text-[40px] font-normal leading-none text-[#0f3d2a]">
-              Manage packages
+              Manage packages 
             </h1>
 
             <p className="mt-2 text-[#55655b]">

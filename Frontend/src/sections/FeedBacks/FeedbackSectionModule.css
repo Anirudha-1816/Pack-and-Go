@@ -1,0 +1,560 @@
+/* =========================================================
+   Feedback section
+   Colors are picked from the Pack&Go screenshot.
+   Change them here (or point them to your own CSS variables).
+   The font is inherited from your project, so it matches automatically.
+   ========================================================= */
+
+.fb-section {
+  --fb-navy: #0f2438;
+  --fb-teal: #12a594;
+  --fb-coral: #ff6a4d;
+  --fb-muted: #5b6b78;
+  --fb-line: #dfeceb;
+  --fb-surface: #f6fbfa; /* plain page color behind the cards */
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: min(1400px, 92%);
+  min-height: 72vh;
+  margin: clamp(60px, 10vh, 110px) auto 0; /* space on top so the sticky navbar does not cover it */
+  scroll-margin-top: 130px; /* same idea when you jump here with a link like #feedback */
+  padding: clamp(20px, 4vw, 44px);
+  border: 1px solid var(--fb-line);
+  border-radius: 32px;
+  background: var(--fb-surface);
+  color: var(--fb-navy);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+/* ---------- Header ---------- */
+
+.fb-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fb-title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.fb-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fb-arrow {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--fb-line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--fb-navy);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.25s;
+}
+
+.fb-arrow:hover {
+  background: var(--fb-navy);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.fb-add-btn {
+  margin-left: 6px;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 999px;
+  background: var(--fb-coral);
+  box-shadow: 0 12px 24px -10px rgba(255, 106, 77, 0.7);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.fb-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px -10px rgba(255, 106, 77, 0.8);
+}
+
+.fb-arrow:focus-visible,
+.fb-add-btn:focus-visible,
+.fb-dot:focus-visible,
+.fb-see-all:focus-visible {
+  outline: 3px solid var(--fb-teal);
+  outline-offset: 3px;
+}
+
+/* ---------- Slider (hold and slide area) ---------- */
+
+.fb-slider {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: 28px 0;
+  cursor: grab;
+  touch-action: pan-y; /* up/down still scrolls the page on phones */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.fb-section.is-dragging .fb-slider {
+  cursor: grabbing;
+}
+
+.fb-drag {
+  width: 100%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* No smooth transition while the finger or mouse is moving it */
+.fb-drag.is-dragging {
+  transition: none;
+}
+
+/* ---------- Stage: reviews | trip card | reviews ---------- */
+
+.fb-stage {
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 340px) 1fr;
+  align-items: center;
+  gap: clamp(20px, 3vw, 48px);
+  animation: fb-stage-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.fb-stage > * {
+  min-width: 0;
+}
+
+/* The trip slides out one way and the next trip slides in from the other way */
+.fb-stage.is-leaving {
+  animation: fb-stage-out 0.35s ease forwards;
+}
+
+/* ---------- Trip card (center, plain and clean) ---------- */
+
+.fb-trip {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border: 1px solid var(--fb-line);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 40px -28px rgba(15, 36, 56, 0.35);
+  transition: box-shadow 0.4s ease;
+}
+
+.fb-trip.is-clickable {
+  cursor: pointer;
+}
+
+.fb-trip:hover {
+  box-shadow: 0 30px 50px -28px rgba(15, 36, 56, 0.45);
+}
+
+.fb-trip-photo {
+  aspect-ratio: 4 / 3.4;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--fb-teal), var(--fb-navy)); /* shows if the image fails */
+  overflow: hidden;
+}
+
+.fb-trip-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fb-zoom 9s ease-in-out infinite alternate; /* slow zoom */
+  transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fb-trip:hover .fb-trip-photo img {
+  scale: 1.05;
+}
+
+.fb-trip-info {
+  padding: 16px 8px 8px;
+}
+
+.fb-trip-destination {
+  margin: 0 0 6px;
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.fb-trip-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 2px;
+  color: var(--fb-teal);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fb-trip-subtitle {
+  margin: 0;
+  color: var(--fb-muted);
+  font-size: 14px;
+}
+
+.fb-trip-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--fb-line);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fb-trip-count {
+  color: var(--fb-muted);
+  font-weight: 500;
+}
+
+/* ---------- Review cards (outside the trip card) ---------- */
+
+.fb-column {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 5vh, 56px);
+}
+
+.fb-slot {
+  width: min(100%, 320px);
+  height: 172px;
+}
+
+/* Small zig-zag, so the cards do not sit in a straight line */
+.fb-column-left .fb-slot:nth-child(odd),
+.fb-column-right .fb-slot:nth-child(even) {
+  align-self: flex-end;
+}
+
+.fb-column-left .fb-slot:nth-child(even),
+.fb-column-right .fb-slot:nth-child(odd) {
+  align-self: flex-start;
+}
+
+.fb-review {
+  --from-x: -32px; /* the card flies in from the left... */
+
+  box-sizing: border-box;
+  height: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--fb-line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 14px 28px -20px rgba(15, 36, 56, 0.4);
+  animation: fb-review-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    fb-float 6s ease-in-out infinite;
+  animation-delay: 0s, var(--float-delay, 0s);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fb-review-right {
+  --from-x: 32px; /* ...or from the right */
+}
+
+.fb-review:hover {
+  border-color: var(--fb-teal);
+  box-shadow: 0 18px 32px -20px rgba(18, 165, 148, 0.5);
+}
+
+/* Old review fades out, then the next one flies in */
+.fb-review.is-leaving {
+  animation: fb-review-out 0.4s ease forwards, fb-float 6s ease-in-out infinite;
+  animation-delay: 0s, var(--float-delay, 0s);
+}
+
+.fb-review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #ffd9cf;
+}
+
+.fb-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fb-avatar-letter {
+  display: grid;
+  place-items: center;
+  background: var(--fb-teal);
+  color: #fff;
+  font-weight: 700;
+}
+
+.fb-review-name {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fb-stars {
+  display: flex;
+  gap: 1px;
+}
+
+.fb-star {
+  color: #d8e2e0;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.fb-star.on {
+  color: #ffb400;
+}
+
+.fb-review-text {
+  display: -webkit-box;
+  margin: 10px 0 0;
+  color: #44505c;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-line-clamp: 4; /* show max 4 lines */
+  -webkit-box-orient: vertical;
+}
+
+/* ---------- Loading and messages ---------- */
+
+.fb-skeleton {
+  border-radius: 20px;
+  background: linear-gradient(100deg, #e8f1f0 30%, #f6fbfa 50%, #e8f1f0 70%);
+  background-size: 200% 100%;
+  animation: fb-shimmer 1.4s linear infinite;
+}
+
+.fb-skeleton-trip {
+  height: 420px;
+}
+
+.fb-skeleton-review {
+  width: min(100%, 320px);
+  height: 172px;
+}
+
+.fb-message {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  margin: 0;
+  color: var(--fb-muted);
+  text-align: center;
+}
+
+/* ---------- Footer ---------- */
+
+.fb-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fb-progress {
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--fb-line);
+  overflow: hidden;
+}
+
+/* This line is the autoplay timer. When the animation ends, the next trip comes (see the JSX). */
+.fb-progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--fb-teal), var(--fb-coral));
+  transform-origin: left;
+  animation-name: fb-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* Pause autoplay while hovering the slider or holding it */
+.fb-section:has(.fb-slider:hover) .fb-progress-fill,
+.fb-section.is-dragging .fb-progress-fill {
+  animation-play-state: paused;
+}
+
+.fb-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+}
+
+.fb-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.fb-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #c5d8d5;
+  cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.fb-dot.is-active {
+  width: 26px;
+  background: var(--fb-teal);
+}
+
+.fb-see-all {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--fb-teal);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fb-see-all:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes fb-stage-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--shift, 60px));
+  }
+}
+
+@keyframes fb-stage-out {
+  to {
+    opacity: 0;
+    transform: translateX(calc(var(--shift, 60px) * -1));
+  }
+}
+
+@keyframes fb-review-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--from-x), 16px) scale(0.96);
+  }
+}
+
+@keyframes fb-review-out {
+  to {
+    opacity: 0;
+    transform: translate(var(--from-x), -12px) scale(0.96);
+  }
+}
+
+/* "translate" (not "transform") so the float does not fight with the fly-in */
+@keyframes fb-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -5px;
+  }
+}
+
+@keyframes fb-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes fb-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes fb-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Tablet: trip card on top, reviews in two columns below ---------- */
+
+@media (max-width: 1023px) {
+  .fb-stage {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fb-trip,
+  .fb-skeleton-trip {
+    grid-column: 1 / -1;
+    order: -1;
+    width: min(100%, 360px);
+    justify-self: center;
+  }
+}
+
+/* ---------- Phone: everything in one column ---------- */
+
+@media (max-width: 639px) {
+  .fb-section {
+    border-radius: 24px;
+  }
+
+  .fb-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .fb-slot,
+  .fb-skeleton-review {
+    width: 100%;
+  }
+
+  .fb-add-btn {
+    padding: 11px 18px;
+  }
+}
+
+/* People who turn off animations in their device settings: no motion (autoplay also stops) */
+@media (prefers-reduced-motion: reduce) {
+  .fb-section *,
+  .fb-section *::before {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
