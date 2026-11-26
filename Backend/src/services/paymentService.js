@@ -11,7 +11,7 @@ import mongoose from "mongoose";
 import Bookings from "../models/Bookings/bookingModel.js";
 import Trip from "../models/components/tripModel.js";
 import { getClientUrl, getStripe, getStripeWebhookSecret } from "../configs/stripe.js";
-import paymentError from "../utils/paymentError.js";
+import paymentError from "../utils/payments/paymentError.js";
 import statusCode from "../utils/statusCodes.js";
 import {
   BOOKING_STATUS,
@@ -20,7 +20,7 @@ import {
   isTripDateAvailable,
   validateBookingId,
   validateCreatePayment,
-} from "../utils/paymentUtils.js";
+} from "../utils/payments/paymentUtils.js";
 
 // Return the exact small response used by payment-status screens.
 const paymentStatusData = (booking) => ({

@@ -26,6 +26,7 @@ import styles from "./Dashboard.module.css";
 import AuthLoading from "../../utils/AuthLoading.jsx"; 
 import NextTripCard from "../Sections/NextTripCard.jsx";
 import AddEventModal from "../models/AddEventModal.jsx";
+import SettingsModal from "../Settings/SettingsModal.jsx"; 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
@@ -34,7 +35,7 @@ const DAY = 86400000;
 // =====================================================================
 // Sidebar links
 // `key` links switch a tab on this page, `to` links go to another page.
-// "Add Events" has no `to`, it opens the category popup instead.
+// "Add Events" and "Settings" have no `to`, they open a popup instead.
 // Change the `to` paths to match your router.
 // =====================================================================
 
@@ -48,7 +49,7 @@ const NAV_MORE = [
   { id: "add", label: "Add Events", icon: FaPlusCircle },
   { id: "messages", to: "/operator/messages", label: "Messages", icon: FaEnvelope },
   { id: "feedbacks", to: "/operator/feedbacks", label: "Feedbacks", icon: FaCommentDots },
-  { id: "settings", to: "/operator/settings", label: "Settings", icon: FaCog },
+  { id: "settings", label: "Settings", icon: FaCog }, // CHANGED: removed `to`, it opens the popup now
 ];
 
 // pending / rejected come from admin approval.
@@ -342,7 +343,25 @@ function SidebarItem({ icon: Icon, label, active, badge = 0, to, onClick }) {
   );
 }
 
-function Sidebar({ open, tab, user, unreadMessages, onTab, onClose, onLogout, onAddEvent }) {
+// CHANGED: new prop `onSettings`
+function Sidebar({
+  open,
+  tab,
+  user,
+  unreadMessages,
+  onTab,
+  onClose,
+  onLogout,
+  onAddEvent,
+  onSettings,
+}) {
+  // Each sidebar item decides what happens when it is clicked
+  const getClickHandler = (id) => {
+    if (id === "add") return onAddEvent;
+    if (id === "settings") return onSettings;
+    return onClose;
+  };
+
   return (
     <>
       {/* Dark backdrop behind the sidebar on mobile */}
@@ -376,7 +395,7 @@ function Sidebar({ open, tab, user, unreadMessages, onTab, onClose, onLogout, on
               label={item.label}
               to={item.to}
               badge={item.id === "messages" ? unreadMessages : 0}
-              onClick={item.id === "add" ? onAddEvent : onClose}
+              onClick={getClickHandler(item.id)}
             />
           ))}
         </nav>
@@ -418,6 +437,7 @@ export default function OperatorDashboard() {
   const [available, setAvailable] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false); // NEW
   const [tripFilter, setTripFilter] = useState("upcoming");
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [checkedIn, setCheckedIn] = useState({});
@@ -585,6 +605,12 @@ export default function OperatorDashboard() {
     setAddModalOpen(true);
   };
 
+  // NEW: "Settings" in the sidebar opens the settings popup
+  const openSettings = () => {
+    setSidebarOpen(false);
+    setSettingsOpen(true);
+  };
+
   const tripBookings = selectedTrip ? bookingsOf(selectedTrip) : [];
 
   const totalTravelers = tripBookings.reduce((sum, booking) => sum + (booking.travelers || 0), 0);
@@ -679,10 +705,14 @@ export default function OperatorDashboard() {
         onClose={() => setSidebarOpen(false)}
         onLogout={handleLogout}
         onAddEvent={openAddEvent}
+        onSettings={openSettings} // NEW
       />
 
       {/* Category popup, opens from "Add Events" in the sidebar */}
       <AddEventModal open={addModalOpen} onClose={() => setAddModalOpen(false)} />
+
+      {/* NEW: Settings popup, opens from "Settings" in the sidebar */}
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       {/* Everything to the right of the sidebar */}
       <div className={styles.content}>

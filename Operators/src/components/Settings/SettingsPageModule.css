@@ -1,0 +1,420 @@
+/* All class names start with "sm-" so they cannot clash with your other CSS */
+
+.sm-overlay {
+  --teal: #0f5c58;        /* same dark teal as the active sidebar pill */
+  --mint: #e3eeea;        /* same soft mint as the hover pill */
+  --page: #f4f6f4;        /* dashboard background */
+  --text: #10272a;
+  --muted: #5f7270;
+  --line: #e2e8e5;
+  --red: #d93a4a;
+  --amber-bg: #fdf1dc;
+  --amber-text: #9a6212;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: rgba(16, 39, 42, 0.45);
+  backdrop-filter: blur(3px);
+  font-family: inherit; /* uses your app font */
+  color: var(--text);
+}
+
+/* ---------- the pop-up box (about the size of the red box in your screenshot) ---------- */
+.sm-modal {
+  display: flex;
+  width: 84vw;
+  max-width: 1150px;
+  height: 72vh;
+  min-height: 520px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(16, 39, 42, 0.3);
+  animation: sm-pop 0.2s ease-out;
+}
+
+@keyframes sm-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---------- left menu (same pill style as your sidebar) ---------- */
+.sm-nav {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px 16px;
+  background: var(--page);
+  border-right: 1px solid var(--line);
+}
+
+.sm-nav h1 {
+  margin: 0 0 16px 12px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.sm-nav-item {
+  text-align: left;
+  padding: 13px 18px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sm-nav-item:hover {
+  background: var(--mint);
+}
+
+.sm-nav-item.active {
+  background: var(--teal);
+  color: white;
+}
+
+.sm-nav-item.danger {
+  margin-top: auto; /* pushes Danger Zone to the bottom */
+  color: var(--red);
+}
+
+.sm-nav-item.danger:hover {
+  background: #fdeaec;
+}
+
+.sm-nav-item.danger.active {
+  background: var(--red);
+  color: white;
+}
+
+/* ---------- right side ---------- */
+.sm-body {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto; /* only this side scrolls */
+  padding: 36px 40px;
+}
+
+.sm-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--page);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.sm-close:hover {
+  background: var(--mint);
+}
+
+.sm-heading h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.sm-heading p {
+  margin: 4px 0 24px;
+  color: var(--muted);
+}
+
+.sm-body h3 {
+  margin: 32px 0 6px;
+  font-size: 17px;
+}
+
+/* ---------- forms ---------- */
+.sm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sm-field input,
+.sm-field select,
+.sm-field textarea,
+.sm-times input,
+.sm-delete-box input {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.sm-field input:focus,
+.sm-field select:focus,
+.sm-field textarea:focus,
+.sm-times input:focus,
+.sm-delete-box input:focus {
+  outline: 2px solid var(--teal);
+  border-color: transparent;
+}
+
+/* ---------- rows (used by almost every section) ---------- */
+.sm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sm-row p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.sm-day-name {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 170px;
+}
+
+.sm-times {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sm-muted {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- buttons (pill shape like "Add package") ---------- */
+.sm-btn,
+.sm-btn-outline,
+.sm-btn-danger,
+.sm-btn-danger-outline {
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sm-btn {
+  margin-top: 24px;
+  border: none;
+  background: var(--teal);
+  color: white;
+}
+
+.sm-btn:hover {
+  background: #0b4a47;
+}
+
+.sm-btn-outline {
+  padding: 9px 20px;
+  border: 1.5px solid var(--teal);
+  background: white;
+  color: var(--teal);
+}
+
+.sm-btn-outline:hover {
+  background: var(--mint);
+}
+
+.sm-btn-danger {
+  border: none;
+  background: var(--red);
+  color: white;
+}
+
+.sm-btn-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sm-btn-danger-outline {
+  border: 1.5px solid var(--red);
+  background: white;
+  color: var(--red);
+}
+
+/* ---------- toggle (same look as your Available switch) ---------- */
+.sm-toggle {
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 3px;
+  border: none;
+  border-radius: 999px;
+  background: #cdd8d4;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sm-toggle span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+}
+
+.sm-toggle.on {
+  background: var(--teal);
+}
+
+.sm-toggle.on span {
+  transform: translateX(20px);
+}
+
+/* ---------- profile, badges, documents ---------- */
+.sm-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sm-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--teal);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.sm-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sm-badge.green {
+  background: var(--mint);
+  color: var(--teal);
+}
+
+.sm-badge.amber {
+  background: var(--amber-bg);
+  color: var(--amber-text);
+}
+
+.sm-badge.grey {
+  background: #eceff0;
+  color: var(--muted);
+}
+
+.sm-doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- danger zone ---------- */
+.sm-danger-box {
+  padding: 0 20px;
+  border: 1.5px solid var(--red);
+  border-radius: 18px;
+}
+
+.sm-danger-box .sm-row:last-child {
+  border-bottom: none;
+}
+
+.sm-delete-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sm-delete-box input {
+  width: 120px;
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 800px) {
+  .sm-modal {
+    flex-direction: column;
+    width: 94vw;
+    height: 88vh;
+  }
+
+  .sm-nav {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 12px;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sm-nav h1 {
+    display: none;
+  }
+
+  .sm-nav-item {
+    white-space: nowrap;
+  }
+
+  .sm-nav-item.danger {
+    margin-top: 0;
+  }
+
+  .sm-body {
+    padding: 24px 20px;
+  }
+
+  .sm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sm-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-modal {
+    animation: none;
+  }
+}

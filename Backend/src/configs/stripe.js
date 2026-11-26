@@ -1,7 +1,7 @@
 // Read Stripe's private settings and create the server-side Stripe client.
 
 import Stripe from "stripe";
-import paymentError from "../utils/paymentError.js";
+import paymentError from "../utils/payments/paymentError.js";
 import statusCode from "../utils/statusCodes.js";
 
 // Create the Stripe client only when a payment request needs it.

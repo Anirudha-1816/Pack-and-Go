@@ -6,7 +6,7 @@ import {
   BOOKING_STATUS,
   MAX_TRAVELERS,
   PAYMENT_STATUS,
-} from "../../utils/paymentUtils.js";
+} from "../../utils/payments/paymentUtils.js";
 
 const bookingSchema = new mongoose.Schema(
   {

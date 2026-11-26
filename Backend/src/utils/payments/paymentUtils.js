@@ -3,7 +3,7 @@
 
 import mongoose from "mongoose";
 import paymentError from "./paymentError.js";
-import statusCode from "./statusCodes.js";
+import statusCode from "../statusCodes.js";
 
 export const BOOKING_STATUS = Object.freeze({
   PENDING: "pending",

@@ -15,6 +15,7 @@ import SocialEventsForm from "./components/Sections/SocialEventsForm";
 
 import NotFound from "./utils/NotFound";
 import useAuthStore from "./Stores/authStore";
+import SettingsModal from "./components/Settings/SettingsModal";
 
 // Decide where the operator should go
 function OperatorEntry() {
@@ -48,6 +49,7 @@ export default function App() {
 
       <Route path="/operator/login" element={<OperatorLogin />} />
       <Route path="/operator/register" element={<Signup />} />
+      <Route path="/check" element={<SettingsModal />} />
 
       <Route element={<OperatorProtectedRoute />}>
         <Route

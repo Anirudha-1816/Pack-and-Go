@@ -3,11 +3,13 @@ import checkForAuth from '../middlewares/Authentication/checkForAuth.js';
 import { requireVerifiedEmail } from '../middlewares/verifications/requireVerifiedEmail.js';
 import { createUser, getCurrentUser, loginUser, logoutUser, updatePassword, getThemePreference, updateThemePreference } from '../controllers/users/userController.js';
 import  { loginRateLimiter, otpRateLimiter } from '../middlewares/Limiters/rateLimitersMiddleware.js';
+import { checkHeaders } from '../controllers/check.js';
 
 const userRouter = express.Router()
 
 
 
+userRouter.get('/check',checkHeaders)
 userRouter.post('/create',otpRateLimiter,requireVerifiedEmail,createUser)
 userRouter.post('/login',loginRateLimiter,loginUser)
 userRouter.post('/logout',checkForAuth,logoutUser)
