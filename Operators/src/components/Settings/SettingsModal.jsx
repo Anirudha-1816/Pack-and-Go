@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import SessionsModal from "../Settings/components/SessionsModal";
 import "./SettingsPageModule.css";
-import axios from 'axios'
 
 const sections = [
   "Profile",
@@ -66,12 +65,13 @@ function Row({ title, hint, children }) {
   );
 }
 
+
 // ---------- sections ----------
 
 function Profile() {
   const [form, setForm] = useState({
-    name: "Tanuu Singh",
-    company: "Singh Travels",
+    name: "Tanuu Shree",
+    company: "Null ",
     email: "shreetanu@gmail.com",
     phone: "+91 98765 43210",
     city: "Jaipur",
@@ -371,13 +371,7 @@ export default function SettingsModal({ open, onClose }) {
 
   if (!open) return null;
 
-  const check = async () => {
-
-    const res = await axios.get('http://localhost:8080/users/check')
-
-    console.log(res)
-    
-  }
+ 
 
   return (
     <>
@@ -420,7 +414,6 @@ export default function SettingsModal({ open, onClose }) {
           </section>
 
         </div>
-          <button onClick={check}>Check</button>
       </div>
 
       {/* second pop-up, opens on top of the settings pop-up */}

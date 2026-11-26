@@ -4,6 +4,10 @@ import jwt  from 'jsonwebtoken'
 import statusCode from "../../utils/statusCodes.js";
 import { logActivity } from "../../controllers/admin/adminSettingsController.js";
 
+import crypto from "node:crypto";
+import Session from "../../models/sessions/sessionModel.js"; 
+import { getRequestInfo } from "../../utils/device/getRequestInfo.js";
+
 export const createUser = async (req, res, next) => {
 
   try {
@@ -86,6 +90,7 @@ if (!body || typeof body !== "object" || terms !== true) {
   }
 };
 
+
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body ?? {};
@@ -104,7 +109,7 @@ export const loginUser = async (req, res, next) => {
 
     const user = await User.findOne({
       email: email.trim().toLowerCase(),
-    })
+    });
 
     if (!user) {
       const error = new Error("Invalid email or password");
@@ -122,20 +127,45 @@ export const loginUser = async (req, res, next) => {
       return next(error);
     }
 
+    // 1. Generate a unique session ID
+    const sessionId = crypto.randomUUID();
+
+    // 2. Collect device and request information
+    const requestInfo = getRequestInfo(req);
+
+    // 3. Set session expiry to 7 days
+    const expiresAt = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000
+    );
+
+    // 4. Save the session in MongoDB
+    await Session.create({
+      user: user._id,
+      sessionId,
+      ...requestInfo,
+      expiresAt,
+    });
+
+    // 5. Generate JWT linked to this session
     const token = jwt.sign(
-      { userId: user._id },
+      {
+        userId: user._id,
+        sessionId,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
+    // 6. Set authentication cookie
     const isProduction = process.env.NODE_ENV === "production";
-    const cookieMaxAge = 7 * 24 * 60 * 60 * 1000; // 7 days to match JWT expiry
+    const cookieMaxAge = 7 * 24 * 60 * 60 * 1000;
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
       maxAge: cookieMaxAge,
-      expires: new Date(Date.now() + cookieMaxAge),
+      expires: expiresAt,
     });
 
     const { password: _, ...userData } = user.toObject();
