@@ -12,8 +12,7 @@ export const checkHeaders = async (req,res) => {
 
     res.status(201).json({
         message : 'Working',
-        success  : true,
-        data:check
+        success  : true
     })
 }
 
