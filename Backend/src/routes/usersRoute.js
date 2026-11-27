@@ -5,12 +5,21 @@ import { createUser, getCurrentUser, loginUser, logoutUser, updatePassword, getT
 import  { loginRateLimiter, otpRateLimiter } from '../middlewares/Limiters/rateLimitersMiddleware.js';
 import { checkHeaders } from '../controllers/check.js';
 
+import { validateRequest } from '../middlewares/validations/validateRequest.js';
+import { userRegisterSchema } from '../validations/users/user.validation.js';
+
 const userRouter = express.Router()
 
 
 
 userRouter.get('/check',checkHeaders)
-userRouter.post('/create',otpRateLimiter,requireVerifiedEmail,createUser)
+userRouter.post(
+  '/create',
+  otpRateLimiter,
+  validateRequest(userRegisterSchema),
+//   requireVerifiedEmail,
+  createUser
+);
 userRouter.post('/login',loginRateLimiter,loginUser)
 userRouter.post('/logout',checkForAuth,logoutUser)
 userRouter.get('/get-current-user',checkForAuth,getCurrentUser)

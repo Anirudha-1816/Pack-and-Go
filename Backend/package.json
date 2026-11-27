@@ -32,6 +32,7 @@
     "rate-limiter-flexible": "^11.2.3",
     "stripe": "^23.1.0",
     "swagger-ui-express": "^5.0.1",
-    "ua-parser-js": "^2.0.10"
+    "ua-parser-js": "^2.0.10",
+    "zod": "^4.6.7"
   }
 }

@@ -9,84 +9,66 @@ import Session from "../../models/sessions/sessionModel.js";
 import { getRequestInfo } from "../../utils/device/getRequestInfo.js";
 
 export const createUser = async (req, res, next) => {
-
   try {
+    const {
+      email,
+      fullName,
+      password,
+      gender,
+      terms,
+      city
+    } = req.body;
 
-    const  verificationEmail = req.verifiedEmail;
-    const  {otp} = req.body ?? {};
+    const verificationEmail = req.body.email;
 
-    // 1. Validate request structure and terms
-   const { terms, ...body } = req.body;
 
-if (!body || typeof body !== "object" || terms !== true) {
-  const error = new Error("Invalid registration data");
-  error.statusCode = statusCode.BAD_REQUEST;
-  error.extraDetails =
-    "Please provide valid fields and accept the terms.";
-  return next(error);
-}
-    const { gender, fullName, email, password, city } = body;
 
-    // 2. Check required fields
+    // 1. Confirm the email matches the verified email
     if (
-      !gender?.trim() ||
-      !fullName?.trim() ||
-      !email?.trim() ||
-      typeof password !== "string" ||
-      !password ||
-      !city?.trim()
+      !verificationEmail ||
+      verificationEmail.trim().toLowerCase() !== email
     ) {
-      const error = new Error("All fields are required");
+      const error = new Error("Email verification failed");
       error.statusCode = statusCode.BAD_REQUEST;
       return next(error);
     }
 
-    // 3. Normalize email
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // 4. Check existing email
-    const isEmailExist = await User.findOne({
-      email: normalizedEmail,
-    });
+    // 2. Check existing email
+    const isEmailExist = await User.findOne({ email });
 
     if (isEmailExist) {
       const error = new Error("Email already exists");
       error.statusCode = statusCode.CONFLICT;
-      error.extraDetails =
-        "Please log in or use another email address.";
+      error.extraDetails = "Please log in or use another email address.";
       return next(error);
     }
 
-    // Verify the Otp 
-
-
-
-    // 5. Hash password
+    // 3. Hash password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    // 6. Create user
+    // 4. Create user
     await User.create({
-      email: normalizedEmail,
-      fullName: fullName.trim(),
+      email,
+      fullName,
       password: hashPassword,
       gender,
       terms,
-      role : 'user',
-      city: city.trim()
+      role: "user",
+      city
     });
 
     return res.status(statusCode.CREATED).json({
       success: true,
-      message: "User created successfully",
+      message: "User created successfully"
     });
+
   } catch (err) {
-    // Handle duplicate email race conditions
     if (err.code === 11000) {
       err.statusCode = statusCode.CONFLICT;
       err.message = "Email already exists";
     }
 
-    next(err);
+    return next(err);
   }
 };
 
